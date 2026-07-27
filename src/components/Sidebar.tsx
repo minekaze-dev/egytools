@@ -68,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Wifi className="w-5 h-5 stroke-[2.5]" />
               </div>
               <span className="text-lg font-black tracking-tighter text-slate-900 dark:text-white uppercase">
-                Egy<span className="text-blue-600">Tools</span>
+                Egy<span className="text-blue-600">ToolsOxy</span>
               </span>
             </div>
 
@@ -213,7 +213,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
           <div className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-400">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-            <span>EgyTools v.1.0</span>
+            <span>EgyToolsOxy v.1.0</span>
           </div>
           <p>© 2026</p>
         </div>

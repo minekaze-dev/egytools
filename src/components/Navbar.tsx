@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <div className="flex items-center gap-2">
               <h1 className="text-[16px] sm:text-[18px] font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                EgyTools: Revenue Control
+                EgyToolsOxy: Revenue Control
               </h1>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 hidden sm:block">

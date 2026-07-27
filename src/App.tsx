@@ -404,6 +404,7 @@ export default function App() {
                         onQuickAddClick={() => setIsQuickAddOpen(true)}
                         selectedMonthExternal={selectedMonth}
                         selectedYearExternal={selectedYear}
+                        isLoggedIn={!!user}
                       />
                     </div>
                   )}

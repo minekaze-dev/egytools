@@ -42,6 +42,7 @@ interface RevenueTableProps {
   onAddClickWithDate?: (dateIso: string) => void;
   selectedMonthExternal?: string;
   selectedYearExternal?: string;
+  isLoggedIn?: boolean;
 }
 
 const MONTH_NAMES = [
@@ -69,6 +70,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
   onAddClickWithDate,
   selectedMonthExternal,
   selectedYearExternal,
+  isLoggedIn = false,
 }) => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -529,34 +531,38 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
               </select>
             </div>
 
-            {/* Button: Buat Bulan Terlewat */}
-            <button
-              onClick={() => setIsMonthModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 rounded-lg shadow-2xs transition-all cursor-pointer shrink-0"
-              title="Buat atau pilih tabel untuk bulan yang terlewat"
-            >
-              <PlusCircle className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span>+ Buat / Pilih Bulan Terlewat</span>
-            </button>
+            {/* Button: Buat Bulan Terlewat (Only for logged in users) */}
+            {isLoggedIn && (
+              <button
+                onClick={() => setIsMonthModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 rounded-lg shadow-2xs transition-all cursor-pointer shrink-0"
+                title="Buat atau pilih tabel untuk bulan yang terlewat"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span>+ Buat / Pilih Bulan Terlewat</span>
+              </button>
+            )}
 
             {/* Export CSV */}
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               Export
             </button>
 
-            {/* Quick Add Button */}
-            <button
-              onClick={onQuickAddClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-xs transition-colors shrink-0"
-              title="Pembuatan cepat multiple data"
-            >
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              Quick Add
-            </button>
+            {/* Quick Add Button (Only for logged in users) */}
+            {isLoggedIn && (
+              <button
+                onClick={onQuickAddClick}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-xs transition-colors shrink-0 cursor-pointer"
+                title="Pembuatan cepat multiple data"
+              >
+                <Zap className="w-3.5 h-3.5 fill-current" />
+                Quick Add
+              </button>
+            )}
 
             {/* Add Customer Button */}
             <button

@@ -43,7 +43,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <div>
               <span className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-slate-100 tracking-tight block leading-tight">
-                EgyTools <span className="text-blue-600 dark:text-blue-400"> </span>
+                EgyToolsOxy <span className="text-blue-600 dark:text-blue-400"> </span>
               </span>
               <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                 ISP Revenue & Commission Management
@@ -143,10 +143,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="flex items-center gap-1.5">
             <Wifi className="w-3.5 h-3.5 text-blue-600" />
             <span className="font-bold text-slate-800 dark:text-slate-200">
-              EgyTools Revenue Control System
+              EgyToolsOxy Revenue Control System
             </span>
           </div>
-          <p>© {new Date().getFullYear()} EgyTools • 2026</p>
+          <p>© {new Date().getFullYear()} EgyToolsOxy • 2026</p>
         </div>
       </footer>
     </div>
