@@ -28,6 +28,7 @@ interface CustomerFormModalProps {
   onClose: () => void;
   onSubmit: (data: Omit<Customer, 'id' | 'createdAt' | 'packageName' | 'packagePrice'>) => void;
   initialData?: Customer | null;
+  defaultTanggalPasang?: string;
 }
 
 export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
@@ -35,6 +36,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   onClose,
   onSubmit,
   initialData,
+  defaultTanggalPasang,
 }) => {
   const {
     register,
@@ -51,13 +53,13 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       nomorHP: '',
       packageId: MASTER_PACKAGES[0].id,
       periode: '3 Bulan',
-      tanggalPasang: new Date().toISOString().split('T')[0],
+      tanggalPasang: defaultTanggalPasang || new Date().toISOString().split('T')[0],
       status: 'Aktif',
       catatan: '',
     },
   });
 
-  // Populate initialData when editing
+  // Populate initialData when editing or reset when adding
   useEffect(() => {
     if (initialData) {
       reset({
@@ -70,19 +72,19 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
         status: initialData.status as CustomerStatus,
         catatan: initialData.catatan || '',
       });
-    } else {
+    } else if (isOpen) {
       reset({
         namaPelanggan: '',
         nomorInternet: '',
         nomorHP: '',
         packageId: MASTER_PACKAGES[0].id,
         periode: '3 Bulan',
-        tanggalPasang: new Date().toISOString().split('T')[0],
+        tanggalPasang: defaultTanggalPasang || new Date().toISOString().split('T')[0],
         status: 'Aktif',
         catatan: '',
       });
     }
-  }, [initialData, reset, isOpen]);
+  }, [initialData, reset, isOpen, defaultTanggalPasang]);
 
   const selectedPackageId = watch('packageId');
   const selectedPeriode = watch('periode');

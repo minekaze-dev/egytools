@@ -26,6 +26,10 @@ import {
   Plus,
   Calendar,
   Zap,
+  PlusCircle,
+  X,
+  CalendarDays,
+  Sparkles,
 } from 'lucide-react';
 
 interface RevenueTableProps {
@@ -35,6 +39,9 @@ interface RevenueTableProps {
   onDelete: (id: string) => void;
   onAddClick: () => void;
   onQuickAddClick: () => void;
+  onAddClickWithDate?: (dateIso: string) => void;
+  selectedMonthExternal?: string;
+  selectedYearExternal?: string;
 }
 
 const MONTH_NAMES = [
@@ -59,13 +66,32 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
   onDelete,
   onAddClick,
   onQuickAddClick,
+  onAddClickWithDate,
+  selectedMonthExternal,
+  selectedYearExternal,
 }) => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [monthFilter, setMonthFilter] = useState<string>('ALL');
+  const [yearFilter, setYearFilter] = useState<string>('ALL');
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Filtered data by status & month if active
+  // Modal for creating/selecting a skipped month
+  const [isMonthModalOpen, setIsMonthModalOpen] = useState(false);
+  const [modalSelectedMonth, setModalSelectedMonth] = useState<string>(new Date().getMonth().toString());
+  const [modalSelectedYear, setModalSelectedYear] = useState<string>(new Date().getFullYear().toString());
+
+  // React to external month/year selection if passed from parent
+  React.useEffect(() => {
+    if (selectedMonthExternal !== undefined) {
+      setMonthFilter(selectedMonthExternal);
+    }
+    if (selectedYearExternal !== undefined) {
+      setYearFilter(selectedYearExternal);
+    }
+  }, [selectedMonthExternal, selectedYearExternal]);
+
+  // Filtered data by status, month, year
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       // 1. Status Filter
@@ -83,12 +109,24 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
         if (item.tanggalPasang && item.tanggalPasang !== '-') {
           const itemMonth = new Date(item.tanggalPasang).getMonth();
           if (itemMonth !== targetMonth) return false;
+        } else {
+          return false;
+        }
+      }
+
+      // 3. Year Filter
+      if (yearFilter !== 'ALL') {
+        if (item.tanggalPasang && item.tanggalPasang !== '-') {
+          const itemYear = new Date(item.tanggalPasang).getFullYear().toString();
+          if (itemYear !== yearFilter) return false;
+        } else {
+          return false;
         }
       }
 
       return true;
     });
-  }, [data, statusFilter, monthFilter]);
+  }, [data, statusFilter, monthFilter, yearFilter]);
 
   // Calculate totals for bottom summary row
   const totals = useMemo(() => {
@@ -491,6 +529,16 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
               </select>
             </div>
 
+            {/* Button: Buat Bulan Terlewat */}
+            <button
+              onClick={() => setIsMonthModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 rounded-lg shadow-2xs transition-all cursor-pointer shrink-0"
+              title="Buat atau pilih tabel untuk bulan yang terlewat"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>+ Buat / Pilih Bulan Terlewat</span>
+            </button>
+
             {/* Export CSV */}
             <button
               onClick={handleExportCSV}
@@ -569,9 +617,48 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="text-center py-8 text-slate-400 dark:text-slate-500 text-[11px]"
+                    className="text-center py-10 px-4 text-slate-400 dark:text-slate-500 text-[11px]"
                   >
-                    Tidak ada data pelanggan yang sesuai dengan filter.
+                    <div className="max-w-md mx-auto space-y-3">
+                      <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
+                        <CalendarDays className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs sm:text-sm">
+                          Tabel Revenue {monthFilter !== 'ALL' ? MONTH_NAMES[parseInt(monthFilter, 10)] || '' : ''} {yearFilter !== 'ALL' ? yearFilter : ''} Masih Kosong
+                        </h4>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                          Belum ada entri pelanggan untuk periode ini. Anda dapat mulai menambahkan transaksi baru.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                        <button
+                          onClick={() => {
+                            const mStr = monthFilter !== 'ALL' ? String(Number(monthFilter) + 1).padStart(2, '0') : '01';
+                            const yStr = yearFilter !== 'ALL' ? yearFilter : new Date().getFullYear().toString();
+                            const dateIso = `${yStr}-${mStr}-01`;
+                            if (onAddClickWithDate) {
+                              onAddClickWithDate(dateIso);
+                            } else {
+                              onAddClick();
+                            }
+                          }}
+                          className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>+ Tambah Data di Bulan Ini</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setMonthFilter('ALL');
+                            setYearFilter('ALL');
+                          }}
+                          className="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                        >
+                          Tampilkan Semua Bulan
+                        </button>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -653,6 +740,94 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Modal: Buat / Pilih Bulan Terlewat */}
+      {isMonthModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <CalendarDays className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
+                    Buat / Pilih Bulan Terlewat
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Pilih periode bulan dan tahun untuk membuka atau mengisi tabel revenue.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMonthModalOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  Pilih Bulan Terlewat:
+                </label>
+                <select
+                  value={modalSelectedMonth}
+                  onChange={(e) => setModalSelectedMonth(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {MONTH_NAMES.map((m, idx) => (
+                    <option key={idx} value={idx.toString()}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  Pilih Tahun:
+                </label>
+                <select
+                  value={modalSelectedYear}
+                  onChange={(e) => setModalSelectedYear(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {['2024', '2025', '2026', '2027', '2028'].map((y) => (
+                    <option key={y} value={y}>
+                      Tahun {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 text-blue-800 dark:text-blue-300 text-[11px] leading-relaxed">
+                Akan menampilkan tabel revenue khusus bulan <strong>{MONTH_NAMES[parseInt(modalSelectedMonth, 10)]} {modalSelectedYear}</strong>. Jika belum ada transaksi di bulan tersebut, Anda dapat langsung menambahkannya.
+              </div>
+            </div>
+
+            <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setIsMonthModalOpen(false)}
+                className="px-3.5 py-2 text-[12px] font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setMonthFilter(modalSelectedMonth);
+                  setYearFilter(modalSelectedYear);
+                  setIsMonthModalOpen(false);
+                }}
+                className="px-4 py-2 text-[12px] font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all cursor-pointer"
+              >
+                Buka / Buat Tabel Bulan Ini
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

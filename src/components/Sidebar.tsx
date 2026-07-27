@@ -9,12 +9,13 @@ import {
   ShieldCheck, 
   X,
   Wifi,
-  ArrowLeft
+  ArrowLeft,
+  FileText
 } from 'lucide-react';
 import { formatRupiah } from '../helpers/currency';
 import { GlobalStats } from '../types/customer';
 
-export type ActiveTab = 'revenue' | 'revenue_analytics' | 'revenue_table';
+export type ActiveTab = 'revenue' | 'revenue_analytics' | 'revenue_table' | 'reports';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -152,6 +153,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 activeTab === 'revenue_table' ? 'bg-white/20 text-white' : 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
               }`}>
                 {stats.totalClosing}
+              </span>
+            </button>
+
+            {/* Item 3: Laporan Bulanan (Report) */}
+            <button
+              onClick={() => {
+                onSelectTab('reports');
+                if (window.innerWidth < 1024) onToggleOpen();
+              }}
+              className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-all duration-150 group ${
+                activeTab === 'reports'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 font-semibold'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <FileText
+                  className={`w-4 h-4 shrink-0 transition-colors ${
+                    activeTab === 'reports'
+                      ? 'text-white'
+                      : 'text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                  }`}
+                />
+                <div className="truncate">
+                  <div className="text-[12px] leading-tight truncate">Laporan Bulanan</div>
+                  <div
+                    className={`text-[10px] truncate ${
+                      activeTab === 'reports' ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+                    }`}
+                  >
+                    Rekap Revenue & SA
+                  </div>
+                </div>
+              </div>
+              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                activeTab === 'reports' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+              }`}>
+                Report
               </span>
             </button>
           </nav>

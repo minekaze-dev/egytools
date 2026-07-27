@@ -15,6 +15,7 @@ import { QuickAddModal } from './components/QuickAddModal';
 import { AuthModal } from './components/AuthModal';
 import { SupabaseSqlModal } from './components/SupabaseSqlModal';
 import { LandingPage } from './components/LandingPage';
+import { MonthlyReportView } from './components/MonthlyReportView';
 
 import { getPackageById } from './data/packages';
 import { AlertTriangle } from 'lucide-react';
@@ -31,6 +32,9 @@ export default function App() {
   // Modals for Auth & SQL
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
+
+  // Date prefill for customer form when creating skipped months
+  const [defaultTanggalPasang, setDefaultTanggalPasang] = useState<string>('');
 
   // 1. Dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -131,11 +135,40 @@ export default function App() {
     }
   }, [customers, isLoading, user]);
 
-  // Logout Handler
+  // Logout Handler & Strict Session Invalidation
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setCustomers([]);
+    localStorage.removeItem('isp_crm_customers');
+    setIsLandingPage(true);
+    // Overwrite browser history state to prevent viewing cached data via browser Back button
+    window.history.replaceState(null, '', window.location.href);
   };
+
+  // Prevent back-button data leak after logout
+  useEffect(() => {
+    const checkSessionAndClear = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setUser(null);
+        setCustomers([]);
+        localStorage.removeItem('isp_crm_customers');
+        setIsLandingPage(true);
+      }
+    };
+
+    const handlePopState = () => {
+      checkSessionAndClear();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('pageshow', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('pageshow', handlePopState);
+    };
+  }, []);
 
   // Helper function to sync DB mutation to Supabase if logged in
   const syncToSupabase = async (customer: Customer, isDelete = false) => {
@@ -360,12 +393,27 @@ export default function App() {
                         onDelete={(id) => setDeletingCustomer(id)}
                         onAddClick={() => {
                           setEditingCustomer(null);
+                          setDefaultTanggalPasang('');
+                          setIsFormOpen(true);
+                        }}
+                        onAddClickWithDate={(dateIso) => {
+                          setEditingCustomer(null);
+                          setDefaultTanggalPasang(dateIso);
                           setIsFormOpen(true);
                         }}
                         onQuickAddClick={() => setIsQuickAddOpen(true)}
+                        selectedMonthExternal={selectedMonth}
+                        selectedYearExternal={selectedYear}
                       />
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* TAB 2: MONTHLY REVENUE & SA REPORT */}
+              {activeTab === 'reports' && (
+                <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
+                  <MonthlyReportView customers={customers} />
                 </div>
               )}
             </div>
@@ -379,9 +427,11 @@ export default function App() {
         onClose={() => {
           setIsFormOpen(false);
           setEditingCustomer(null);
+          setDefaultTanggalPasang('');
         }}
         onSubmit={handleFormSubmit}
         initialData={editingCustomer}
+        defaultTanggalPasang={defaultTanggalPasang}
       />
 
       <QuickAddModal
