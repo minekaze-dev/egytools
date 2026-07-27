@@ -8,7 +8,8 @@ import {
   Table,
   ShieldCheck, 
   X,
-  Wifi
+  Wifi,
+  ArrowLeft
 } from 'lucide-react';
 import { formatRupiah } from '../helpers/currency';
 import { GlobalStats } from '../types/customer';
@@ -21,6 +22,7 @@ interface SidebarProps {
   isOpen: boolean;
   onToggleOpen: () => void;
   stats: GlobalStats;
+  onOpenLanding?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -29,6 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onToggleOpen,
   stats,
+  onOpenLanding,
 }) => {
   const isRevenueActive = activeTab === 'revenue' || activeTab === 'revenue_analytics' || activeTab === 'revenue_table';
   const [isRevenueExpanded, setIsRevenueExpanded] = React.useState<boolean>(true);
@@ -155,7 +158,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Footer info inside sidebar */}
-        <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 dark:text-slate-500 space-y-1">
+        <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 dark:text-slate-500 space-y-2">
+          {onOpenLanding && (
+            <button
+              onClick={() => {
+                onOpenLanding();
+                if (window.innerWidth < 1024) onToggleOpen();
+              }}
+              className="w-full py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[11px] flex items-center justify-center gap-2 transition-all shadow-2xs group cursor-pointer"
+              title="Kembali ke Halaman Depan / Landing Page"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Keluar ke Landing Page</span>
+            </button>
+          )}
           <div className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-400">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
             <span>EgyTools v.1.0</span>

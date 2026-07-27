@@ -14,6 +14,7 @@ import { CustomerDetailModal } from './components/CustomerDetailModal';
 import { QuickAddModal } from './components/QuickAddModal';
 import { AuthModal } from './components/AuthModal';
 import { SupabaseSqlModal } from './components/SupabaseSqlModal';
+import { LandingPage } from './components/LandingPage';
 
 import { getPackageById } from './data/packages';
 import { AlertTriangle } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function App() {
   // 0. Navigation & Auth State
   const [activeTab, setActiveTab] = useState<ActiveTab>('revenue_analytics');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLandingPage, setIsLandingPage] = useState<boolean>(true);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -271,6 +273,29 @@ export default function App() {
     }
   };
 
+  if (isLandingPage) {
+    return (
+      <>
+        <LandingPage
+          onEnterApp={() => setIsLandingPage(false)}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          user={user}
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(!darkMode)}
+        />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onSuccess={() => setIsLandingPage(false)}
+        />
+        <SupabaseSqlModal
+          isOpen={isSqlModalOpen}
+          onClose={() => setIsSqlModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#020617] text-slate-900 dark:text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white flex flex-row transition-colors duration-200">
       {/* Sidebar Menu */}
@@ -280,6 +305,7 @@ export default function App() {
         isOpen={isSidebarOpen}
         onToggleOpen={() => setIsSidebarOpen(!isSidebarOpen)}
         stats={stats}
+        onOpenLanding={() => setIsLandingPage(true)}
       />
 
       {/* Main Content Body */}
@@ -298,6 +324,7 @@ export default function App() {
           user={user}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onOpenSqlModal={() => setIsSqlModalOpen(true)}
+          onOpenLanding={() => setIsLandingPage(true)}
           onLogout={handleLogout}
         />
 

@@ -15,6 +15,7 @@ interface NavbarProps {
   isLanding?: boolean;
   onOpenAuth: () => void;
   onOpenSqlModal?: () => void;
+  onOpenLanding?: () => void;
   onLogout: () => void;
 }
 
@@ -32,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   isLanding,
   onOpenAuth,
   onOpenSqlModal,
+  onOpenLanding,
   onLogout,
 }) => {
   const userDisplayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
@@ -50,12 +52,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Menu className="w-5 h-5" />
             </button>
           )}
-          <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs shrink-0">
+          <div
+            onClick={onOpenLanding}
+            className={`w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs shrink-0 ${
+              onOpenLanding ? 'cursor-pointer hover:bg-blue-700 transition-colors' : ''
+            }`}
+            title="Ke Landing Page"
+          >
             <Wifi className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <div>
+          <div
+            onClick={onOpenLanding}
+            className={onOpenLanding ? 'cursor-pointer group' : ''}
+          >
             <div className="flex items-center gap-2">
-              <h1 className="text-[16px] sm:text-[18px] font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-none">
+              <h1 className="text-[16px] sm:text-[18px] font-bold tracking-tight text-slate-900 dark:text-slate-100 leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 EgyTools: Revenue Control
               </h1>
             </div>
