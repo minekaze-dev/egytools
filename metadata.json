@@ -1,0 +1,8 @@
+{
+  "name": "EgyTools",
+  "description": "Aplikasi khusus monitoring Revenue, Tier Sales, dan perhitungan Komisi Sales secara otomatis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
