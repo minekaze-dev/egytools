@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html {
+  font-size: 14px; /* Slightly zoomed out compact scale for dashboard density */
+}
+
 /* Custom Scrollbar styling matching light and dark themes */
 ::-webkit-scrollbar {
   height: 6px;

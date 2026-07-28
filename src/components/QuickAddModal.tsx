@@ -71,16 +71,16 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
           transition={{ duration: 0.15 }}
-          className="relative w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-[16px] shadow-2xl overflow-hidden my-8"
+          className="relative w-full max-w-md bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 rounded-none shadow-2xl overflow-hidden my-8"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-b border-slate-200/80 dark:border-slate-800">
+          <div className="flex items-center justify-between px-5 py-4 bg-slate-50/80 dark:bg-slate-900/80 border-b-2 border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+              <div className="p-2 rounded-none bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-slate-900 dark:text-slate-100 leading-tight">
+                <h3 className="font-extrabold text-[15px] text-slate-900 dark:text-slate-100 uppercase tracking-wide">
                   Pembuatan Cepat (Quick Add)
                 </h3>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -90,7 +90,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg transition-colors"
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-none border border-slate-200 dark:border-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -100,13 +100,13 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
           <form onSubmit={handleSubmit} className="p-5 space-y-4 text-[12px]">
             {/* 1. Pilih Paket */}
             <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                 Pilih Paket ISP <span className="text-rose-500">*</span>
               </label>
               <select
                 value={packageId}
                 onChange={(e) => setPackageId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 uppercase"
               >
                 {MASTER_PACKAGES.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
@@ -119,7 +119,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
             {/* 2. Jumlah / Qty & Periode */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Jumlah (Qty) <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
@@ -129,23 +129,23 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                     max={100}
                     value={qty}
                     onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500"
                     placeholder="1"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-medium pointer-events-none">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px] font-bold uppercase pointer-events-none">
                     Data
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Periode Langganan <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={periode}
                   onChange={(e) => setPeriode(e.target.value as BillingPeriod)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 uppercase"
                 >
                   <option value="Bulanan">Bulanan</option>
                   <option value="3 Bulan">3 Bulan (PPN 10%)</option>
@@ -157,13 +157,13 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
 
             {/* 3. Status */}
             <div>
-              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                 Status Data <span className="text-rose-500">*</span>
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as CustomerStatus)}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-medium text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 uppercase"
               >
                 <option value="Aktif">Aktif (Masuk Revenue & Komisi)</option>
                 <option value="Refund">Refund (Pengurangan Revenue)</option>
@@ -172,29 +172,29 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
             </div>
 
             {/* Live Calculation Preview Card */}
-            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-200/60 dark:border-slate-800 pb-1.5">
+            <div className="p-3.5 rounded-none bg-slate-50 dark:bg-slate-900/90 border-2 border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-1.5 uppercase">
                 <span className="flex items-center gap-1">
                   <Calculator className="w-3.5 h-3.5 text-amber-500" /> Estimasi Per
                   Record:
                 </span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">
                   Net Rev: {formatRupiah(revenuePreview.monthlyNetRevenue)}/bln
                 </span>
               </div>
 
               <div className="flex justify-between items-center text-[12px] pt-0.5">
-                <span className="text-slate-600 dark:text-slate-400 font-medium">
+                <span className="text-slate-600 dark:text-slate-400 font-bold uppercase">
                   Total {qty} Record Net Revenue:
                 </span>
-                <span className="text-[14px] font-extrabold text-amber-600 dark:text-amber-400">
+                <span className="text-[14px] font-black text-amber-600 dark:text-amber-400">
                   {formatRupiah(revenuePreview.monthlyNetRevenue * qty)}/bln
                 </span>
               </div>
             </div>
 
             {/* Info Box */}
-            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900/50 text-[11px] text-amber-800 dark:text-amber-300">
+            <div className="flex items-start gap-2 p-2.5 rounded-none bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-200 dark:border-amber-900 text-[11px] text-amber-800 dark:text-amber-300">
               <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
               <span>
                 Nama Pelanggan, Nomor HP, dan Tanggal Aktif akan diset sebagai{' '}
@@ -203,17 +203,17 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-2 border-t-2 border-slate-200 dark:border-slate-800">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                className="px-4 py-2 font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-none border-2 border-slate-300 dark:border-slate-700 transition-colors uppercase cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 px-4 py-2 font-semibold bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 font-extrabold bg-amber-500 hover:bg-amber-600 text-white rounded-none border-2 border-amber-600 transition-colors uppercase cursor-pointer"
               >
                 <Zap className="w-4 h-4 fill-current" />
                 Simpan {qty} Data

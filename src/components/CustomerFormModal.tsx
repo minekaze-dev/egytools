@@ -131,22 +131,22 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}
-          className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-[12px] max-w-2xl w-full shadow-2xl overflow-hidden my-8"
+          className="bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 rounded-none max-w-2xl w-full shadow-2xl overflow-hidden my-8"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+              <div className="p-1.5 rounded-none bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
                 <UserPlus className="w-4 h-4" />
               </div>
-              <h3 className="text-[15px] font-bold text-slate-900 dark:text-slate-100">
+              <h3 className="text-[15px] font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">
                 {initialData ? 'Edit Data Pelanggan' : 'Tambah Pelanggan Baru'}
               </h3>
             </div>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              className="p-1.5 rounded-none hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors border border-slate-200 dark:border-slate-800"
             >
               <X className="w-4 h-4" />
             </button>
@@ -156,14 +156,14 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-[12px]">
               {/* Nama Pelanggan */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Nama Pelanggan <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Contoh: PT Solusi Tekno Nusantara"
                   {...register('namaPelanggan')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100"
                 />
                 {errors.namaPelanggan && (
                   <p className="text-rose-500 text-[11px] mt-0.5">
@@ -174,50 +174,50 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 
               {/* ID Pelanggan */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   ID Pelanggan <span className="text-slate-400 font-normal text-[11px]">(Opsional)</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Contoh: 1008273641"
                   {...register('nomorInternet')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100"
                 />
               </div>
 
               {/* Nomor HP */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Nomor Telepon / HP <span className="text-slate-400 font-normal text-[11px]">(Opsional)</span>
                 </label>
                 <input
                   type="text"
                   placeholder="081234567890"
                   {...register('nomorHP')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100"
                 />
               </div>
 
               {/* Tanggal Pasang */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Tanggal Pasang <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="date"
                   {...register('tanggalPasang')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100 font-bold"
                 />
               </div>
 
               {/* Paket Dropdown */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Paket <span className="text-rose-500">*</span>
                 </label>
                 <select
                   {...register('packageId')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100 font-bold"
                 >
                   {MASTER_PACKAGES.map((pkg) => (
                     <option key={pkg.id} value={pkg.id}>
@@ -229,13 +229,13 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 
               {/* Periode Dropdown */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Periode Langganan <span className="text-rose-500">*</span>
                 </label>
                 <select
                   {...register('periode')}
                   disabled={isPromo277}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:opacity-80 cursor-pointer disabled:cursor-not-allowed"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100 font-bold disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:opacity-80 cursor-pointer disabled:cursor-not-allowed uppercase"
                 >
                   {BILLING_PERIODS.filter((p) => !isPromo277 || p.value === 'Bulanan').map((p) => (
                     <option key={p.value} value={p.value}>
@@ -252,12 +252,12 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 
               {/* Status */}
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Status <span className="text-rose-500">*</span>
                 </label>
                 <select
                   {...register('status')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100 font-semibold"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100 font-bold uppercase"
                 >
                   <option value="Aktif">Aktif (Masuk Revenue & Komisi)</option>
                   <option value="Refund">Refund (Pengurangan Revenue)</option>
@@ -267,33 +267,33 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 
               {/* Catatan */}
               <div className="md:col-span-2">
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                   Catatan Tambahan
                 </label>
                 <input
                   type="text"
                   placeholder="Catatan pendaftaran / keterangan lokasi..."
                   {...register('catatan')}
-                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:text-slate-100"
+                  className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100"
                 />
               </div>
             </div>
 
             {/* AUTOMATIC CALCULATION LIVE PREVIEW */}
-            <div className="p-3.5 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40 text-[11px] space-y-2">
-              <div className="flex items-center justify-between text-blue-900 dark:text-blue-300 font-semibold border-b pb-1.5 border-blue-200/60 dark:border-blue-900/50">
+            <div className="p-3.5 rounded-none bg-blue-50/70 dark:bg-blue-950/30 border-2 border-blue-200 dark:border-blue-900 text-[11px] space-y-2">
+              <div className="flex items-center justify-between text-blue-900 dark:text-blue-300 font-extrabold border-b pb-1.5 border-blue-200 dark:border-blue-900 uppercase">
                 <span className="flex items-center gap-1.5">
                   <Calculator className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                   Kalkulasi Otomatis Sistem
                 </span>
-                <span className="text-[10px] bg-blue-200/70 dark:bg-blue-800/60 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded font-mono">
+                <span className="text-[10px] bg-blue-200/80 dark:bg-blue-800 text-blue-900 dark:text-blue-200 px-1.5 py-0.5 rounded-none font-mono">
                   Dihitung Otomatis
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-700 dark:text-slate-300">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400 block text-[10px]">
+                  <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-semibold">
                     Gross Contract
                   </span>
                   <span className="font-bold text-slate-900 dark:text-slate-100">
@@ -301,18 +301,18 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400 block text-[10px]">
+                  <span className="text-slate-500 dark:text-slate-400 block text-[10px] uppercase font-semibold">
                     PPN (11%)
                   </span>
                   <span className="font-bold text-slate-900 dark:text-slate-100">
                     {formatRupiah(liveCalculated.ppn)}
                   </span>
                 </div>
-                <div className="p-1 rounded bg-emerald-100/80 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-800/60">
-                  <span className="text-emerald-700 dark:text-emerald-400 block text-[10px] font-medium">
+                <div className="p-1.5 rounded-none bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                  <span className="text-emerald-800 dark:text-emerald-400 block text-[10px] font-bold uppercase">
                     Net Revenue
                   </span>
-                  <span className="font-extrabold text-emerald-800 dark:text-emerald-300 text-[12px]">
+                  <span className="font-black text-emerald-800 dark:text-emerald-300 text-[12px]">
                     {formatRupiah(liveCalculated.monthlyNetRevenue)}
                   </span>
                 </div>
@@ -320,17 +320,17 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t-2 border-slate-200 dark:border-slate-800">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3.5 py-1.5 text-[12px] font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
+                className="px-3.5 py-1.5 text-[12px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-none border-2 border-slate-300 dark:border-slate-700 transition-colors uppercase cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-xs transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[12px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-none border-2 border-blue-700 transition-colors uppercase cursor-pointer"
               >
                 <Save className="w-3.5 h-3.5" />
                 {initialData ? 'Simpan Perubahan' : 'Tambah Pelanggan'}

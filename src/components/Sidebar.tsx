@@ -56,26 +56,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-white dark:bg-[#0B132B] border-r border-slate-200 dark:border-slate-800/80 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
+        className={`fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-white dark:bg-[#0B132B] border-r-2 border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Top Header / Branding */}
         <div>
-          <div className="h-16 px-4 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg">
+          <div className="h-16 px-4 flex items-center justify-between border-b-2 border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-none bg-blue-600 flex items-center justify-center text-white border-2 border-blue-700">
                 <Wifi className="w-5 h-5 stroke-[2.5]" />
               </div>
-              <span className="text-lg font-black tracking-tighter text-slate-900 dark:text-white uppercase">
-                Egy<span className="text-blue-600">ToolsOxy</span>
+              <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">
+                Oxy<span className="text-blue-600">Mod</span>
               </span>
             </div>
 
             {/* Mobile close button */}
             <button
               onClick={onToggleOpen}
-              className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+              className="lg:hidden p-2 rounded-none hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 border border-slate-300 dark:border-slate-700"
             >
               <X className="w-5 h-5" />
             </button>
@@ -84,17 +84,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation Items */}
         <div className="flex-1 overflow-y-auto">
-          <nav className="p-3 space-y-1">
+          <nav className="p-3.5 space-y-2">
             {/* Item 1: Dashboard (Grafik & Statistik) */}
             <button
               onClick={() => {
                 onSelectTab('revenue_analytics');
                 if (window.innerWidth < 1024) onToggleOpen();
               }}
-              className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-all duration-150 group ${
+              className={`w-full text-left px-3.5 py-3 rounded-none flex items-center justify-between transition-all duration-150 group cursor-pointer border-2 ${
                 activeTab === 'revenue_analytics' || activeTab === 'revenue'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 font-semibold'
-                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium'
+                  ? 'bg-blue-600 text-white border-blue-700 font-bold'
+                  : 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -102,14 +102,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={`w-4 h-4 shrink-0 transition-colors ${
                     activeTab === 'revenue_analytics' || activeTab === 'revenue'
                       ? 'text-white'
-                      : 'text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      : 'text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
                   }`}
                 />
                 <div className="truncate">
-                  <div className="text-[12px] leading-tight truncate">Dashboard</div>
+                  <div className="text-sm font-extrabold leading-tight truncate uppercase">Dashboard</div>
                   <div
-                    className={`text-[10px] truncate ${
-                      activeTab === 'revenue_analytics' || activeTab === 'revenue' ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+                    className={`text-xs mt-0.5 truncate ${
+                      activeTab === 'revenue_analytics' || activeTab === 'revenue' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     Grafik & Statistik
@@ -124,10 +124,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onSelectTab('revenue_table');
                 if (window.innerWidth < 1024) onToggleOpen();
               }}
-              className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-all duration-150 group ${
+              className={`w-full text-left px-3.5 py-3 rounded-none flex items-center justify-between transition-all duration-150 group cursor-pointer border-2 ${
                 activeTab === 'revenue_table'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 font-semibold'
-                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium'
+                  ? 'bg-blue-600 text-white border-blue-700 font-bold'
+                  : 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -135,22 +135,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={`w-4 h-4 shrink-0 transition-colors ${
                     activeTab === 'revenue_table'
                       ? 'text-white'
-                      : 'text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      : 'text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
                   }`}
                 />
                 <div className="truncate">
-                  <div className="text-[12px] leading-tight truncate">Revenue</div>
+                  <div className="text-sm font-extrabold leading-tight truncate uppercase">Revenue</div>
                   <div
-                    className={`text-[10px] truncate ${
-                      activeTab === 'revenue_table' ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+                    className={`text-xs mt-0.5 truncate ${
+                      activeTab === 'revenue_table' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     Tabel Revenue
                   </div>
                 </div>
               </div>
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'revenue_table' ? 'bg-white/20 text-white' : 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+              <span className={`text-xs px-2 py-0.5 rounded-none font-bold border ${
+                activeTab === 'revenue_table' ? 'bg-white/20 border-white/40 text-white' : 'bg-blue-50 dark:bg-blue-900/60 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
               }`}>
                 {stats.totalClosing}
               </span>
@@ -162,10 +162,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onSelectTab('reports');
                 if (window.innerWidth < 1024) onToggleOpen();
               }}
-              className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-all duration-150 group ${
+              className={`w-full text-left px-3.5 py-3 rounded-none flex items-center justify-between transition-all duration-150 group cursor-pointer border-2 ${
                 activeTab === 'reports'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 font-semibold'
-                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium'
+                  ? 'bg-blue-600 text-white border-blue-700 font-bold'
+                  : 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -173,22 +173,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={`w-4 h-4 shrink-0 transition-colors ${
                     activeTab === 'reports'
                       ? 'text-white'
-                      : 'text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      : 'text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
                   }`}
                 />
                 <div className="truncate">
-                  <div className="text-[12px] leading-tight truncate">Laporan Bulanan</div>
+                  <div className="text-sm font-extrabold leading-tight truncate uppercase">Report</div>
                   <div
-                    className={`text-[10px] truncate ${
-                      activeTab === 'reports' ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'
+                    className={`text-xs mt-0.5 truncate ${
+                      activeTab === 'reports' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     Rekap Revenue & SA
                   </div>
                 </div>
               </div>
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
-                activeTab === 'reports' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+              <span className={`text-xs px-2 py-0.5 rounded-none font-bold uppercase border ${
+                activeTab === 'reports' ? 'bg-white/20 border-white/40 text-white' : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
               }`}>
                 Report
               </span>
@@ -197,23 +197,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Footer info inside sidebar */}
-        <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 dark:text-slate-500 space-y-2">
+        <div className="p-4 border-t-2 border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-2.5">
           {onOpenLanding && (
             <button
               onClick={() => {
                 onOpenLanding();
                 if (window.innerWidth < 1024) onToggleOpen();
               }}
-              className="w-full py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[11px] flex items-center justify-center gap-2 transition-all shadow-2xs group cursor-pointer"
+              className="w-full py-2.5 px-3 rounded-none border-2 border-slate-300 dark:border-slate-700 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all group cursor-pointer uppercase"
               title="Kembali ke Halaman Depan / Landing Page"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Keluar ke Landing Page</span>
+              <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Keluar</span>
             </button>
           )}
-          <div className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-            <span>EgyToolsOxy v.1.0</span>
+          <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 uppercase">
+            <ShieldCheck className="w-4 h-4 text-blue-500" />
+            <span>OxyMod v.1.0</span>
           </div>
           <p>© 2026</p>
         </div>

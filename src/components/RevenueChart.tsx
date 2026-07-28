@@ -101,25 +101,25 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-4 rounded-[12px] bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800 shadow-xs lg:col-span-2 flex flex-col justify-between"
+        className="p-5 rounded-none bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 shadow-xs lg:col-span-2 flex flex-col justify-between"
       >
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
-              <TrendingUp className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-3 border-b-2 border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-none bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+              <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">
                 Tren Net Revenue & Komisi
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Perkembangan Net Revenue & Komisi per Bulan
               </p>
             </div>
           </div>
         </div>
 
-        <div className="h-[160px] w-full pt-4">
+        <div className="h-[210px] w-full pt-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 15, bottom: 0 }}>
               <defs>
@@ -134,12 +134,12 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
               </defs>
               <XAxis
                 dataKey="monthName"
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 12, fontWeight: 700 }}
                 stroke="#94A3B8"
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 11, fontWeight: 700 }}
                 stroke="#94A3B8"
                 tickLine={false}
                 tickFormatter={(v) => `Rp${(v / 1000000).toFixed(1)}M`}
@@ -148,12 +148,12 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-slate-900 text-white text-[11px] p-2.5 rounded-lg shadow-lg border border-slate-700 space-y-1">
-                        <div className="font-bold border-b border-slate-700 pb-1">{label}</div>
-                        <div className="text-emerald-400">
+                      <div className="bg-slate-900 text-white text-xs p-3 rounded-none shadow-2xl border-2 border-slate-700 space-y-1 font-mono">
+                        <div className="font-extrabold border-b border-slate-700 pb-1 uppercase">{label}</div>
+                        <div className="text-emerald-400 font-bold">
                           Net Revenue: {formatRupiah(payload[0].value as number)}
                         </div>
-                        <div className="text-indigo-400">
+                        <div className="text-indigo-400 font-bold">
                           Komisi: {formatRupiah(payload[1].value as number)}
                         </div>
                       </div>
@@ -169,7 +169,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
                 stroke="#10B981"
                 fillOpacity={1}
                 fill="url(#colorNet)"
-                strokeWidth={2}
+                strokeWidth={2.5}
               />
               <Area
                 type="monotone"
@@ -178,7 +178,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
                 stroke="#6366F1"
                 fillOpacity={1}
                 fill="url(#colorKomisi)"
-                strokeWidth={2}
+                strokeWidth={2.5}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -190,31 +190,31 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="p-4 rounded-[12px] bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between"
+        className="p-5 rounded-none bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between"
       >
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
-              <PieChartIcon className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-3 border-b-2 border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-none bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+              <PieChartIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-[13px] font-semibold text-slate-900 dark:text-slate-100">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 uppercase tracking-wide">
                 Status Pelanggan
               </h3>
-              <p className="text-[11px] text-slate-400">Distribusi Aktif vs Refund/Dismantle</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Distribusi Aktif vs Refund/Dismantle</p>
             </div>
           </div>
         </div>
 
-        <div className="h-[140px] w-full relative flex items-center justify-center">
+        <div className="h-[180px] w-full relative flex items-center justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={statusData}
                 cx="50%"
                 cy="50%"
-                innerRadius={48}
-                outerRadius={70}
+                innerRadius={52}
+                outerRadius={78}
                 paddingAngle={4}
                 dataKey="value"
               >
@@ -227,8 +227,8 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
                   if (active && payload && payload.length) {
                     const data = payload[0];
                     return (
-                      <div className="bg-slate-900 text-white text-[11px] p-2 rounded-md shadow-md border border-slate-700">
-                        <span className="font-bold">{data.name}:</span> {data.value} Pelanggan
+                      <div className="bg-slate-900 text-white text-xs p-2.5 rounded-none shadow-2xl border-2 border-slate-700 font-mono">
+                        <span className="font-extrabold uppercase">{data.name}:</span> {data.value} Pelanggan
                       </div>
                     );
                   }
@@ -240,10 +240,10 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
         </div>
 
         {/* Legend */}
-        <div className="flex justify-center items-center gap-4 text-[11px] text-slate-600 dark:text-slate-300 pt-1 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex justify-center items-center gap-4 text-xs font-bold text-slate-700 dark:text-slate-300 pt-2 border-t-2 border-slate-200 dark:border-slate-800 uppercase">
           {statusData.map((s) => (
-            <div key={s.name} className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+            <div key={s.name} className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-none border border-slate-400" style={{ backgroundColor: s.color }} />
               <span>
                 {s.name} ({s.value})
               </span>
