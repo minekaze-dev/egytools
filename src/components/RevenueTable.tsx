@@ -587,7 +587,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm rounded-none border-2 border-blue-700 transition-all flex items-center gap-1.5 cursor-pointer uppercase"
                         >
                           <Plus className="w-4 h-4" />
-                          <span>+ Tambah Data di Bulan Ini</span>
+                          <span>Tambah Data di Bulan Ini</span>
                         </button>
                         <button
                           onClick={() => {
