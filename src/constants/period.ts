@@ -16,7 +16,7 @@ export const BILLING_PERIODS: {
   },
   {
     value: '3 Bulan',
-    label: '3 Bulan (PPN 10%)',
+    label: '3 Bulan (Diskon 10%)',
     multiplier: 3,
     discountPercent: 10,
     monthsCount: 3,

@@ -147,10 +147,10 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
                   onChange={(e) => setPeriode(e.target.value as BillingPeriod)}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 uppercase"
                 >
-                  <option value="Bulanan">Bulanan</option>
-                  <option value="3 Bulan">3 Bulan (PPN 10%)</option>
-                  <option value="6 Bulan">6 Bulan (PPN 15%)</option>
-                  <option value="Tahunan">Tahunan (PPN 20%)</option>
+                  <option value="Bulanan">Bulanan (1 Bulan)</option>
+                  <option value="3 Bulan">3 Bulan (Diskon 10%)</option>
+                  <option value="6 Bulan">6 Bulan (Bayar 5 Bulan)</option>
+                  <option value="Tahunan">Tahunan (Bayar 10 Bulan)</option>
                 </select>
               </div>
             </div>

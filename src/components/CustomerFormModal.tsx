@@ -11,7 +11,7 @@ import { formatRupiah } from '../helpers/currency';
 import { X, Calculator, UserPlus, Save, AlertCircle } from 'lucide-react';
 
 const customerSchema = z.object({
-  namaPelanggan: z.string().min(1, 'Nama pelanggan wajib diisi'),
+  namaPelanggan: z.string().optional(),
   nomorInternet: z.string().optional(),
   nomorHP: z.string().optional(),
   packageId: z.string().min(1, 'Pilih paket internet'),
@@ -108,7 +108,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 
   const onFormSubmit = (data: CustomerFormValues) => {
     onSubmit({
-      namaPelanggan: data.namaPelanggan.trim(),
+      namaPelanggan: data.namaPelanggan?.trim() || '-',
       nomorInternet: data.nomorInternet || '-',
       nomorHP: data.nomorHP || '-',
       area: initialData?.area || 'General',
@@ -157,7 +157,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               {/* Nama Pelanggan */}
               <div>
                 <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
-                  Nama Pelanggan <span className="text-rose-500">*</span>
+                  Nama Pelanggan <span className="text-slate-400 font-normal text-[11px]">(Opsional)</span>
                 </label>
                 <input
                   type="text"
@@ -165,11 +165,6 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                   {...register('namaPelanggan')}
                   className="w-full px-3 py-1.5 text-[12px] bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-100"
                 />
-                {errors.namaPelanggan && (
-                  <p className="text-rose-500 text-[11px] mt-0.5">
-                    {errors.namaPelanggan.message}
-                  </p>
-                )}
               </div>
 
               {/* ID Pelanggan */}
