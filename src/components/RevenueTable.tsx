@@ -13,6 +13,7 @@ import { motion } from 'motion/react';
 import { CustomerWithCalculations, CustomerStatus } from '../types/customer';
 import { StatusBadge } from './StatusBadge';
 import { formatRupiah, formatPercent } from '../helpers/currency';
+import { getTierProgress } from '../helpers/tierCalculator';
 import {
   Search,
   ArrowUpDown,
@@ -30,6 +31,10 @@ import {
   X,
   CalendarDays,
   Sparkles,
+  Trophy,
+  Coins,
+  UserCheck,
+  DollarSign,
 } from 'lucide-react';
 
 interface RevenueTableProps {
@@ -129,6 +134,29 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
       return true;
     });
   }, [data, statusFilter, monthFilter, yearFilter]);
+
+  // Dynamic Tier & Commission Calculations for Filtered Data
+  const activeClosingCount = useMemo(() => {
+    return filteredData.filter((item) => item.status === 'Aktif').length;
+  }, [filteredData]);
+
+  const activeNetRevenue = useMemo(() => {
+    return filteredData
+      .filter((item) => item.status === 'Aktif')
+      .reduce((sum, item) => sum + item.monthlyNetRevenue, 0);
+  }, [filteredData]);
+
+  const tierProgress = useMemo(() => {
+    return getTierProgress(activeClosingCount, activeNetRevenue);
+  }, [activeClosingCount, activeNetRevenue]);
+
+  const { currentTier, nextTier, closingNeeded, revenueNeeded, isMaxTier } = tierProgress;
+
+  const totalKomisiEstimasi = useMemo(() => {
+    return filteredData
+      .filter((item) => item.status === 'Aktif')
+      .reduce((sum, item) => sum + item.estimasiKomisi, 0);
+  }, [filteredData]);
 
   // Calculate totals for bottom summary row
   const totals = useMemo(() => {
@@ -406,15 +434,111 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* Cards Summary Above Table: Total SA & Tier + Total Estimasi Komisi */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card 1: Total SA & Tier (Otomatis Berubah) */}
+        <div className="p-4 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 rounded-none shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between pb-2.5 border-b-2 border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-none">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide block">
+                  Total SA & Sales Tier
+                </span>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-xl font-black text-slate-900 dark:text-white leading-none">
+                    {activeClosingCount} <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">SA Aktif</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Auto-updating Tier Badge */}
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase mb-0.5">
+                TIER OTOMATIS
+              </span>
+              <span className="px-2.5 py-1 bg-blue-600 dark:bg-blue-500 text-white text-xs font-black rounded-none border-2 border-blue-700 dark:border-blue-400 uppercase flex items-center gap-1.5 shadow-xs">
+                <Trophy className="w-3.5 h-3.5 fill-current text-amber-300" />
+                {currentTier.name} ({currentTier.inc1Percent}% INC1)
+              </span>
+            </div>
+          </div>
+
+          <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 flex flex-wrap items-center justify-between gap-1">
+            <span>
+              Net Rev: <strong className="text-slate-900 dark:text-slate-100">{formatRupiah(activeNetRevenue)}</strong>
+            </span>
+            {isMaxTier ? (
+              <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase">
+                ★ Tier Maksimal (Tier 3)
+              </span>
+            ) : (
+              <span className="text-amber-600 dark:text-amber-400 font-extrabold uppercase">
+                {closingNeeded > 0 ? `Butuh +${closingNeeded} SA` : ''} {revenueNeeded > 0 ? `& +${formatRupiah(revenueNeeded)}` : ''} ke {nextTier?.name}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Card 2: Total Estimasi Komisi */}
+        <div className="p-4 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 rounded-none shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between pb-2.5 border-b-2 border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-none">
+                <Coins className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wide block">
+                  Total Estimasi Komisi
+                </span>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 leading-none">
+                    {formatRupiah(totalKomisiEstimasi)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-2.5 py-1 bg-emerald-100/80 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-2 border-emerald-300 dark:border-emerald-800 text-[11px] font-extrabold uppercase">
+              {currentTier.inc1Percent}% dari Net Revenue
+            </div>
+          </div>
+
+          <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+            <span>Kalkulasi Komisi Sales berdasarkan Tier {currentTier.name} ({currentTier.inc1Percent}%)</span>
+            <span className="text-slate-700 dark:text-slate-300 font-extrabold uppercase">
+              {filteredData.length} Total Data
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Main Table Container */}
       <div className="bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 rounded-none shadow-xs p-5 space-y-4">
         {/* Table Toolbar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-          {/* Left: Total records badge */}
+          {/* Left: Total records badge & Rows per page selector */}
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-none border-2 border-slate-300 dark:border-slate-700 uppercase tracking-wide">
               {filteredData.length} Data Revenue
             </span>
+
+            {/* Page size dropdown (10, 50, 100) */}
+            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-2.5 py-1.5">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">Baris:</span>
+              <select
+                value={table.getState().pagination.pageSize}
+                onChange={(e) => table.setPageSize(Number(e.target.value))}
+                className="bg-transparent text-xs sm:text-sm text-slate-700 dark:text-slate-300 focus:outline-hidden cursor-pointer font-bold uppercase"
+              >
+                <option value={10}>10 Data</option>
+                <option value={50}>50 Data</option>
+                <option value={100}>100 Data (Maks)</option>
+              </select>
+            </div>
           </div>
 
           {/* Right: Search, Month Filter, Status Filter, Export, Quick Add & Add Button */}
@@ -660,25 +784,41 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
           entri
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="p-1.5 rounded-none border-2 border-slate-300 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-          </button>
-          <span className="font-medium">
-            Halaman {table.getState().pagination.pageIndex + 1} dari{' '}
-            {table.getPageCount() || 1}
-          </span>
-          <button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="p-1.5 rounded-none border-2 border-slate-300 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Rows per page selector */}
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-slate-500 dark:text-slate-400">Tampilkan:</span>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              className="px-2 py-1 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold focus:outline-hidden cursor-pointer uppercase text-[11px]"
+            >
+              <option value={10}>10 Data</option>
+              <option value={50}>50 Data</option>
+              <option value={100}>100 Data (Maks)</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="p-1.5 rounded-none border-2 border-slate-300 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="font-medium">
+              Halaman {table.getState().pagination.pageIndex + 1} dari{' '}
+              {table.getPageCount() || 1}
+            </span>
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="p-1.5 rounded-none border-2 border-slate-300 dark:border-slate-700 disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
