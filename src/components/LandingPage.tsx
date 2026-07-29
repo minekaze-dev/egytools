@@ -6,8 +6,8 @@ import {
   LogIn,
   Sun,
   Moon,
-  ChevronRight,
   ShieldCheck,
+  Info,
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -92,7 +92,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm border-2 border-blue-700 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-xs"
                 >
                   <Zap className="w-4 h-4 fill-current text-amber-300" />
-                  <span>Guest</span>
+                  <span>Masuk Sebagai Tamu (Guest)</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -101,10 +101,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 font-black text-xs sm:text-sm border-2 border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
                 >
                   <LogIn className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span>Login Akun</span>
+                  <span>Login / Daftar Akun</span>
                 </button>
               </>
             )}
+          </div>
+
+          {/* Guest vs Login Note */}
+          <div className="pt-2 max-w-xl mx-auto space-y-2">
+            <div className="p-2.5 sm:p-3 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-[11px] sm:text-xs font-medium text-center flex items-start gap-2 justify-center leading-relaxed">
+              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <span>
+                <strong>Note:</strong> Anda dapat menggunakan aplikasi ini sebagai <strong>Tamu (Guest)</strong>. Namun, jika ingin data tersimpan otomatis & tersinkronisasi di cloud, disarankan untuk <strong>Login / Mendaftar Akun</strong>.
+              </span>
+            </div>
+
+            <div className="p-2.5 sm:p-3 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200 text-[11px] sm:text-xs font-medium text-center flex items-start gap-2 justify-center leading-relaxed">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                <strong>Keamanan:</strong> Data Anda terjamin 100% aman, bersifat pribadi, dan terenkripsi. Tidak ada penyalahgunaan atau penyebaran data ke pihak manapun.
+              </span>
+            </div>
           </div>
         </div>
       </main>
