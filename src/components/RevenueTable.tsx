@@ -35,6 +35,8 @@ import {
   Coins,
   UserCheck,
   DollarSign,
+  Lock,
+  UserPlus,
 } from 'lucide-react';
 
 interface RevenueTableProps {
@@ -48,6 +50,7 @@ interface RevenueTableProps {
   selectedMonthExternal?: string;
   selectedYearExternal?: string;
   isLoggedIn?: boolean;
+  onOpenAuth?: () => void;
 }
 
 const MONTH_NAMES = [
@@ -76,12 +79,14 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
   selectedMonthExternal,
   selectedYearExternal,
   isLoggedIn = false,
+  onOpenAuth,
 }) => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [monthFilter, setMonthFilter] = useState<string>('ALL');
   const [yearFilter, setYearFilter] = useState<string>('ALL');
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [guestLockFeature, setGuestLockFeature] = useState<string | null>(null);
 
   // Persistent pagination state
   const [pagination, setPagination] = useState(() => {
@@ -619,38 +624,56 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
               </select>
             </div>
 
-            {/* Button: Buat Bulan Terlewat (Only for logged in users) */}
-            {isLoggedIn && (
-              <button
-                onClick={() => setIsMonthModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 border-2 border-indigo-300 dark:border-indigo-800 rounded-none transition-all cursor-pointer shrink-0 uppercase"
-                title="Buat atau pilih tabel untuk bulan yang terlewat"
-              >
-                <PlusCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <span>+ Buat / Pilih Bulan Terlewat</span>
-              </button>
-            )}
+            {/* Button: Buat Bulan Terlewat */}
+            <button
+              onClick={() => {
+                if (!isLoggedIn) {
+                  setGuestLockFeature('Buat / Pilih Bulan Terlewat');
+                  return;
+                }
+                setIsMonthModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 border-2 border-indigo-300 dark:border-indigo-800 rounded-none transition-all cursor-pointer shrink-0 uppercase"
+              title={isLoggedIn ? "Buat atau pilih tabel untuk bulan yang terlewat" : "Fitur Terkunci (Khusus Akun Login)"}
+            >
+              <PlusCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span>+ Buat / Pilih Bulan Terlewat</span>
+              {!isLoggedIn && <Lock className="w-3.5 h-3.5 text-amber-500 ml-0.5 shrink-0" />}
+            </button>
 
             {/* Export CSV */}
             <button
-              onClick={handleExportCSV}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  setGuestLockFeature('Export Data CSV');
+                  return;
+                }
+                handleExportCSV();
+              }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-none border-2 border-slate-300 dark:border-slate-700 transition-colors cursor-pointer uppercase"
+              title={isLoggedIn ? "Export data ke CSV" : "Fitur Terkunci (Khusus Akun Login)"}
             >
               <Download className="w-4 h-4" />
               Export
+              {!isLoggedIn && <Lock className="w-3.5 h-3.5 text-amber-500 ml-0.5 shrink-0" />}
             </button>
 
-            {/* Quick Add Button (Only for logged in users) */}
-            {isLoggedIn && (
-              <button
-                onClick={onQuickAddClick}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-white rounded-none border-2 border-amber-600 transition-colors shrink-0 cursor-pointer uppercase"
-                title="Pembuatan cepat multiple data"
-              >
-                <Zap className="w-4 h-4 fill-current" />
-                Quick Add
-              </button>
-            )}
+            {/* Quick Add Button */}
+            <button
+              onClick={() => {
+                if (!isLoggedIn) {
+                  setGuestLockFeature('Tambah Data Cepat (Quick Add)');
+                  return;
+                }
+                onQuickAddClick();
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-white rounded-none border-2 border-amber-600 transition-colors shrink-0 cursor-pointer uppercase"
+              title={isLoggedIn ? "Pembuatan cepat multiple data" : "Fitur Terkunci (Khusus Akun Login)"}
+            >
+              <Zap className="w-4 h-4 fill-current" />
+              Quick Add
+              {!isLoggedIn && <Lock className="w-3.5 h-3.5 text-amber-200 ml-0.5 shrink-0" />}
+            </button>
 
             {/* Add Customer Button */}
             <button
@@ -658,7 +681,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-none border-2 border-blue-700 transition-colors shrink-0 cursor-pointer uppercase"
             >
               <Plus className="w-4 h-4" />
-              Add New Data
+              Tambah Data
             </button>
           </div>
         </div>
@@ -933,6 +956,69 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                 className="px-4 py-2 text-[12px] font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-none border-2 border-blue-700 transition-all cursor-pointer uppercase"
               >
                 Buka / Buat Tabel Bulan Ini
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Guest Lock Feature Notice Modal */}
+      {guestLockFeature && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-[#0F172A] border-4 border-amber-500 rounded-none max-w-md w-full shadow-2xl p-5 space-y-4 text-xs font-sans">
+            <div className="flex items-start justify-between pb-3 border-b-2 border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-amber-500 text-slate-950 font-black border-2 border-amber-600">
+                  <Lock className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 dark:text-white text-sm uppercase tracking-tight">
+                    Fitur Terkunci (Mode Tamu)
+                  </h3>
+                  <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 font-extrabold uppercase border border-amber-300 dark:border-amber-800 inline-block mt-0.5">
+                    Khusus Akun Terdaftar
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setGuestLockFeature(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer border border-slate-300 dark:border-slate-700"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-slate-700 dark:text-slate-200 font-bold leading-relaxed text-xs">
+                Fitur <strong className="text-blue-600 dark:text-blue-400 underline">{guestLockFeature}</strong> saat ini dikunci untuk pengguna Mode Tamu (Guest).
+              </p>
+
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                <strong>Mengapa Perlu Login / Buat Akun?</strong>
+                <ul className="list-disc list-inside mt-1 space-y-0.5 text-[11px]">
+                  <li>Akses fitur lengkap (Buat bulan terlewat, Quick Add, Export CSV).</li>
+                  <li>Data otomatis tersimpan aman & ter-sinkronisasi di Cloud.</li>
+                  <li>Akses dari HP atau laptop mana saja tanpa risau data terhapus.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t-2 border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => setGuestLockFeature(null)}
+                className="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-extrabold uppercase text-xs border-2 border-slate-300 dark:border-slate-700 cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setGuestLockFeature(null);
+                  if (onOpenAuth) onOpenAuth();
+                }}
+                className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase text-xs border-2 border-blue-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Login / Daftar</span>
               </button>
             </div>
           </div>

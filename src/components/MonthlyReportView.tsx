@@ -19,12 +19,16 @@ import {
   X,
   ExternalLink,
   Printer,
+  Lock,
+  UserPlus,
 } from 'lucide-react';
 
 interface MonthlyReportViewProps {
   customers: CustomerWithCalculations[] | Customer[];
   onSelectMonthYear?: (monthIndex: string, year: string) => void;
   onOpenAddModalWithDate?: (dateIso: string) => void;
+  isLoggedIn?: boolean;
+  onOpenAuth?: () => void;
 }
 
 const MONTH_NAMES = [
@@ -61,10 +65,13 @@ export interface MonthSummaryData {
 export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   customers,
   onSelectMonthYear,
+  isLoggedIn = false,
+  onOpenAuth,
 }) => {
   const [selectedYearFilter, setSelectedYearFilter] = useState<string>('ALL');
   const [selectedDetail, setSelectedDetail] = useState<MonthSummaryData | null>(null);
   const [modalSearchQuery, setModalSearchQuery] = useState<string>('');
+  const [guestLockFeature, setGuestLockFeature] = useState<string | null>(null);
 
   // Extract all unique years from customers data
   const availableYears = useMemo(() => {
@@ -332,12 +339,19 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
         {/* Top Action Buttons */}
         <div className="flex items-center gap-2">
           <button
-            onClick={handleExportSummaryCSV}
+            onClick={() => {
+              if (!isLoggedIn) {
+                setGuestLockFeature('Export CSV Summary');
+                return;
+              }
+              handleExportSummaryCSV();
+            }}
             className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-none border-2 border-emerald-700 transition-colors cursor-pointer uppercase shadow-xs"
-            title="Export CSV Rekap Bulanan"
+            title={isLoggedIn ? "Export CSV Rekap Bulanan" : "Fitur Terkunci (Khusus Akun Login)"}
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">Export CSV Summary</span>
+            {!isLoggedIn && <Lock className="w-3.5 h-3.5 text-amber-300 ml-0.5 shrink-0" />}
           </button>
 
           <button
@@ -725,11 +739,19 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 {/* Buttons: Download CSV & Buka di Tabel Main */}
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleExportMonthCSV(selectedDetail)}
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        setGuestLockFeature(`Download Data List (${selectedDetail.monthName})`);
+                        return;
+                      }
+                      handleExportMonthCSV(selectedDetail);
+                    }}
                     className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-none border-2 border-emerald-700 transition-colors cursor-pointer uppercase shadow-xs"
+                    title={isLoggedIn ? "Download CSV Bulan Ini" : "Fitur Terkunci (Khusus Akun Login)"}
                   >
                     <Download className="w-4 h-4" />
                     <span>Download Data List ({selectedDetail.monthName})</span>
+                    {!isLoggedIn && <Lock className="w-3.5 h-3.5 text-amber-300 ml-0.5 shrink-0" />}
                   </button>
 
                   {onSelectMonthYear && (
@@ -824,6 +846,69 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                 className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-none border-2 border-slate-700 cursor-pointer uppercase"
               >
                 Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Guest Lock Feature Notice Modal */}
+      {guestLockFeature && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-[#0F172A] border-4 border-amber-500 rounded-none max-w-md w-full shadow-2xl p-5 space-y-4 text-xs font-sans">
+            <div className="flex items-start justify-between pb-3 border-b-2 border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-amber-500 text-slate-950 font-black border-2 border-amber-600">
+                  <Lock className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 dark:text-white text-sm uppercase tracking-tight">
+                    Fitur Terkunci (Mode Tamu)
+                  </h3>
+                  <span className="text-[10px] bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 font-extrabold uppercase border border-amber-300 dark:border-amber-800 inline-block mt-0.5">
+                    Khusus Akun Terdaftar
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setGuestLockFeature(null)}
+                className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer border border-slate-300 dark:border-slate-700"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-slate-700 dark:text-slate-200 font-bold leading-relaxed text-xs">
+                Fitur <strong className="text-blue-600 dark:text-blue-400 underline">{guestLockFeature}</strong> saat ini dikunci untuk pengguna Mode Tamu (Guest).
+              </p>
+
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                <strong>Mengapa Perlu Login / Buat Akun?</strong>
+                <ul className="list-disc list-inside mt-1 space-y-0.5 text-[11px]">
+                  <li>Akses fitur lengkap (Buat bulan terlewat, Quick Add, Export CSV).</li>
+                  <li>Data otomatis tersimpan aman & ter-sinkronisasi di Cloud.</li>
+                  <li>Akses dari HP atau laptop mana saja tanpa risau data terhapus.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t-2 border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => setGuestLockFeature(null)}
+                className="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-extrabold uppercase text-xs border-2 border-slate-300 dark:border-slate-700 cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setGuestLockFeature(null);
+                  if (onOpenAuth) onOpenAuth();
+                }}
+                className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase text-xs border-2 border-blue-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Login / Daftar</span>
               </button>
             </div>
           </div>

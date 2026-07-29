@@ -481,6 +481,7 @@ export default function App() {
                         selectedMonthExternal={selectedMonth}
                         selectedYearExternal={selectedYear}
                         isLoggedIn={!!user}
+                        onOpenAuth={() => setIsAuthModalOpen(true)}
                       />
                     </div>
                   )}
@@ -490,7 +491,11 @@ export default function App() {
               {/* TAB 2: MONTHLY REVENUE & SA REPORT */}
               {activeTab === 'reports' && (
                 <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
-                  <MonthlyReportView customers={customers} />
+                  <MonthlyReportView
+                    customers={customers}
+                    isLoggedIn={!!user}
+                    onOpenAuth={() => setIsAuthModalOpen(true)}
+                  />
                 </div>
               )}
 
