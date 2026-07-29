@@ -69,7 +69,7 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
         </div>
 
         <span className="px-2.5 py-1 text-xs font-bold rounded-none bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase">
-          INC1: {currentTier.inc1Percent}%
+          Komisi: {currentTier.inc1Percent}%
         </span>
       </div>
 
@@ -103,7 +103,7 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
       <div className="p-3.5 rounded-none bg-slate-950/90 border border-slate-800 relative z-10 space-y-1.5">
         <div className="text-xs text-slate-400 flex items-center justify-between font-mono">
           <span>Rumus:</span>
-          <span>Monthly Net Revenue × INC1</span>
+          <span>Monthly Net Revenue × % Komisi</span>
         </div>
         <div className="text-xs font-mono text-slate-300 text-center py-1 border-t border-b border-slate-800">
           {formatRupiah(stats.totalMonthlyNetRevenue)} × {currentTier.inc1Percent}%

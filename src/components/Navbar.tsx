@@ -1,5 +1,6 @@
-import React from 'react';
-import { Sun, Moon, Wifi, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sun, Moon, Wifi, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil } from 'lucide-react';
+import { EditProfileModal } from './EditProfileModal';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -12,6 +13,7 @@ interface NavbarProps {
   onChangeSearch: (query: string) => void;
   onToggleSidebar?: () => void;
   user: any;
+  onUpdateUser?: (updatedUser: any) => void;
   isLanding?: boolean;
   onOpenAuth: () => void;
   onOpenSqlModal?: () => void;
@@ -30,13 +32,34 @@ export const Navbar: React.FC<NavbarProps> = ({
   onChangeSearch,
   onToggleSidebar,
   user,
+  onUpdateUser,
   isLanding,
   onOpenAuth,
   onOpenSqlModal,
   onOpenLanding,
   onLogout,
 }) => {
-  const userDisplayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [guestName, setGuestName] = useState<string>(() => {
+    return localStorage.getItem('isp_crm_guest_name') || 'Guest';
+  });
+
+  const userDisplayName = user
+    ? (user.user_metadata?.full_name || localStorage.getItem('isp_crm_user_name') || user.email?.split('@')[0] || 'User')
+    : guestName;
+
+  const handleEditSuccess = (updatedUser?: any, newName?: string) => {
+    if (updatedUser && onUpdateUser) {
+      onUpdateUser(updatedUser);
+    }
+    if (newName) {
+      if (!user) {
+        setGuestName(newName);
+      } else {
+        localStorage.setItem('isp_crm_user_name', newName);
+      }
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b-2 border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 transition-colors">
@@ -83,13 +106,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             {user ? (
               <div className="flex items-center gap-2">
                 <div 
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-none bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
-                  title={`Login sebagai: ${user.email}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                  title={`Login sebagai: ${user.email} (Klik pensil untuk edit nama)`}
                 >
                   <Cloud className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span className="font-bold text-xs sm:text-sm max-w-[120px] truncate uppercase">
                     {userDisplayName}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="p-1 hover:bg-emerald-200 dark:hover:bg-emerald-900/60 rounded-none transition-colors cursor-pointer text-emerald-700 dark:text-emerald-300"
+                    title="Edit Nama Pengguna"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
                 </div>
                 <button
                   onClick={onLogout}
@@ -106,7 +137,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   title="Mode Tamu (Local Storage)"
                 >
                   <Cloud className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Guest</span>
+                  <span>{userDisplayName}</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="p-1 hover:bg-amber-200 dark:hover:bg-amber-900/60 rounded-none transition-colors cursor-pointer text-amber-700 dark:text-amber-300"
+                    title="Edit Nama Pengguna Tamu"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
                 </div>
                 <button
                   onClick={onOpenAuth}
@@ -133,6 +172,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Edit Profile / Name Modal */}
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        currentName={userDisplayName}
+        user={user}
+        onSuccess={handleEditSuccess}
+      />
     </header>
   );
 };
+

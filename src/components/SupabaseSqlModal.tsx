@@ -31,20 +31,34 @@ CREATE TABLE IF NOT EXISTS public.customers (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Enable Row Level Security (RLS)
+-- 2. Create the optional profiles table for user profile metadata
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Enable Row Level Security (RLS) on both tables
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- 3. Drop any existing policy to avoid conflict
+-- 4. Drop any existing policies to avoid conflict
 DROP POLICY IF EXISTS "Users manage their own customers" ON public.customers;
+DROP POLICY IF EXISTS "Users manage their own profiles" ON public.profiles;
 
--- 4. Create RLS Policy for authenticated user access
+-- 5. Create RLS Policies for authenticated user access
 CREATE POLICY "Users manage their own customers" ON public.customers
   FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "Users manage their own profiles" ON public.profiles
+  FOR ALL
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
 -- ========================================================
--- Done! Your database is ready for multi-user sync.
+-- Done! Your database is ready for multi-user sync & profile updates.
 -- ========================================================`;
 
 export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({ isOpen, onClose }) => {

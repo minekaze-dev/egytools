@@ -71,7 +71,7 @@ export const CalculationGuide: React.FC = () => {
                 <th className="px-3.5 py-2">Tier</th>
                 <th className="px-3.5 py-2">SA</th>
                 <th className="px-3.5 py-2">Revenue</th>
-                <th className="px-3.5 py-2 text-blue-600 dark:text-blue-400">INC1</th>
+                <th className="px-3.5 py-2 text-blue-600 dark:text-blue-400">% Komisi</th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-slate-200 dark:divide-slate-800 font-bold">

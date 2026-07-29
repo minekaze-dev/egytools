@@ -47,7 +47,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({ stats }) => {
                 <span className="font-bold text-slate-800 dark:text-slate-200 uppercase">
                   {currentTier.level === 0 ? 'Belum Mencapai Tier' : currentTier.name}
                 </span>
-                <span className="px-1.5 py-0.5 rounded-none bg-blue-600 text-xs text-white font-black uppercase border border-blue-700">{currentTier.inc1Percent}% INC1</span>
+                <span className="px-1.5 py-0.5 rounded-none bg-blue-600 text-xs text-white font-black uppercase border border-blue-700">{currentTier.inc1Percent}%</span>
               </div>
             </div>
           </div>

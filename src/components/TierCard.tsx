@@ -37,13 +37,13 @@ export const TierCard: React.FC<TierCardProps> = ({
                 Tier Saat Ini:
               </span>
               <span className="px-2 py-0.5 text-[12px] font-extrabold rounded-none bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border-2 border-blue-200 dark:border-blue-800 uppercase">
-                {currentTier.name} ({currentTier.inc1Percent}% INC1)
+                {currentTier.name} ({currentTier.inc1Percent}%)
               </span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
               {isMaxTier
                 ? 'Selamat! Anda telah mencapai Tier tertinggi (Tier 3).'
-                : `Target berikutnya: ${nextTier?.name} (${nextTier?.inc1Percent}% INC1)`}
+                : `Target berikutnya: ${nextTier?.name} (${nextTier?.inc1Percent}%)`}
             </p>
           </div>
         </div>
@@ -190,7 +190,7 @@ export const TierCard: React.FC<TierCardProps> = ({
                     <th className="p-2.5">Tier</th>
                     <th className="p-2.5">Syarat SA</th>
                     <th className="p-2.5">Syarat Revenue</th>
-                    <th className="p-2.5 text-right">Komisi INC1</th>
+                    <th className="p-2.5 text-right">Persentase Komisi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-bold">

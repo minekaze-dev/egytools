@@ -125,7 +125,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           <div className="p-3 rounded-none bg-emerald-50/60 dark:bg-emerald-950/40 border-2 border-emerald-200 dark:border-emerald-900 text-[12px] flex justify-between items-center">
             <div>
               <span className="text-slate-500 dark:text-slate-400 block text-[11px] uppercase font-bold">
-                Tier & Persentase INC1
+                Tier & Persentase Komisi
               </span>
               <span className="font-extrabold text-emerald-800 dark:text-emerald-300 uppercase">
                 {customer.tierName === 'Tier 0' ? 'Belum Mencapai Tier' : customer.tierName} ({customer.inc1Percent}%)

@@ -355,6 +355,7 @@ export default function App() {
           onChangeSearch={setSearchQuery}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           user={user}
+          onUpdateUser={(updatedUser) => setUser(updatedUser)}
           onOpenAuth={() => setIsAuthModalOpen(true)}
           onOpenSqlModal={() => setIsSqlModalOpen(true)}
           onOpenLanding={() => setIsLandingPage(true)}

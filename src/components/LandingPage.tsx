@@ -62,7 +62,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-950/60 border-2 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-[11px] font-black uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            <span>OxyMod V.1.0 Beta</span>
+            <span>OxyMod V.1.0 by E61</span>
           </div>
 
           {/* Title */}
@@ -113,7 +113,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <footer className="border-t-2 border-slate-200 dark:border-slate-800 py-3 px-6 text-center text-[11px] text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0F172A] shrink-0 font-extrabold uppercase">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span>OxyMod Online System</span>
-          <span>© {new Date().getFullYear()} OxyMod by E61</span>
+          <span>© {new Date().getFullYear()} Beta Version</span>
         </div>
       </footer>
     </div>

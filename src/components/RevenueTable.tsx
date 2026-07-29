@@ -462,7 +462,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
               </span>
               <span className="px-2.5 py-1 bg-blue-600 dark:bg-blue-500 text-white text-xs font-black rounded-none border-2 border-blue-700 dark:border-blue-400 uppercase flex items-center gap-1.5 shadow-xs">
                 <Trophy className="w-3.5 h-3.5 fill-current text-amber-300" />
-                {currentTier.name} ({currentTier.inc1Percent}% INC1)
+                {currentTier.name} ({currentTier.inc1Percent}%)
               </span>
             </div>
           </div>
