@@ -83,6 +83,26 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
   const [yearFilter, setYearFilter] = useState<string>('ALL');
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  // Persistent pagination state
+  const [pagination, setPagination] = useState(() => {
+    let initialPageSize = 10;
+    try {
+      const saved = localStorage.getItem('revenue_table_page_size');
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if ([10, 50, 100].includes(parsed)) {
+          initialPageSize = parsed;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return {
+      pageIndex: 0,
+      pageSize: initialPageSize,
+    };
+  });
+
   // Modal for creating/selecting a skipped month
   const [isMonthModalOpen, setIsMonthModalOpen] = useState(false);
   const [modalSelectedMonth, setModalSelectedMonth] = useState<string>(new Date().getMonth().toString());
@@ -369,18 +389,27 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
     state: {
       globalFilter,
       sorting,
+      pagination,
     },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: (updater) => {
+      setPagination((old) => {
+        const next = typeof updater === 'function' ? updater(old) : updater;
+        if (next.pageSize !== old.pageSize) {
+          try {
+            localStorage.setItem('revenue_table_page_size', next.pageSize.toString());
+          } catch (e) {
+            // ignore
+          }
+        }
+        return next;
+      });
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
   });
 
   // Export CSV helper
