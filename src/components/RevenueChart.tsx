@@ -119,7 +119,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
           </div>
         </div>
 
-        <div className="h-[210px] w-full pt-4">
+        <div className="h-[320px] sm:h-[360px] w-full pt-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 15, bottom: 0 }}>
               <defs>
@@ -206,15 +206,15 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
           </div>
         </div>
 
-        <div className="h-[180px] w-full relative flex items-center justify-center">
+        <div className="h-[280px] sm:h-[320px] w-full relative flex items-center justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={statusData}
                 cx="50%"
                 cy="50%"
-                innerRadius={52}
-                outerRadius={78}
+                innerRadius={65}
+                outerRadius={100}
                 paddingAngle={4}
                 dataKey="value"
               >

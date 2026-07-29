@@ -31,10 +31,11 @@ CREATE TABLE IF NOT EXISTS public.customers (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Create the optional profiles table for user profile metadata
+-- 2. Create the profiles table for user settings & target SA
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
+  monthly_target_sa INTEGER DEFAULT 15,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 

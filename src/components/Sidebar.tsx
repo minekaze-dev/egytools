@@ -10,12 +10,13 @@ import {
   X,
   Wifi,
   ArrowLeft,
-  FileText
+  FileText,
+  Settings
 } from 'lucide-react';
 import { formatRupiah } from '../helpers/currency';
 import { GlobalStats } from '../types/customer';
 
-export type ActiveTab = 'revenue' | 'revenue_analytics' | 'revenue_table' | 'reports';
+export type ActiveTab = 'revenue' | 'revenue_analytics' | 'revenue_table' | 'reports' | 'settings';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -193,6 +194,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Report
               </span>
             </button>
+
+            {/* Item 4: Settings (Pengaturan) */}
+            <button
+              onClick={() => {
+                onSelectTab('settings');
+                if (window.innerWidth < 1024) onToggleOpen();
+              }}
+              className={`w-full text-left px-3.5 py-3 rounded-none flex items-center justify-between transition-all duration-150 group cursor-pointer border-2 ${
+                activeTab === 'settings'
+                  ? 'bg-blue-600 text-white border-blue-700 font-bold'
+                  : 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Settings
+                  className={`w-4 h-4 shrink-0 transition-colors ${
+                    activeTab === 'settings'
+                      ? 'text-white'
+                      : 'text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                  }`}
+                />
+                <div className="truncate">
+                  <div className="text-sm font-extrabold leading-tight truncate uppercase">Settings</div>
+                  <div
+                    className={`text-xs mt-0.5 truncate ${
+                      activeTab === 'settings' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    Profil & Target SA
+                  </div>
+                </div>
+              </div>
+              <span className={`text-xs px-2 py-0.5 rounded-none font-bold uppercase border ${
+                activeTab === 'settings' ? 'bg-white/20 border-white/40 text-white' : 'bg-slate-200 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+              }`}>
+                Atur
+              </span>
+            </button>
           </nav>
         </div>
 
@@ -208,7 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               title="Kembali ke Halaman Depan / Landing Page"
             >
               <ArrowLeft className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Keluar</span>
+              <span>Halaman Depan</span>
             </button>
           )}
           <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 uppercase">

@@ -7,7 +7,7 @@ import { Sidebar, ActiveTab } from './components/Sidebar';
 import { StatsCard } from './components/StatsCard';
 import { TierCard } from './components/TierCard';
 import { RevenueChart } from './components/RevenueChart';
-import { CalculationGuide } from './components/CalculationGuide';
+import { TierRulesCard } from './components/TierRulesCard';
 import { RevenueTable } from './components/RevenueTable';
 import { CustomerFormModal } from './components/CustomerFormModal';
 import { CustomerDetailModal } from './components/CustomerDetailModal';
@@ -16,6 +16,8 @@ import { AuthModal } from './components/AuthModal';
 import { SupabaseSqlModal } from './components/SupabaseSqlModal';
 import { LandingPage } from './components/LandingPage';
 import { MonthlyReportView } from './components/MonthlyReportView';
+import { TargetSaCard } from './components/TargetSaCard';
+import { SettingsView } from './components/SettingsView';
 
 import { getPackageById } from './data/packages';
 import { AlertTriangle } from 'lucide-react';
@@ -32,6 +34,12 @@ export default function App() {
   // Modals for Auth & SQL
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
+
+  // Monthly Target SA state
+  const [monthlyTargetSa, setMonthlyTargetSa] = useState<number>(() => {
+    const saved = localStorage.getItem('isp_crm_monthly_target_sa');
+    return saved ? parseInt(saved, 10) || 15 : 15;
+  });
 
   // Date prefill for customer form when creating skipped months
   const [defaultTanggalPasang, setDefaultTanggalPasang] = useState<string>('');
@@ -66,6 +74,7 @@ export default function App() {
       if (currentUser) {
         // Load from Supabase Database
         try {
+          // Fetch customers
           const { data, error } = await supabase
             .from('customers')
             .select('*')
@@ -80,6 +89,27 @@ export default function App() {
             if (saved && isMounted) {
               setCustomers(JSON.parse(saved));
             }
+          }
+
+          // Fetch profile settings (target SA & full_name)
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, monthly_target_sa')
+              .eq('id', currentUser.id)
+              .maybeSingle();
+
+            if (profile && isMounted) {
+              if (profile.monthly_target_sa) {
+                setMonthlyTargetSa(profile.monthly_target_sa);
+                localStorage.setItem('isp_crm_monthly_target_sa', profile.monthly_target_sa.toString());
+              }
+              if (profile.full_name) {
+                localStorage.setItem('isp_crm_user_name', profile.full_name);
+              }
+            }
+          } catch (pe) {
+            console.error('Error fetching user profile:', pe);
           }
         } catch (e) {
           console.error('Error fetching Supabase customers:', e);
@@ -190,6 +220,40 @@ export default function App() {
       }
     } catch (err) {
       console.error('Supabase sync error:', err);
+    }
+  };
+
+  // Settings Save Handler (User name & Monthly Target SA)
+  const handleSaveSettings = async (newName: string, newTargetSa: number) => {
+    setMonthlyTargetSa(newTargetSa);
+    localStorage.setItem('isp_crm_monthly_target_sa', newTargetSa.toString());
+
+    if (user) {
+      // Update Supabase Auth user metadata
+      const { data, error } = await supabase.auth.updateUser({
+        data: { full_name: newName },
+      });
+      if (error) {
+        console.error('Error updating auth metadata:', error);
+      } else if (data.user) {
+        setUser(data.user);
+      }
+
+      // Upsert into profiles table
+      try {
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          full_name: newName,
+          monthly_target_sa: newTargetSa,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (pe) {
+        console.error('Error saving profile to Supabase:', pe);
+      }
+
+      localStorage.setItem('isp_crm_user_name', newName);
+    } else {
+      localStorage.setItem('isp_crm_guest_name', newName);
     }
   };
 
@@ -368,16 +432,27 @@ export default function App() {
           </div>
         ) : (
           <main className="flex-1 overflow-y-auto flex flex-col">
-            <div className="p-2 sm:p-3 space-y-3 max-w-[1600px] w-full mx-auto flex-1 flex flex-col">
+            <div className="p-2 sm:p-3 space-y-2.5 max-w-[1600px] w-full mx-auto">
               {/* TAB 1: REVENUE SUB-VIEWS */}
               {(activeTab === 'revenue' || activeTab === 'revenue_analytics' || activeTab === 'revenue_table') && (
-                <div className="space-y-3 flex-1 flex flex-col">
+                <div className="space-y-2.5">
                   {/* VIEW 1: Statistik Ringkasan */}
                   {(activeTab === 'revenue' || activeTab === 'revenue_analytics') && (
-                    <div className="space-y-3 animate-in slide-in-from-bottom-2 duration-500 flex-1">
-                      <StatsCard stats={stats} />
+                    <div className="space-y-2.5 animate-in slide-in-from-bottom-2 duration-500">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
+                        <div className="lg:col-span-2 space-y-2.5">
+                          <StatsCard stats={stats} />
+                          <TierRulesCard />
+                        </div>
+                        <div className="lg:col-span-1">
+                          <TargetSaCard
+                            currentActiveSa={stats.totalClosing}
+                            targetSa={monthlyTargetSa}
+                            onOpenSettings={() => setActiveTab('settings')}
+                          />
+                        </div>
+                      </div>
                       <RevenueChart customers={customersWithCalculations} />
-                      <CalculationGuide />
                     </div>
                   )}
 
@@ -416,6 +491,19 @@ export default function App() {
               {activeTab === 'reports' && (
                 <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
                   <MonthlyReportView customers={customers} />
+                </div>
+              )}
+
+              {/* TAB 3: SYSTEM SETTINGS VIEW */}
+              {activeTab === 'settings' && (
+                <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
+                  <SettingsView
+                    user={user}
+                    currentName={user?.user_metadata?.full_name || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'User'}
+                    monthlyTargetSa={monthlyTargetSa}
+                    onSaveSettings={handleSaveSettings}
+                    onOpenSqlModal={() => setIsSqlModalOpen(true)}
+                  />
                 </div>
               )}
             </div>
