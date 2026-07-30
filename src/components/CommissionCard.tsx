@@ -107,6 +107,9 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
         </div>
         <div className="text-xs font-mono text-slate-300 text-center py-1 border-t border-b border-slate-800">
           {formatRupiah(stats.totalMonthlyNetRevenue)} × {currentTier.inc1Percent}%
+          {stats.totalKomisiTahunan && stats.totalKomisiTahunan > 0 ? (
+            <span className="text-emerald-400 font-bold"> + {formatRupiah(stats.totalKomisiTahunan)}</span>
+          ) : null}
         </div>
 
         {/* Final Nominal with Animated Count-up */}
@@ -117,6 +120,11 @@ export const CommissionCard: React.FC<CommissionCardProps> = ({
           <div className="text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight leading-tight mt-0.5">
             {formatRupiah(displayAmount)}
           </div>
+          {stats.totalKomisiTahunan && stats.totalKomisiTahunan > 0 ? (
+            <div className="text-[10px] font-extrabold text-amber-400 mt-0.5 whitespace-nowrap truncate">
+              +{formatRupiah(stats.totalKomisiTahunan)} (Komisi Tahunan)
+            </div>
+          ) : null}
         </div>
       </div>
     </motion.div>

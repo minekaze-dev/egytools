@@ -49,3 +49,36 @@ html {
 .dark * {
   scrollbar-color: #1e293b #090d16;
 }
+
+/* UI Style: Modern Mode Overrides */
+html.ui-modern .rounded-none {
+  border-radius: 0.85rem !important; /* ~14px smooth modern rounding */
+}
+
+html.ui-modern .p-1.5.rounded-none,
+html.ui-modern .p-2.rounded-none,
+html.ui-modern .p-2.5.rounded-none,
+html.ui-modern .p-3.rounded-none,
+html.ui-modern .px-1.5.py-0.5.rounded-none,
+html.ui-modern .px-2.py-0.5.rounded-none {
+  border-radius: 0.5rem !important; /* ~8px for small badges/icons */
+}
+
+html.ui-modern input,
+html.ui-modern select,
+html.ui-modern textarea,
+html.ui-modern button {
+  border-radius: 0.75rem;
+}
+
+html.ui-modern .shadow-xs,
+html.ui-modern .shadow-sm {
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+html.ui-modern .shadow-md,
+html.ui-modern .shadow-lg,
+html.ui-modern .shadow-xl {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+}
+

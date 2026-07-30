@@ -135,9 +135,14 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               <span className="text-slate-500 dark:text-slate-400 block text-[11px] uppercase font-bold">
                 Estimasi Komisi Row Ini
               </span>
-              <span className="font-black text-[14px] text-emerald-600 dark:text-emerald-400">
+              <span className="font-black text-[14px] text-emerald-600 dark:text-emerald-400 block">
                 {formatRupiah(customer.estimasiKomisi)}
               </span>
+              {customer.status === 'Aktif' && customer.periode === 'Tahunan' && (
+                <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 block">
+                  +200.000 (Komisi Tahunan)
+                </span>
+              )}
             </div>
           </div>
 

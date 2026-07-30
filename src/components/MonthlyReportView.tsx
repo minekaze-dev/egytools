@@ -59,6 +59,7 @@ export interface MonthSummaryData {
   tierName: string;
   inc1Percent: number;
   totalKomisi: number;
+  totalKomisiTahunan: number;
   items: CustomerWithCalculations[];
 }
 
@@ -145,12 +146,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       // Compute tier & commission for this month's active sales
       const tier = getCurrentTier(totalSAActive, totalNetRevenue);
 
-      // Re-map with tier and commission
+      // Re-map with tier and commission (+200k if active Tahunan)
       const finalItems: CustomerWithCalculations[] = enrichedItems.map((i) => {
-        const estimasiKomisi =
+        const baseKomisi =
           i.status === 'Aktif'
             ? Math.round((i.monthlyNetRevenue * tier.inc1Percent) / 100)
             : 0;
+        const bonusTahunan =
+          i.status === 'Aktif' && i.periode === 'Tahunan' ? 200000 : 0;
+        const estimasiKomisi = baseKomisi + bonusTahunan;
         return {
           ...i,
           tierName: tier.name,
@@ -162,6 +166,10 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       const totalKomisi = finalItems
         .filter((i) => i.status === 'Aktif')
         .reduce((acc, i) => acc + i.estimasiKomisi, 0);
+
+      const totalKomisiTahunan = finalItems
+        .filter((i) => i.status === 'Aktif' && i.periode === 'Tahunan')
+        .length * 200000;
 
       result.push({
         monthIndex,
@@ -176,6 +184,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
         tierName: tier.name,
         inc1Percent: tier.inc1Percent,
         totalKomisi,
+        totalKomisiTahunan,
         items: finalItems,
       });
     });
@@ -195,9 +204,10 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
         acc.totalGross += curr.totalGrossRevenue;
         acc.totalNet += curr.totalNetRevenue;
         acc.totalKomisi += curr.totalKomisi;
+        acc.totalKomisiTahunan += curr.totalKomisiTahunan;
         return acc;
       },
-      { totalSA: 0, totalGross: 0, totalNet: 0, totalKomisi: 0 }
+      { totalSA: 0, totalGross: 0, totalNet: 0, totalKomisi: 0, totalKomisiTahunan: 0 }
     );
   }, [monthlySummaries]);
 
@@ -366,7 +376,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       </div>
 
       {/* Unified Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-3">
         {/* Card 1: Total SA (Sales Active) */}
         <div className="bg-white dark:bg-[#0F172A] p-3.5 rounded-none border-2 border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
@@ -421,6 +431,24 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
           </div>
         </div>
 
+        {/* Card 4: Komisi Tahunan */}
+        <div className="bg-white dark:bg-[#0F172A] p-3.5 rounded-none border-2 border-amber-300 dark:border-amber-800/80 bg-amber-50/25 dark:bg-amber-950/20 shadow-xs flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-amber-600 dark:text-amber-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider">Komisi Tahunan</span>
+            <div className="p-1.5 rounded-none bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+              <Calendar className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 truncate">
+              {formatRupiah(grandTotals.totalKomisiTahunan)}
+            </div>
+            <p className="text-[10px] text-amber-700 dark:text-amber-300 font-extrabold mt-0.5 truncate">
+              {grandTotals.totalKomisiTahunan > 0 ? `+200rb x ${grandTotals.totalKomisiTahunan / 200000} Paket` : '0 Paket Tahunan'}
+            </p>
+          </div>
+        </div>
+
         {/* Card 4: Total Komisi */}
         <div className="bg-white dark:bg-[#0F172A] p-3.5 rounded-none border-2 border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-emerald-950/10 shadow-xs flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
@@ -433,9 +461,15 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
             <div className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 truncate">
               {formatRupiah(grandTotals.totalKomisi)}
             </div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
-              Sesuai Tier Sales
-            </p>
+            {grandTotals.totalKomisiTahunan > 0 ? (
+              <p className="text-[9px] text-emerald-700 dark:text-emerald-300 font-extrabold mt-0.5 whitespace-nowrap truncate" title={`+${formatRupiah(grandTotals.totalKomisiTahunan)} (Komisi Tahunan)`}>
+                +{formatRupiah(grandTotals.totalKomisiTahunan)} (Komisi Tahunan)
+              </p>
+            ) : (
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+                Sesuai Tier Sales
+              </p>
+            )}
           </div>
         </div>
 
@@ -588,7 +622,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm">
-                      {formatRupiah(m.totalKomisi)}
+                      <div>{formatRupiah(m.totalKomisi)}</div>
+                      {m.totalKomisiTahunan > 0 && (
+                        <div className="text-[9px] text-amber-600 dark:text-amber-400 font-extrabold whitespace-nowrap truncate">
+                          +{formatRupiah(m.totalKomisiTahunan)} (Komisi Tahunan)
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       <button
@@ -622,7 +661,12 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   </td>
                   <td className="px-4 py-4 text-center text-slate-400">-</td>
                   <td className="px-4 py-4 text-right font-mono font-black text-emerald-600 dark:text-emerald-400 text-base">
-                    {formatRupiah(grandTotals.totalKomisi)}
+                    <div>{formatRupiah(grandTotals.totalKomisi)}</div>
+                    {grandTotals.totalKomisiTahunan > 0 && (
+                      <div className="text-[9px] text-amber-600 dark:text-amber-400 font-extrabold whitespace-nowrap truncate">
+                        +{formatRupiah(grandTotals.totalKomisiTahunan)} (Komisi Tahunan)
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-4 text-center"></td>
                 </tr>
@@ -716,8 +760,11 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
                     {formatRupiah(selectedDetail.totalKomisi)}
                   </div>
-                  <p className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 mt-1 font-bold">
-                    {selectedDetail.inc1Percent}% dari Net Revenue
+                  <p className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 mt-1 font-bold whitespace-nowrap truncate">
+                    {selectedDetail.inc1Percent}% Net Rev
+                    {selectedDetail.totalKomisiTahunan > 0
+                      ? ` +${formatRupiah(selectedDetail.totalKomisiTahunan)} (Komisi Tahunan)`
+                      : ''}
                   </p>
                 </div>
               </div>
@@ -815,7 +862,14 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                           </td>
                           <td className="p-2.5 text-right font-mono text-slate-500">{formatRupiah(item.grossContract)}</td>
                           <td className="p-2.5 text-right font-mono font-bold text-blue-600 dark:text-blue-400">{formatRupiah(item.monthlyNetRevenue)}</td>
-                          <td className="p-2.5 text-right font-mono font-black text-emerald-600 dark:text-emerald-400">{formatRupiah(item.estimasiKomisi)}</td>
+                          <td className="p-2.5 text-right font-mono font-black text-emerald-600 dark:text-emerald-400">
+                            <div>{formatRupiah(item.estimasiKomisi)}</div>
+                            {item.status === 'Aktif' && item.periode === 'Tahunan' && (
+                              <div className="text-[9px] text-amber-600 dark:text-amber-400 font-bold whitespace-nowrap">
+                                +200.000 (Komisi Tahunan)
+                              </div>
+                            )}
+                          </td>
                         </tr>
                       ))
                     )}

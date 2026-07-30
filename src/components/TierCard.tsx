@@ -201,14 +201,14 @@ export const TierCard: React.FC<TierCardProps> = ({
                         key={t.level}
                         className={
                           isCurrent
-                            ? 'bg-blue-50 dark:bg-blue-950/40 font-extrabold'
+                            ? 'bg-amber-100/80 dark:bg-amber-950/60 font-extrabold text-amber-950 dark:text-amber-100'
                             : ''
                         }
                       >
                         <td className="p-2.5 flex items-center gap-1.5 uppercase">
                           {t.name}
                           {isCurrent && (
-                            <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.5 rounded-none font-bold uppercase border border-blue-700">
+                            <span className="text-[10px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded-none font-black uppercase tracking-wider">
                               Saat ini
                             </span>
                           )}
@@ -221,7 +221,7 @@ export const TierCard: React.FC<TierCardProps> = ({
                             ? '< Rp3.750.000'
                             : `≥ ${formatRupiah(t.minRevenue)}`}
                         </td>
-                        <td className="p-2.5 text-right font-black text-blue-600 dark:text-blue-400">
+                        <td className={`p-2.5 text-right font-black ${isCurrent ? 'text-amber-700 dark:text-amber-300' : 'text-blue-600 dark:text-blue-400'}`}>
                           {t.inc1Percent}%
                         </td>
                       </tr>

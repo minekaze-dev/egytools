@@ -10,7 +10,10 @@ import {
   Cloud, 
   Database,
   Info,
-  ShieldCheck
+  ShieldCheck,
+  Palette,
+  Square,
+  Sparkles,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -18,7 +21,8 @@ interface SettingsViewProps {
   user: any;
   currentName: string;
   monthlyTargetSa: number;
-  onSaveSettings: (newName: string, newTargetSa: number) => Promise<void>;
+  uiStyle?: 'klasik' | 'modern';
+  onSaveSettings: (newName: string, newTargetSa: number, newUiStyle?: 'klasik' | 'modern') => Promise<void>;
   onOpenSqlModal: () => void;
 }
 
@@ -26,11 +30,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   user,
   currentName,
   monthlyTargetSa,
+  uiStyle = 'klasik',
   onSaveSettings,
   onOpenSqlModal,
 }) => {
   const [fullName, setFullName] = useState(currentName);
   const [targetSa, setTargetSa] = useState<number>(monthlyTargetSa);
+  const [styleMode, setStyleMode] = useState<'klasik' | 'modern'>(uiStyle);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -42,6 +48,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   useEffect(() => {
     setTargetSa(monthlyTargetSa);
   }, [monthlyTargetSa]);
+
+  useEffect(() => {
+    setStyleMode(uiStyle);
+  }, [uiStyle]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +71,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
     setIsLoading(true);
     try {
-      await onSaveSettings(trimmedName, targetSa);
+      await onSaveSettings(trimmedName, targetSa, styleMode);
       setSuccessMsg('Pengaturan berhasil disimpan!');
       setTimeout(() => setSuccessMsg(null), 3500);
     } catch (err: any) {
@@ -165,7 +175,80 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
 
-        {/* SECTION 2: TARGET SA BULANAN */}
+        {/* SECTION 2: MODE TAMPILAN (STYLE UI) */}
+        <div className="p-5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b-2 border-slate-100 dark:border-slate-800">
+            <Palette className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <div>
+              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                Gaya Tampilan (UI Style Mode)
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Pilih gaya tampilan bentuk sudut antarmuka aplikasi sesuai selera Anda.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Option 1: Klasik */}
+            <button
+              type="button"
+              onClick={() => setStyleMode('klasik')}
+              className={`p-4 border-2 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
+                styleMode === 'klasik'
+                  ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30 text-blue-900 dark:text-blue-100'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+              }`}
+            >
+              <div className={`p-2 border-2 ${styleMode === 'klasik' ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                <Square className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wide">
+                  Mode Klasik (Flat & Boxy)
+                  {styleMode === 'klasik' && (
+                    <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-bold uppercase">
+                      Aktif
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                  Tampilan kaku & tegas dengan sudut tajam (0px border-radius) khas sistem enterprise/dashboard.
+                </p>
+              </div>
+            </button>
+
+            {/* Option 2: Modern */}
+            <button
+              type="button"
+              onClick={() => setStyleMode('modern')}
+              className={`p-4 border-2 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
+                styleMode === 'modern'
+                  ? 'border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-100'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+              }`}
+            >
+              <div className={`p-2 border-2 ${styleMode === 'modern' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wide">
+                  Mode Modern (Fresh Rounded)
+                  {styleMode === 'modern' && (
+                    <span className="px-1.5 py-0.5 bg-emerald-600 text-white text-[9px] font-bold uppercase">
+                      Aktif
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                  Tampilan modern & fresh dengan sudut membulat halus (rounded-xl) dan bayangan lembut.
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* SECTION 3: TARGET SA BULANAN */}
         <div className="p-5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 space-y-4">
           <div className="flex items-center gap-2.5 pb-3 border-b-2 border-slate-100 dark:border-slate-800">
             <Target className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -210,31 +293,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <strong>Catatan Penting:</strong> Target SA bulanan ini digunakan untuk mengukur progres pencapaian target kerja pribadi Anda setiap bulan. Perhitungan tier komisi (Tier 1-4) tetap mengacu pada aturan resmi skema penutupan SA dan revenue bersih.
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* SECTION 3: CONFIG & DATABASE INFO */}
-        <div className="p-5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b-2 border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2.5">
-              <Database className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
-                Database & Schema Setup
-              </h2>
-            </div>
-            <button
-              type="button"
-              onClick={onOpenSqlModal}
-              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-xs border-2 border-slate-300 dark:border-slate-700 uppercase cursor-pointer"
-            >
-              Lihat Skrip SQL
-            </button>
-          </div>
-
-          <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed space-y-1">
-            <p>
-              Tabel <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 font-mono text-emerald-600">profiles</code> di Supabase menyimpan kolom <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 font-mono">full_name</code> dan <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 font-mono">monthly_target_sa</code> secara otomatis terpisah per akun menggunakan <strong>Row Level Security (RLS)</strong>.
-            </p>
           </div>
         </div>
 

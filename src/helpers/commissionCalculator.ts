@@ -12,12 +12,13 @@ export const calculateAllCustomerMetrics = (
   customersWithCalculations: CustomerWithCalculations[];
   stats: GlobalStats;
 } => {
-  // 1. First find active closing count and active monthly net revenue
+  // 1. First find active closing count, active monthly net revenue, and active yearly package count
   let activeClosing = 0;
   let activeMonthlyNetRevenue = 0;
   let totalGrossRevenue = 0;
   let totalRefunds = 0;
   let totalDismantles = 0;
+  let activeYearlyCount = 0;
 
   const rawCalculated = customers.map((c) => {
     const rev = calculateRevenue(c.packagePrice, c.periode);
@@ -25,6 +26,9 @@ export const calculateAllCustomerMetrics = (
       activeClosing += 1;
       activeMonthlyNetRevenue += rev.monthlyNetRevenue;
       totalGrossRevenue += rev.grossContract;
+      if (c.periode === 'Tahunan') {
+        activeYearlyCount += 1;
+      }
     } else if (c.status === 'Refund') {
       totalRefunds += 1;
     } else if (c.status === 'Dismantle') {
@@ -37,14 +41,17 @@ export const calculateAllCustomerMetrics = (
   const currentGlobalTier = getCurrentTier(activeClosing, activeMonthlyNetRevenue);
   const inc1Percent = currentGlobalTier.inc1Percent;
 
-  // 3. Enrich customer list
+  // 3. Enrich customer list with yearly bonus (+200.000 if active Tahunan)
   const customersWithCalculations: CustomerWithCalculations[] = rawCalculated.map(
     ({ customer, rev }) => {
-      // Individual estimated commission is based on active tier rate if active, else 0 if refund/dismantle
-      const estimasiKomisi =
+      // Individual estimated commission: Tier % of Net Rev + 200k if active Tahunan
+      const baseKomisi =
         customer.status === 'Aktif'
           ? Math.round((rev.monthlyNetRevenue * inc1Percent) / 100)
           : 0;
+      const bonusTahunan =
+        customer.status === 'Aktif' && customer.periode === 'Tahunan' ? 200000 : 0;
+      const estimasiKomisi = baseKomisi + bonusTahunan;
 
       return {
         ...customer,
@@ -56,16 +63,19 @@ export const calculateAllCustomerMetrics = (
     }
   );
 
-  // 4. Calculate total commission for sales agent
-  const totalKomisiSales = Math.round(
+  // 4. Calculate total commission for sales agent including total yearly bonus
+  const totalKomisiTahunan = activeYearlyCount * 200000;
+  const baseKomisiTotal = Math.round(
     (activeMonthlyNetRevenue * inc1Percent) / 100
   );
+  const totalKomisiSales = baseKomisiTotal + totalKomisiTahunan;
 
   const stats: GlobalStats = {
     totalClosing: activeClosing,
     totalGrossRevenue,
     totalMonthlyNetRevenue: Math.round(activeMonthlyNetRevenue),
     totalKomisiSales,
+    totalKomisiTahunan,
     totalActiveCustomers: activeClosing,
     totalRefunds,
     totalDismantles,

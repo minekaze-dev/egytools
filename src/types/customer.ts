@@ -53,6 +53,7 @@ export interface GlobalStats {
   totalGrossRevenue: number;
   totalMonthlyNetRevenue: number;
   totalKomisiSales: number;
+  totalKomisiTahunan?: number;
   totalActiveCustomers: number;
   totalRefunds: number;
   totalDismantles: number;

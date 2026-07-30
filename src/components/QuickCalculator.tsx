@@ -108,18 +108,24 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
   let totalClosing = 0;
   let totalMonthlyNetRevenue = 0;
   let totalGrossContract = 0;
+  let yearlyActiveQty = 0;
 
   items.forEach((item) => {
     const rev = calculateRevenue(item.price, item.period);
     totalClosing += item.qty;
     totalMonthlyNetRevenue += rev.monthlyNetRevenue * item.qty;
     totalGrossContract += rev.grossContract * item.qty;
+    if (item.period === 'Tahunan') {
+      yearlyActiveQty += item.qty;
+    }
   });
 
   const currentTier = getCurrentTier(totalClosing, totalMonthlyNetRevenue);
   const tierProgress = getTierProgress(totalClosing, totalMonthlyNetRevenue);
   const inc1Percent = currentTier.inc1Percent;
-  const totalKomisi = Math.round((totalMonthlyNetRevenue * inc1Percent) / 100);
+  const baseKomisi = Math.round((totalMonthlyNetRevenue * inc1Percent) / 100);
+  const totalKomisiTahunan = yearlyActiveQty * 200000;
+  const totalKomisi = currentTier.level > 0 ? baseKomisi + totalKomisiTahunan : totalKomisiTahunan;
 
   // Start calculation animation
   const handleStartCalculate = () => {
@@ -232,6 +238,11 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
                     <span className="text-amber-300 font-mono font-black text-xl sm:text-2xl block sm:inline mt-1 sm:mt-0">
                       {formatRupiah(totalKomisi)}
                     </span>
+                    {totalKomisiTahunan > 0 && (
+                      <span className="block text-xs font-bold text-amber-200 mt-1 uppercase">
+                        (Termasuk +{formatRupiah(totalKomisiTahunan)} Komisi Tahunan)
+                      </span>
+                    )}
                     !
                   </p>
                 </>

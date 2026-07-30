@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Customer, CustomerWithCalculations } from './types/customer';
 import { calculateAllCustomerMetrics } from './helpers/commissionCalculator';
+import { getCurrentTier } from './helpers/tierCalculator';
 
 import { Navbar } from './components/Navbar';
 import { Sidebar, ActiveTab } from './components/Sidebar';
@@ -44,11 +45,16 @@ export default function App() {
   // Date prefill for customer form when creating skipped months
   const [defaultTanggalPasang, setDefaultTanggalPasang] = useState<string>('');
 
-  // 1. Dark mode state
+  // 1. Dark mode & UI Style state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('isp_crm_theme');
     if (saved !== null) return saved === 'dark';
     return false;
+  });
+
+  const [uiStyle, setUiStyle] = useState<'klasik' | 'modern'>(() => {
+    const saved = localStorage.getItem('isp_crm_ui_style');
+    return saved === 'modern' ? 'modern' : 'klasik';
   });
 
   useEffect(() => {
@@ -61,6 +67,17 @@ export default function App() {
       localStorage.setItem('isp_crm_theme', 'light');
     }
   }, [darkMode]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (uiStyle === 'modern') {
+      root.classList.add('ui-modern');
+      localStorage.setItem('isp_crm_ui_style', 'modern');
+    } else {
+      root.classList.remove('ui-modern');
+      localStorage.setItem('isp_crm_ui_style', 'klasik');
+    }
+  }, [uiStyle]);
 
   // 2. Customers state
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -223,8 +240,11 @@ export default function App() {
     }
   };
 
-  // Settings Save Handler (User name & Monthly Target SA)
-  const handleSaveSettings = async (newName: string, newTargetSa: number) => {
+  // Settings Save Handler (User name, Monthly Target SA & UI Style)
+  const handleSaveSettings = async (newName: string, newTargetSa: number, newUiStyle?: 'klasik' | 'modern') => {
+    if (newUiStyle) {
+      setUiStyle(newUiStyle);
+    }
     setMonthlyTargetSa(newTargetSa);
     localStorage.setItem('isp_crm_monthly_target_sa', newTargetSa.toString());
 
@@ -442,7 +462,7 @@ export default function App() {
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
                         <div className="lg:col-span-2 space-y-2.5">
                           <StatsCard stats={stats} />
-                          <TierRulesCard />
+                          <TierRulesCard activeTierLevel={getCurrentTier(stats.totalClosing, stats.totalMonthlyNetRevenue).level} />
                         </div>
                         <div className="lg:col-span-1">
                           <TargetSaCard
@@ -506,6 +526,7 @@ export default function App() {
                     user={user}
                     currentName={user?.user_metadata?.full_name || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'User'}
                     monthlyTargetSa={monthlyTargetSa}
+                    uiStyle={uiStyle}
                     onSaveSettings={handleSaveSettings}
                     onOpenSqlModal={() => setIsSqlModalOpen(true)}
                   />
