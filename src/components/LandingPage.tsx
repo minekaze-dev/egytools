@@ -44,7 +44,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       }
     >
       {!showCalculator && (
-        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[1px] pointer-events-none" />
+        <div className="absolute inset-0 bg-slate-950/65 backdrop-blur-[1px] pointer-events-none" />
       )}
 
       {/* Navbar */}
