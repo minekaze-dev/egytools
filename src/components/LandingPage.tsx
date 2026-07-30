@@ -11,14 +11,6 @@ import {
   Sun,
   Moon,
   CheckCircle2,
-  TrendingUp,
-  BarChart3,
-  Layers,
-  Calendar,
-  Clock,
-  CalendarDays,
-  Activity,
-  CheckCircle,
 } from 'lucide-react';
 import { QuickCalculator } from './QuickCalculator';
 
@@ -45,7 +37,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         showCalculator ? 'overflow-y-auto' : 'overflow-hidden'
       }`}
     >
-      {/* Background Graphic Grid & Technical Diagram Overlay */}
+      {/* Background Graphic Grid */}
       {!showCalculator && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
           {/* Technical Dot & Grid Pattern */}
@@ -53,210 +45,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           
           {/* Subtle Radial Gradient Vignette */}
           <div className="absolute inset-0 bg-radial from-transparent via-slate-50/50 dark:via-[#020617]/60 to-slate-100 dark:to-[#020617]" />
-
-          {/* Floating Animated Diagram 1: Top-Left Revenue Trend Curve */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{
-              opacity: [0.8, 1, 0.8],
-              y: [0, -8, 0],
-            }}
-            transition={{
-              y: { duration: 5, repeat: Infinity, ease: 'easeInOut' },
-              opacity: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-            }}
-            className="hidden lg:block absolute top-20 left-8 xl:left-16 w-80 p-4 bg-white/85 dark:bg-[#0F172A]/85 border-2 border-slate-200 dark:border-slate-800/80 shadow-xl backdrop-blur-md"
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 mb-2">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider">
-                  Est. Net Revenue Trend
-                </span>
-              </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                +28.4% YoY
-              </span>
-            </div>
-            <div className="flex items-baseline justify-between my-1">
-              <span className="text-xl font-black font-mono text-slate-900 dark:text-white">
-                Rp 18.500.000
-              </span>
-              <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400">Target 100%</span>
-            </div>
-            {/* Area Chart SVG */}
-            <div className="h-12 w-full mt-2">
-              <svg className="w-full h-full text-emerald-500 overflow-visible" viewBox="0 0 200 40">
-                <defs>
-                  <linearGradient id="gradRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10B981" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M0,35 Q30,28 60,32 T120,15 T180,8 L200,5 L200,40 L0,40 Z"
-                  fill="url(#gradRev)"
-                />
-                <path
-                  d="M0,35 Q30,28 60,32 T120,15 T180,8 L200,5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-                <circle cx="120" cy="15" r="3.5" className="fill-emerald-600 dark:fill-emerald-400 stroke-white dark:stroke-slate-900" strokeWidth="1.5" />
-                <circle cx="200" cy="5" r="4" className="fill-emerald-500 animate-ping" />
-                <circle cx="200" cy="5" r="3.5" className="fill-emerald-600 dark:fill-emerald-400 stroke-white dark:stroke-slate-900" strokeWidth="1.5" />
-              </svg>
-            </div>
-          </motion.div>
-
-          {/* Floating Animated Diagram 2: Top-Right Tier Progression Diagram */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{
-              opacity: [0.85, 1, 0.85],
-              y: [0, 8, 0],
-            }}
-            transition={{
-              y: { duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
-              opacity: { duration: 4.5, repeat: Infinity, ease: 'easeInOut' },
-            }}
-            className="hidden lg:block absolute top-20 right-8 xl:right-16 w-80 p-4 bg-white/85 dark:bg-[#0F172A]/85 border-2 border-slate-200 dark:border-slate-800/80 shadow-xl backdrop-blur-md"
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 mb-2">
-              <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider">
-                  Tier Commission Model
-                </span>
-              </div>
-              <span className="text-[10px] font-black px-1.5 py-0.5 bg-amber-500 text-slate-950 animate-pulse">
-                TIER 3 AKTIF
-              </span>
-            </div>
-            
-            {/* Tier Flow Nodes */}
-            <div className="space-y-2 my-2">
-              <div className="flex items-center justify-between p-2 bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs">
-                <span className="font-extrabold text-slate-500">Tier 1 &bull; 15 SA</span>
-                <span className="font-mono font-black text-slate-600 dark:text-slate-400">25% Komisi</span>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs">
-                <span className="font-extrabold text-slate-500">Tier 2 &bull; 18 SA</span>
-                <span className="font-mono font-black text-slate-600 dark:text-slate-400">30% Komisi</span>
-              </div>
-              <div className="flex items-center justify-between p-2 bg-amber-100/90 dark:bg-amber-950/80 border-2 border-amber-400 text-xs font-black shadow-xs">
-                <span className="text-amber-950 dark:text-amber-200 uppercase">Tier 3 &bull; 22 SA</span>
-                <span className="font-mono text-amber-800 dark:text-amber-300">35% Komisi</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Floating Animated Diagram 3: Bottom-Left Sales Active Bar Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{
-              opacity: [0.8, 1, 0.8],
-              y: [0, -6, 0],
-            }}
-            transition={{
-              y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 1 },
-              opacity: { duration: 5, repeat: Infinity, ease: 'easeInOut' },
-            }}
-            className="hidden lg:block absolute bottom-12 left-12 xl:left-20 w-72 p-4 bg-white/85 dark:bg-[#0F172A]/85 border-2 border-slate-200 dark:border-slate-800/80 shadow-xl backdrop-blur-md"
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 mb-2">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <span className="text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider">
-                  Closing SA Volume
-                </span>
-              </div>
-              <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                22 SA
-              </span>
-            </div>
-            {/* CSS Bar Chart */}
-            <div className="flex items-end justify-between h-14 gap-2 pt-2">
-              <div className="flex-1 bg-indigo-200 dark:bg-indigo-950/60 h-[40%] relative group">
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-slate-500">12</span>
-              </div>
-              <div className="flex-1 bg-indigo-300 dark:bg-indigo-900/60 h-[58%] relative group">
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-slate-500">15</span>
-              </div>
-              <div className="flex-1 bg-indigo-400 dark:bg-indigo-800/80 h-[70%] relative group">
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-bold text-slate-500">18</span>
-              </div>
-              <motion.div
-                animate={{ height: ['90%', '100%', '90%'] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="flex-1 bg-indigo-600 dark:bg-indigo-500 h-[100%] relative group border-t-2 border-indigo-400"
-              >
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] font-black text-indigo-600 dark:text-indigo-300">22</span>
-              </motion.div>
-            </div>
-            <div className="flex justify-between text-[9px] font-bold text-slate-400 mt-1 uppercase">
-              <span>Bln 1</span>
-              <span>Bln 2</span>
-              <span>Bln 3</span>
-              <span className="text-indigo-600 dark:text-indigo-400 font-black">Sekarang</span>
-            </div>
-          </motion.div>
-
-          {/* Floating Animated Diagram 4: Bottom-Right Schedule / Live Activity Feed */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{
-              opacity: [0.85, 1, 0.85],
-              y: [0, 6, 0],
-            }}
-            transition={{
-              y: { duration: 6.5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 },
-              opacity: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-            }}
-            className="hidden lg:block absolute bottom-12 right-12 xl:right-20 w-80 p-4 bg-white/85 dark:bg-[#0F172A]/85 border-2 border-slate-200 dark:border-slate-800/80 shadow-xl backdrop-blur-md"
-          >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800 mb-2">
-              <div className="flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <span className="text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider">
-                  Schedule &amp; Follow-Up Sync
-                </span>
-              </div>
-              <span className="flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                Live Cloud
-              </span>
-            </div>
-            {/* Schedule Items List Preview */}
-            <div className="space-y-1.5 text-[11px]">
-              <div className="p-2 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <div>
-                  <div className="font-extrabold text-slate-800 dark:text-slate-200">PT Oxy Digital</div>
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-amber-500" />
-                    <span>31 Jul &bull; 10:00 WIB</span>
-                  </div>
-                </div>
-                <span className="px-1.5 py-0.5 bg-amber-500 text-slate-950 font-black text-[9px] uppercase">
-                  Follow-Up
-                </span>
-              </div>
-              <div className="p-2 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <div>
-                  <div className="font-extrabold text-slate-800 dark:text-slate-200">Warkop Barokah</div>
-                  <div className="text-[10px] text-slate-500 flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-blue-500" />
-                    <span>01 Ags &bull; 14:00 WIB</span>
-                  </div>
-                </div>
-                <span className="px-1.5 py-0.5 bg-emerald-600 text-white font-black text-[9px] uppercase">
-                  Closing Deal
-                </span>
-              </div>
-            </div>
-          </motion.div>
         </div>
       )}
 
@@ -397,7 +185,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <footer className="relative z-10 border-t py-3 px-6 text-center text-xs font-extrabold uppercase shrink-0 transition-colors border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0F172A]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <span>Support for Oxygen</span>
-          <span>&copy; {new Date().getFullYear()} Beta Version</span>
+          <span>&copy; {new Date().getFullYear()} | Beta Version</span>
         </div>
       </footer>
     </div>
