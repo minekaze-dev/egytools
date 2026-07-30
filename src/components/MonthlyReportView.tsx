@@ -221,8 +221,6 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       (item) =>
         item.namaPelanggan.toLowerCase().includes(q) ||
         item.nomorInternet.toLowerCase().includes(q) ||
-        item.area.toLowerCase().includes(q) ||
-        item.sales.toLowerCase().includes(q) ||
         item.packageName.toLowerCase().includes(q)
     );
   }, [selectedDetail, modalSearchQuery]);
@@ -233,8 +231,6 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       'No',
       'No Internet',
       'Nama Pelanggan',
-      'Area',
-      'Sales',
       'Paket',
       'Periode',
       'Tanggal Pasang',
@@ -249,8 +245,6 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       idx + 1,
       `"${(c.nomorInternet || '').replace(/"/g, '""')}"`,
       `"${(c.namaPelanggan || '').replace(/"/g, '""')}"`,
-      `"${(c.area || '').replace(/"/g, '""')}"`,
-      `"${(c.sales || '').replace(/"/g, '""')}"`,
       `"${(c.packageName || '').replace(/"/g, '""')}"`,
       `"${c.periode}"`,
       `"${c.tanggalPasang || ''}"`,
@@ -776,7 +770,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Cari nama, ID, area, sales..."
+                    placeholder="Cari nama, ID, paket..."
                     value={modalSearchQuery}
                     onChange={(e) => setModalSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-blue-600"
@@ -825,7 +819,6 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                       <th className="p-2.5 text-center">No</th>
                       <th className="p-2.5">Tgl Pasang</th>
                       <th className="p-2.5">Pelanggan</th>
-                      <th className="p-2.5">Area & Sales</th>
                       <th className="p-2.5">Paket & Periode</th>
                       <th className="p-2.5 text-center">Status</th>
                       <th className="p-2.5 text-right">Gross Rev</th>
@@ -836,7 +829,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-semibold text-slate-800 dark:text-slate-200">
                     {modalFilteredItems.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="p-8 text-center text-slate-400 font-bold">
+                        <td colSpan={8} className="p-8 text-center text-slate-400 font-bold">
                           Tidak ada data pelanggan yang cocok dengan pencarian
                         </td>
                       </tr>
@@ -848,10 +841,6 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                           <td className="p-2.5">
                             <div className="font-extrabold text-slate-900 dark:text-white">{item.namaPelanggan}</div>
                             <div className="font-mono text-[10px] text-blue-600 dark:text-blue-400">{item.nomorInternet}</div>
-                          </td>
-                          <td className="p-2.5">
-                            <div className="font-bold">{item.area}</div>
-                            <div className="text-[10px] text-slate-400 uppercase">Sales: {item.sales || '-'}</div>
                           </td>
                           <td className="p-2.5">
                             <div className="font-extrabold">{item.packageName}</div>
@@ -877,7 +866,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                   {/* Modal Footer Totals */}
                   <tfoot>
                     <tr className="bg-slate-100 dark:bg-slate-900 font-black text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-slate-700">
-                      <td colSpan={6} className="p-3 text-right uppercase">Total Filtered ({modalFilteredItems.length}):</td>
+                      <td colSpan={5} className="p-3 text-right uppercase">Total Filtered ({modalFilteredItems.length}):</td>
                       <td className="p-3 text-right font-mono">
                         {formatRupiah(modalFilteredItems.reduce((sum, i) => sum + i.grossContract, 0))}
                       </td>
