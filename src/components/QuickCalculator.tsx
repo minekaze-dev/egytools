@@ -12,7 +12,7 @@ import {
   Zap,
   User,
   HelpCircle,
-  ChevronLeft,
+  Info,
   Eye,
 } from 'lucide-react';
 import { BillingPeriod } from '../types/customer';
@@ -30,6 +30,8 @@ interface QuickItem {
 interface QuickCalculatorProps {
   onBackToLanding?: () => void;
   onEnterDashboard?: () => void;
+  darkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 const PACKAGE_PRICES = [
@@ -56,8 +58,11 @@ const PERIOD_OPTIONS: BillingPeriod[] = ['Bulanan', '3 Bulan', '6 Bulan', 'Tahun
 export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
   onBackToLanding,
   onEnterDashboard,
+  darkMode,
+  onToggleDarkMode,
 }) => {
   const [userName, setUserName] = useState('');
+  const [nameError, setNameError] = useState('');
   const [items, setItems] = useState<QuickItem[]>([]);
 
   // Custom single item builder state
@@ -119,9 +124,11 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
   // Start calculation animation
   const handleStartCalculate = () => {
     if (!userName.trim()) {
-      alert('Mohon masukkan Nama Anda terlebih dahulu.');
+      setNameError('Isi nama Anda dulu!');
       return;
     }
+
+    setNameError('');
 
     if (items.length === 0) {
       alert('Mohon tambahkan minimal 1 item penjualan.');
@@ -146,15 +153,15 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
   return (
     <div className="w-full max-w-6xl mx-auto px-1 sm:px-2 pt-3 sm:pt-4 pb-2 font-sans">
       {/* Header bar */}
-      <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-slate-200 dark:border-slate-800 gap-2">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="p-1.5 bg-blue-600 text-white border-2 border-blue-700">
+          <div className="p-1.5 bg-blue-600 text-white border-2 border-blue-700 shrink-0">
             <Calculator className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-sm sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
               Hitung Cepat Revenue & Komisi
-              <span className="text-[10px] bg-amber-500 text-slate-950 px-1.5 py-0.5 font-extrabold uppercase">
+              <span className="text-[10px] bg-amber-500 text-slate-950 px-1.5 py-0.5 font-extrabold uppercase shrink-0">
                 Simulasi
               </span>
             </h2>
@@ -163,16 +170,6 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
             </p>
           </div>
         </div>
-
-        {onBackToLanding && (
-          <button
-            onClick={onBackToLanding}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-extrabold text-xs uppercase border-2 border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Kembali</span>
-          </button>
-        )}
       </div>
 
       {/* FULL CENTERED ANIMATION STATE */}
@@ -290,7 +287,7 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
             </div>
 
             {/* Action Buttons in Full Result Screen */}
-            <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto">
+            <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
               <button
                 onClick={() => setCalcState('details')}
                 className="flex-1 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider border-2 border-emerald-400 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-[0.99]"
@@ -306,16 +303,6 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
                 <RotateCcw className="w-4 h-4" />
                 <span>Hitung Ulang</span>
               </button>
-
-              {onEnterDashboard && (
-                <button
-                  onClick={onEnterDashboard}
-                  className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs sm:text-sm uppercase border-2 border-blue-500 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
-                >
-                  <span>Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -327,18 +314,44 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
           {/* LEFT COLUMN: Input Form & Items List */}
           <div className="lg:col-span-7 space-y-3">
             {/* Input Nama User */}
-            <div className="p-3 bg-white dark:bg-[#0F172A] border-2 border-blue-600 dark:border-blue-500 shadow-xs">
-              <label className="block text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1 flex items-center gap-2">
-                <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>Nama Lengkap / Sales <span className="text-rose-500">*</span></span>
-              </label>
+            <div
+              className={`p-3 bg-white dark:bg-[#0F172A] border-2 transition-colors shadow-xs ${
+                nameError
+                  ? 'border-rose-500 dark:border-rose-500 bg-rose-50/30 dark:bg-rose-950/20'
+                  : 'border-blue-600 dark:border-blue-500'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wide flex items-center gap-2">
+                  <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span>Nama Lengkap / Sales <span className="text-rose-500">*</span></span>
+                </label>
+                {nameError && (
+                  <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase bg-rose-100 dark:bg-rose-950/80 px-2 py-0.5 border border-rose-300 dark:border-rose-800">
+                    ⚠️ {nameError}
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e) => {
+                  setUserName(e.target.value);
+                  if (e.target.value.trim()) setNameError('');
+                }}
                 placeholder="Contoh: Budi Santoso"
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold text-xs sm:text-sm focus:outline-hidden focus:border-blue-600 dark:focus:border-blue-400"
+                className={`w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border-2 font-bold text-xs sm:text-sm focus:outline-hidden ${
+                  nameError
+                    ? 'border-rose-500 text-rose-900 dark:text-rose-200 focus:border-rose-600'
+                    : 'border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:border-blue-600 dark:focus:border-blue-400'
+                }`}
               />
+              {nameError && (
+                <p className="mt-1 text-[11px] font-extrabold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                  <Info className="w-3.5 h-3.5 shrink-0" />
+                  <span>Isi nama Anda dulu sebelum melakukan perhitungan.</span>
+                </p>
+              )}
             </div>
 
             {/* Quick Add Form Section */}
@@ -638,21 +651,11 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
                 <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={() => setCalcState('input')}
-                    className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-black text-xs uppercase border-2 border-slate-300 dark:border-slate-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-black text-xs uppercase border-2 border-slate-300 dark:border-slate-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Hitung Ulang</span>
                   </button>
-
-                  {onEnterDashboard && (
-                    <button
-                      onClick={onEnterDashboard}
-                      className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase border-2 border-blue-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-                    >
-                      <span>Dashboard Utama</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
                 </div>
               </div>
             )}

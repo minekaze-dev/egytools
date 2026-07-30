@@ -7,6 +7,8 @@ import {
   ShieldCheck,
   Info,
   Calculator,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { QuickCalculator } from './QuickCalculator';
 
@@ -41,7 +43,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       }
     >
       {!showCalculator && (
-        <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-[1px] pointer-events-none" />
+        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[1px] pointer-events-none" />
       )}
 
       {/* Navbar */}
@@ -90,9 +92,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             >
               <Calculator className="w-4 h-4" />
               <span className="hidden sm:inline">
-                {showCalculator ? 'Beranda' : 'Quick Calc'}
+                {showCalculator ? 'Beranda' : 'Simulasi Revenue'}
               </span>
             </button>
+
+            {showCalculator && (
+              <button
+                onClick={onToggleDarkMode}
+                className="p-2 border-2 transition-colors cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700 shadow-xs"
+                title="Ganti Tema"
+              >
+                {darkMode ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -104,6 +120,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <QuickCalculator
               onBackToLanding={() => setShowCalculator(false)}
               onEnterDashboard={onEnterApp}
+              darkMode={darkMode}
+              onToggleDarkMode={onToggleDarkMode}
             />
           </div>
         ) : (
@@ -161,7 +179,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="p-3 sm:p-3.5 bg-slate-900/85 border-2 border-slate-700 text-amber-300 text-xs font-medium text-center flex items-start gap-2.5 justify-center leading-relaxed backdrop-blur-md shadow-lg">
                 <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Note:</strong> Anda dapat menggunakan aplikasi ini sebagai <strong>Tamu (Guest)</strong>. Namun, jika ingin data tersimpan permanen di cloud dan bisa semua fitur, disarankan untuk <strong>Login / Mendaftar Akun</strong>.
+                  <strong> Anda</strong> dapat menggunakan aplikasi ini sebagai <strong>Tamu (Guest)</strong>. Namun, jika ingin data tersimpan permanen di cloud dan bisa semua fitur, disarankan untuk <strong>Login / Mendaftar Akun</strong>.
                 </span>
               </div>
             </div>
