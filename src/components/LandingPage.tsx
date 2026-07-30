@@ -39,7 +39,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       }`}
       style={
         !showCalculator
-          ? { backgroundImage: `url('https://i.imgur.com/BH1j0tN.jpg')` }
+          ? { backgroundImage: `url('https://i.imgur.com/pb8169l.jpg')` }
           : undefined
       }
     >
