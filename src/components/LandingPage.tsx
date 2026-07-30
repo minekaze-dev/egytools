@@ -9,6 +9,7 @@ import {
   Calculator,
   Sun,
   Moon,
+  CheckCircle2,
 } from 'lucide-react';
 import { QuickCalculator } from './QuickCalculator';
 
@@ -126,10 +127,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         ) : (
           <div className="w-full max-w-3xl my-auto space-y-6 text-center py-6 sm:py-12 animate-in fade-in zoom-in-95 duration-300">
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 text-white text-xs font-black uppercase tracking-wider border border-blue-400 shadow-xl">
-              <ShieldCheck className="w-4 h-4 text-blue-200" />
-              <span>OxyMod V.1.0 by E61</span>
+            {/* Top Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white text-[11px] sm:text-xs font-black uppercase tracking-wider border border-blue-400 shadow-xl">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-200" />
+                <span>OxyMod V.1.0 by E61</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600/90 text-emerald-100 text-[11px] sm:text-xs font-black uppercase tracking-wider border border-emerald-400/80 shadow-xl backdrop-blur-sm">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-300" />
+                <span>Akurasi Est Komisi 90% Sesuai</span>
+              </div>
             </div>
 
             {/* Title */}
