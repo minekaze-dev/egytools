@@ -50,9 +50,58 @@ html {
   scrollbar-color: #1e293b #090d16;
 }
 
-/* UI Style: Modern Mode Overrides */
+/* UI Style: Modern Mode Overrides (Fresh Rounded, Borderless Solid Fills) */
+
+/* 1. Eliminate harsh/thick 2px border lists and outlines */
+html.ui-modern .border-2,
+html.ui-modern .border-3,
+html.ui-modern .border-4 {
+  border-width: 1px !important;
+}
+
+html.ui-modern .border-t-2 {
+  border-top-width: 1px !important;
+}
+
+html.ui-modern .border-b-2 {
+  border-bottom-width: 1px !important;
+}
+
+html.ui-modern .border-l-2 {
+  border-left-width: 1px !important;
+}
+
+html.ui-modern .border-r-2 {
+  border-right-width: 1px !important;
+}
+
+/* Soften all border colors in Modern Mode */
+html.ui-modern .border-slate-100,
+html.ui-modern .border-slate-200,
+html.ui-modern .border-slate-300 {
+  border-color: rgba(226, 232, 240, 0.5) !important;
+}
+
+html.ui-modern .border-slate-700,
+html.ui-modern .border-slate-800,
+html.ui-modern .border-slate-900 {
+  border-color: rgba(30, 41, 59, 0.4) !important;
+}
+
+.dark html.ui-modern .border-slate-100,
+.dark html.ui-modern .border-slate-200,
+.dark html.ui-modern .border-slate-300,
+.dark html.ui-modern .border-slate-700,
+.dark html.ui-modern .border-slate-800,
+.dark html.ui-modern .border-slate-900,
+html.ui-modern .dark\:border-slate-800,
+html.ui-modern .dark\:border-slate-700 {
+  border-color: rgba(30, 41, 59, 0.4) !important;
+}
+
+/* 2. Global rounding transformation for Modern Mode */
 html.ui-modern .rounded-none {
-  border-radius: 0.85rem !important; /* ~14px smooth modern rounding */
+  border-radius: 1.125rem !important; /* ~18px smooth modern rounding */
 }
 
 html.ui-modern .p-1.5.rounded-none,
@@ -61,24 +110,149 @@ html.ui-modern .p-2.5.rounded-none,
 html.ui-modern .p-3.rounded-none,
 html.ui-modern .px-1.5.py-0.5.rounded-none,
 html.ui-modern .px-2.py-0.5.rounded-none {
-  border-radius: 0.5rem !important; /* ~8px for small badges/icons */
+  border-radius: 0.625rem !important; /* ~10px for small badges/icons */
 }
 
+/* Round main content containers, cards, headers, panels */
+html.ui-modern div.bg-white,
+html.ui-modern div.bg-slate-50,
+html.ui-modern div.bg-slate-900,
+html.ui-modern div.bg-\[\#0F172A\],
+html.ui-modern section,
+html.ui-modern article,
+html.ui-modern header,
+html.ui-modern aside {
+  border-radius: 1.125rem;
+}
+
+/* 3. Borderless Solid Modal Popups */
+html.ui-modern .fixed .bg-white,
+html.ui-modern .fixed .bg-slate-900,
+html.ui-modern .fixed .bg-\[\#0F172A\],
+html.ui-modern [role="dialog"] {
+  border: none !important;
+  border-width: 0 !important;
+  border-radius: 1.5rem !important; /* 24px rounded modals */
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Khusus Modal Login di Tema Gelap: Memiliki list/border biru terang */
+.dark #auth-modal,
+.dark html.ui-modern #auth-modal {
+  border: 2px solid #3b82f6 !important;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.35), 0 25px 60px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 4. Completely Borderless Solid Buttons in Modern Mode */
+html.ui-modern button {
+  border: none !important;
+  border-width: 0 !important;
+  border-color: transparent !important;
+  border-radius: 0.85rem !important; /* ~14px smooth rounded corners */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Outline / Ghost / White buttons get solid background fill instead of outline strokes */
+html.ui-modern button.bg-white {
+  background-color: #f1f5f9 !important; /* Solid light slate-100 fill */
+  color: #0f172a !important;
+}
+
+.dark html.ui-modern button.bg-white,
+.dark html.ui-modern button.bg-slate-900,
+.dark html.ui-modern button.bg-slate-950 {
+  background-color: #1e293b !important; /* Solid dark slate-800 fill */
+  color: #f8fafc !important;
+}
+
+/* Primary Accent Buttons (Blue, Green, Emerald, Lime, Slate) */
+html.ui-modern button.bg-blue-600 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.35) !important;
+}
+
+html.ui-modern button.bg-emerald-600 {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px -2px rgba(5, 150, 105, 0.35) !important;
+}
+
+html.ui-modern button.bg-indigo-600 {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.35) !important;
+}
+
+html.ui-modern button.bg-\[\#a3e635\] {
+  background-color: #a3e635 !important;
+  color: #020617 !important;
+  box-shadow: 0 4px 14px -2px rgba(163, 230, 53, 0.35) !important;
+}
+
+html.ui-modern button:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+}
+
+/* 5. Modern Inputs & Selects */
 html.ui-modern input,
 html.ui-modern select,
-html.ui-modern textarea,
-html.ui-modern button {
-  border-radius: 0.75rem;
+html.ui-modern textarea {
+  border-radius: 0.85rem !important;
+  border-width: 1px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.2s ease !important;
 }
 
+html.ui-modern input:focus,
+html.ui-modern select:focus,
+html.ui-modern textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.18) !important;
+}
+
+/* 6. Modern Badges & Pills */
+html.ui-modern span.px-2,
+html.ui-modern span.px-2.5,
+html.ui-modern span.px-3,
+html.ui-modern span.px-1.5 {
+  border-radius: 9999px !important; /* Full pill badges */
+  border: none !important; /* Remove harsh badge borders */
+  border-width: 0 !important;
+}
+
+/* 7. Modern Table Styling */
+html.ui-modern table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 1.125rem !important;
+  overflow: hidden !important;
+}
+
+html.ui-modern th,
+html.ui-modern td {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+}
+
+.dark html.ui-modern th,
+.dark html.ui-modern td {
+  border-bottom: 1px solid rgba(30, 41, 59, 0.5) !important;
+}
+
+html.ui-modern tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* 8. Modern Ambient Shadows */
 html.ui-modern .shadow-xs,
 html.ui-modern .shadow-sm {
-  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02) !important;
 }
 
 html.ui-modern .shadow-md,
 html.ui-modern .shadow-lg,
 html.ui-modern .shadow-xl {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.08), 0 8px 12px -6px rgba(0, 0, 0, 0.03) !important;
 }
 

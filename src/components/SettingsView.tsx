@@ -194,10 +194,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <button
               type="button"
               onClick={() => setStyleMode('klasik')}
-              className={`p-4 border-2 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
+              className={`p-4 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
                 styleMode === 'klasik'
-                  ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30 text-blue-900 dark:text-blue-100'
-                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                  ? 'border-2 border-blue-600 bg-blue-50/40 dark:bg-blue-950/30 text-blue-900 dark:text-blue-100 rounded-none'
+                  : 'border-2 border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300 rounded-none'
               }`}
             >
               <div className={`p-2 border-2 ${styleMode === 'klasik' ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
@@ -205,7 +205,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wide">
-                  Mode Klasik (Flat & Boxy)
+                  Mode Klasik (Flat &amp; Boxy)
                   {styleMode === 'klasik' && (
                     <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-bold uppercase">
                       Aktif
@@ -213,7 +213,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
-                  Tampilan kaku & tegas dengan sudut tajam (0px border-radius) khas sistem enterprise/dashboard.
+                  Tampilan kaku &amp; tegas dengan sudut tajam (0px border-radius) khas sistem enterprise/dashboard.
                 </p>
               </div>
             </button>
@@ -222,26 +222,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <button
               type="button"
               onClick={() => setStyleMode('modern')}
-              className={`p-4 border-2 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
+              className={`p-4 text-left transition-all cursor-pointer flex items-start gap-3.5 rounded-2xl ${
                 styleMode === 'modern'
-                  ? 'border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-100'
-                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                  ? 'bg-emerald-500/10 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 ring-2 ring-emerald-500 shadow-lg shadow-emerald-500/10'
+                  : 'border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
               }`}
             >
-              <div className={`p-2 border-2 ${styleMode === 'modern' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+              <div className={`p-2.5 rounded-xl ${styleMode === 'modern' ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wide">
                   Mode Modern (Fresh Rounded)
                   {styleMode === 'modern' && (
-                    <span className="px-1.5 py-0.5 bg-emerald-600 text-white text-[9px] font-bold uppercase">
+                    <span className="px-2 py-0.5 bg-emerald-500 text-slate-950 text-[9px] font-black uppercase rounded-full shadow-xs">
                       Aktif
                     </span>
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
-                  Tampilan modern & fresh dengan sudut membulat halus (rounded-xl) dan bayangan lembut.
+                  Tampilan modern &amp; fresh dengan sudut membulat halus (rounded-2xl), tanpa border kaku, dan bayangan lembut.
                 </p>
               </div>
             </button>
