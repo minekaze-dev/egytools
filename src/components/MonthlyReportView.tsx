@@ -63,6 +63,168 @@ export interface MonthSummaryData {
   items: CustomerWithCalculations[];
 }
 
+// Helper function to extract day number if date matches expected month/year
+const getDayNumberFromTanggalPasang = (
+  tanggalPasang: string,
+  expectedYear: number,
+  expectedMonthIndex: number
+): number | null => {
+  if (!tanggalPasang || tanggalPasang === '-') return null;
+
+  // Pattern 1: YYYY-MM-DD or YYYY/MM/DD
+  const matchIso = tanggalPasang.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (matchIso) {
+    const y = parseInt(matchIso[1], 10);
+    const m = parseInt(matchIso[2], 10) - 1;
+    const d = parseInt(matchIso[3], 10);
+    if (y === expectedYear && m === expectedMonthIndex) {
+      return d;
+    }
+  }
+
+  // Pattern 2: DD-MM-YYYY or DD/MM/YYYY
+  const matchLocal = tanggalPasang.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (matchLocal) {
+    const d = parseInt(matchLocal[1], 10);
+    const m = parseInt(matchLocal[2], 10) - 1;
+    const y = parseInt(matchLocal[3], 10);
+    if (y === expectedYear && m === expectedMonthIndex) {
+      return d;
+    }
+  }
+
+  // Pattern 3: Fallback Date parse
+  const dateObj = new Date(tanggalPasang);
+  if (!isNaN(dateObj.getTime())) {
+    if (
+      dateObj.getFullYear() === expectedYear &&
+      dateObj.getMonth() === expectedMonthIndex
+    ) {
+      return dateObj.getDate();
+    }
+  }
+
+  return null;
+};
+
+// Mini Calendar Component for Monthly Table Column
+const MiniMonthCalendar: React.FC<{ summary: MonthSummaryData }> = ({ summary }) => {
+  const { year, monthIndex, monthName, items } = summary;
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const startOffset = new Date(year, monthIndex, 1).getDay(); // 0 = Sun, 6 = Sat
+
+  // Group items by day number
+  const daysMap = useMemo(() => {
+    const map = new Map<number, CustomerWithCalculations[]>();
+    for (let d = 1; d <= daysInMonth; d++) {
+      map.set(d, []);
+    }
+    items.forEach((item) => {
+      const day = getDayNumberFromTanggalPasang(item.tanggalPasang, year, monthIndex);
+      if (day && day >= 1 && day <= daysInMonth) {
+        map.get(day)!.push(item);
+      }
+    });
+    return map;
+  }, [items, year, monthIndex, daysInMonth]);
+
+  const totalInstalledDays = useMemo(() => {
+    let count = 0;
+    daysMap.forEach((list) => {
+      if (list.length > 0) count++;
+    });
+    return count;
+  }, [daysMap]);
+
+  return (
+    <div className="mt-2 p-2 bg-slate-50/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-none w-fit">
+      <div className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 flex items-center justify-between gap-3">
+        <span>Kalender Pemasangan</span>
+        <span className="text-[8px] text-lime-600 dark:text-lime-400 font-extrabold flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] inline-block" />
+          {totalInstalledDays} Hari Ada Pasang
+        </span>
+      </div>
+
+      {/* Weekday Labels (Sun-Sat) */}
+      <div className="grid grid-cols-7 gap-0.5 text-center font-black text-[8px] uppercase text-slate-400 mb-1">
+        <div>M</div>
+        <div>S</div>
+        <div>S</div>
+        <div>R</div>
+        <div>K</div>
+        <div>J</div>
+        <div>S</div>
+      </div>
+
+      {/* Calendar Grid 1..31 */}
+      <div className="grid grid-cols-7 gap-0.5">
+        {/* Empty Offset Cells */}
+        {Array.from({ length: startOffset }).map((_, i) => (
+          <div key={`off-${i}`} className="w-5 h-5 opacity-0" />
+        ))}
+
+        {/* Day Cells */}
+        {Array.from({ length: daysInMonth }).map((_, idx) => {
+          const d = idx + 1;
+          const dayItems = daysMap.get(d) || [];
+          const hasInstalls = dayItems.length > 0;
+
+          // Positioning popover horizontally based on column index
+          const gridIndex = startOffset + idx;
+          const col = gridIndex % 7;
+          let horizPosClass = 'left-1/2 -translate-x-1/2';
+          if (col <= 1) horizPosClass = 'left-0 translate-x-0';
+          if (col >= 5) horizPosClass = 'right-0 left-auto translate-x-0';
+
+          return (
+            <div key={d} className="relative group">
+              <div
+                className={`w-5 h-5 flex items-center justify-center text-[9px] font-mono transition-all ${
+                  hasInstalls
+                    ? 'bg-[#a3e635] text-slate-950 font-black border border-lime-600 shadow-xs cursor-pointer hover:scale-110 z-10'
+                    : 'bg-white dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 border border-slate-200/80 dark:border-slate-800'
+                }`}
+              >
+                {d}
+              </div>
+
+              {/* Hover Popover Tooltip */}
+              {hasInstalls && (
+                <div
+                  className={`absolute hidden group-hover:block z-50 w-60 p-2.5 bg-slate-900 dark:bg-slate-950 text-white border-2 border-[#a3e635] shadow-2xl pointer-events-none bottom-full mb-1 ${horizPosClass} animate-in fade-in zoom-in-95 duration-100`}
+                >
+                  <div className="flex items-center justify-between pb-1 border-b border-slate-800 mb-1.5">
+                    <span className="font-extrabold text-[11px] text-[#a3e635]">
+                      {d} {monthName} {year}
+                    </span>
+                    <span className="px-1.5 py-0.2 bg-[#a3e635] text-slate-950 font-black text-[9px] uppercase">
+                      {dayItems.length} Pemasangan
+                    </span>
+                  </div>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pr-0.5">
+                    {dayItems.map((item) => (
+                      <div key={item.id} className="p-1.5 bg-slate-800 border border-slate-700 text-[10px]">
+                        <div className="font-black text-white truncate">{item.namaPelanggan}</div>
+                        <div className="font-mono text-blue-400 font-bold text-[9px]">
+                          ID: {item.nomorInternet}
+                        </div>
+                        <div className="text-slate-300 text-[9px]">
+                          {item.packageName} &bull; {item.periode}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   customers,
   onSelectMonthYear,
@@ -582,13 +744,14 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
                     key={m.monthYearKey}
                     className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 align-top">
                       <div className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                         <span>
                           {m.monthName} {m.year}
                         </span>
                       </div>
+                      <MiniMonthCalendar summary={m} />
                     </td>
                     <td className="px-4 py-3.5 text-center">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 font-black text-xs">
