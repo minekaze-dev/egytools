@@ -29,6 +29,8 @@ interface MonthlyReportViewProps {
   onOpenAddModalWithDate?: (dateIso: string) => void;
   isLoggedIn?: boolean;
   onOpenAuth?: () => void;
+  selectedMonthExternal?: string;
+  selectedYearExternal?: string;
 }
 
 const MONTH_NAMES = [
@@ -230,6 +232,8 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   onSelectMonthYear,
   isLoggedIn = false,
   onOpenAuth,
+  selectedMonthExternal,
+  selectedYearExternal,
 }) => {
   const [selectedYearFilter, setSelectedYearFilter] = useState<string>('ALL');
   const [selectedDetail, setSelectedDetail] = useState<MonthSummaryData | null>(null);
@@ -258,6 +262,11 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
   const monthlySummaries = useMemo(() => {
     const map = new Map<string, Customer[]>();
 
+    // Ensure current month is always present for real-time new month tracking
+    const now = new Date();
+    const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    map.set(currentKey, []);
+
     customers.forEach((c) => {
       if (!c.tanggalPasang || c.tanggalPasang === '-') return;
       const date = new Date(c.tanggalPasang);
@@ -280,7 +289,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       const year = parseInt(yearStr, 10);
       const monthIndex = parseInt(monthStr, 10) - 1;
 
-      // Filter by selected year if applicable
+      // Filter by selected internal year filter if applicable
       if (selectedYearFilter !== 'ALL' && year.toString() !== selectedYearFilter) {
         return;
       }
@@ -358,9 +367,19 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
     });
   }, [customers, selectedYearFilter]);
 
-  // Global Totals across the summary
+  // Global Totals filtered by selected month/year cards
   const grandTotals = useMemo(() => {
-    return monthlySummaries.reduce(
+    const filtered = monthlySummaries.filter(curr => {
+      if (selectedYearExternal && selectedYearExternal !== 'ALL' && curr.year.toString() !== selectedYearExternal) {
+        return false;
+      }
+      if (selectedMonthExternal && selectedMonthExternal !== 'ALL' && curr.monthIndex.toString() !== selectedMonthExternal) {
+        return false;
+      }
+      return true;
+    });
+
+    return filtered.reduce(
       (acc, curr) => {
         acc.totalSA += curr.totalSAActive;
         acc.totalGross += curr.totalGrossRevenue;
@@ -371,7 +390,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       },
       { totalSA: 0, totalGross: 0, totalNet: 0, totalKomisi: 0, totalKomisiTahunan: 0 }
     );
-  }, [monthlySummaries]);
+  }, [monthlySummaries, selectedMonthExternal, selectedYearExternal]);
 
   // Filter items in Detail Modal by search query
   const modalFilteredItems = useMemo(() => {

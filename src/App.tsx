@@ -19,8 +19,14 @@ import { LandingPage } from './components/LandingPage';
 import { MonthlyReportView } from './components/MonthlyReportView';
 import { TargetSaCard } from './components/TargetSaCard';
 import { SettingsView } from './components/SettingsView';
+import { LeadsView } from './components/LeadsView';
+import { FollowUpView } from './components/FollowUpView';
+import { FollowUpReminderWidget } from './components/FollowUpReminderWidget';
 
-import { getPackageById } from './data/packages';
+import { Lead, FollowUpSchedule } from './types/crm';
+import { INITIAL_LEADS, INITIAL_FOLLOW_UPS } from './data/initialCrmData';
+
+import { getPackageById, MASTER_PACKAGES } from './data/packages';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -57,6 +63,25 @@ export default function App() {
     return saved === 'modern' ? 'modern' : 'klasik';
   });
 
+  const [showLeadsMenu, setShowLeadsMenu] = useState<boolean>(() => {
+    const saved = localStorage.getItem('isp_crm_show_leads_menu');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const [showFollowUpMenu, setShowFollowUpMenu] = useState<boolean>(() => {
+    const saved = localStorage.getItem('isp_crm_show_followup_menu');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  useEffect(() => {
+    if (activeTab === 'leads' && !showLeadsMenu) {
+      setActiveTab('revenue_analytics');
+    }
+    if (activeTab === 'follow_up' && !showFollowUpMenu) {
+      setActiveTab('revenue_analytics');
+    }
+  }, [activeTab, showLeadsMenu, showFollowUpMenu]);
+
   useEffect(() => {
     const root = document.documentElement;
     if (darkMode) {
@@ -82,7 +107,13 @@ export default function App() {
   // 2. Customers state
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  // Supabase Auth Listener & Customer Loader
+  // 2b. Leads state
+  const [leads, setLeads] = useState<Lead[]>([]);
+
+  // 2c. Follow Up state
+  const [followUps, setFollowUps] = useState<FollowUpSchedule[]>([]);
+
+  // Supabase Auth Listener & Realtime Data Loader
   useEffect(() => {
     let isMounted = true;
 
@@ -92,20 +123,42 @@ export default function App() {
         // Load from Supabase Database
         try {
           // Fetch customers
-          const { data, error } = await supabase
+          const { data: custData, error: custError } = await supabase
             .from('customers')
             .select('*')
             .eq('user_id', currentUser.id)
             .order('createdAt', { ascending: false });
 
-          if (!error && data && isMounted) {
-            setCustomers(data as Customer[]);
+          if (!custError && custData && isMounted) {
+            setCustomers(custData as Customer[]);
           } else {
-            // Fallback to local if error or table missing
-            const saved = localStorage.getItem('isp_crm_customers');
-            if (saved && isMounted) {
-              setCustomers(JSON.parse(saved));
-            }
+            setCustomers([]);
+          }
+
+          // Fetch leads
+          const { data: leadsData, error: leadsError } = await supabase
+            .from('leads')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('createdAt', { ascending: false });
+
+          if (!leadsError && leadsData && isMounted) {
+            setLeads(leadsData as Lead[]);
+          } else {
+            setLeads([]);
+          }
+
+          // Fetch follow_up_schedules
+          const { data: fuData, error: fuError } = await supabase
+            .from('follow_up_schedules')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('createdAt', { ascending: false });
+
+          if (!fuError && fuData && isMounted) {
+            setFollowUps(fuData as FollowUpSchedule[]);
+          } else {
+            setFollowUps([]);
           }
 
           // Fetch profile settings (target SA & full_name)
@@ -129,24 +182,16 @@ export default function App() {
             console.error('Error fetching user profile:', pe);
           }
         } catch (e) {
-          console.error('Error fetching Supabase customers:', e);
-          const saved = localStorage.getItem('isp_crm_customers');
-          if (saved && isMounted) {
-            setCustomers(JSON.parse(saved));
-          }
+          console.error('Error fetching Supabase data:', e);
+          setCustomers([]);
+          setLeads([]);
+          setFollowUps([]);
         }
       } else {
-        // Guest mode -> Load from LocalStorage
-        const saved = localStorage.getItem('isp_crm_customers');
-        if (saved && isMounted) {
-          try {
-            setCustomers(JSON.parse(saved));
-          } catch {
-            setCustomers([]);
-          }
-        } else if (isMounted) {
-          setCustomers([]);
-        }
+        // Guest mode -> Start empty if no explicit input
+        setCustomers([]);
+        setLeads([]);
+        setFollowUps([]);
       }
       if (isMounted) setIsLoading(false);
     };
@@ -174,20 +219,16 @@ export default function App() {
     };
   }, []);
 
-  // Save Effect for Guest Mode Local Storage
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
-      localStorage.setItem('isp_crm_customers', JSON.stringify(customers));
-    }
-  }, [customers, isLoading, user]);
-
   // Logout Handler & Strict Session Invalidation
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setCustomers([]);
+    setLeads([]);
+    setFollowUps([]);
     localStorage.removeItem('isp_crm_customers');
+    localStorage.removeItem('isp_crm_leads');
+    localStorage.removeItem('isp_crm_followups');
     setIsLandingPage(true);
     // Overwrite browser history state to prevent viewing cached data via browser Back button
     window.history.replaceState(null, '', window.location.href);
@@ -240,13 +281,73 @@ export default function App() {
     }
   };
 
-  // Settings Save Handler (User name, Monthly Target SA & UI Style)
-  const handleSaveSettings = async (newName: string, newTargetSa: number, newUiStyle?: 'klasik' | 'modern') => {
+  const syncLeadToSupabase = async (lead: Lead, isDelete = false) => {
+    if (!user) return;
+    try {
+      if (isDelete) {
+        await supabase
+          .from('leads')
+          .delete()
+          .eq('id', lead.id)
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('leads')
+          .upsert({
+            ...lead,
+            user_id: user.id,
+          });
+      }
+    } catch (err) {
+      console.error('Supabase lead sync error:', err);
+    }
+  };
+
+  const syncFuToSupabase = async (fu: FollowUpSchedule, isDelete = false) => {
+    if (!user) return;
+    try {
+      if (isDelete) {
+        await supabase
+          .from('follow_up_schedules')
+          .delete()
+          .eq('id', fu.id)
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('follow_up_schedules')
+          .upsert({
+            ...fu,
+            user_id: user.id,
+          });
+      }
+    } catch (err) {
+      console.error('Supabase FU sync error:', err);
+    }
+  };
+
+  // Settings Save Handler (User name, Monthly Target SA, UI Style & Module Toggles)
+  const handleSaveSettings = async (
+    newName: string, 
+    newTargetSa: number, 
+    newUiStyle?: 'klasik' | 'modern',
+    newShowLeads?: boolean,
+    newShowFollowUp?: boolean
+  ) => {
     if (newUiStyle) {
       setUiStyle(newUiStyle);
     }
     setMonthlyTargetSa(newTargetSa);
     localStorage.setItem('isp_crm_monthly_target_sa', newTargetSa.toString());
+
+    if (newShowLeads !== undefined) {
+      setShowLeadsMenu(newShowLeads);
+      localStorage.setItem('isp_crm_show_leads_menu', newShowLeads.toString());
+    }
+
+    if (newShowFollowUp !== undefined) {
+      setShowFollowUpMenu(newShowFollowUp);
+      localStorage.setItem('isp_crm_show_followup_menu', newShowFollowUp.toString());
+    }
 
     if (user) {
       // Update Supabase Auth user metadata
@@ -277,9 +378,10 @@ export default function App() {
     }
   };
 
-  // 4. Navbar Filter States
-  const [selectedMonth, setSelectedMonth] = useState<string>('ALL');
-  const [selectedYear, setSelectedYear] = useState<string>('ALL');
+  // 4. Navbar Filter States (Default to Current Month & Year)
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => now.getMonth().toString());
+  const [selectedYear, setSelectedYear] = useState<string>(() => now.getFullYear().toString());
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // 5. Modals State
@@ -293,11 +395,15 @@ export default function App() {
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
       if (selectedMonth !== 'ALL' && c.tanggalPasang) {
-        const month = new Date(c.tanggalPasang).getMonth().toString();
+        const dateObj = new Date(c.tanggalPasang);
+        if (isNaN(dateObj.getTime())) return false;
+        const month = dateObj.getMonth().toString();
         if (month !== selectedMonth) return false;
       }
       if (selectedYear !== 'ALL' && c.tanggalPasang) {
-        const year = new Date(c.tanggalPasang).getFullYear().toString();
+        const dateObj = new Date(c.tanggalPasang);
+        if (isNaN(dateObj.getTime())) return false;
+        const year = dateObj.getFullYear().toString();
         if (year !== selectedYear) return false;
       }
       if (searchQuery.trim() !== '') {
@@ -390,6 +496,206 @@ export default function App() {
     }
   };
 
+  // ----------------------------------------------------
+  // LEADS HANDLERS
+  // ----------------------------------------------------
+  const handleAddLead = (leadData: Omit<Lead, 'id' | 'createdAt'>) => {
+    const newLead: Lead = {
+      ...leadData,
+      id: `lead-${Date.now().toString().slice(-5)}`,
+      createdAt: new Date().toISOString(),
+    };
+    setLeads((prev) => [newLead, ...prev]);
+    syncLeadToSupabase(newLead);
+  };
+
+  const handleUpdateLead = (id: string, updates: Partial<Lead>) => {
+    setLeads((prev) => {
+      const updatedList = prev.map((l) => {
+        if (l.id === id) {
+          const updated = { ...l, ...updates };
+          syncLeadToSupabase(updated);
+          return updated;
+        }
+        return l;
+      });
+      return updatedList;
+    });
+  };
+
+  const handleDeleteLead = (id: string) => {
+    const target = leads.find((l) => l.id === id);
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+    if (target) {
+      syncLeadToSupabase(target, true);
+    }
+  };
+
+  const handleConvertToClosing = (
+    lead: Lead,
+    convertDetails: {
+      packageId: string;
+      packageName: string;
+      packagePrice: number;
+      periode: any;
+      tanggalPasang: string;
+      nomorInternet: string;
+      catatan?: string;
+    }
+  ) => {
+    // 1. Create new customer record for Revenue
+    const newCust: Customer = {
+      id: `CUST-${Date.now().toString().slice(-4)}`,
+      namaPelanggan: lead.namaCalonPelanggan,
+      nomorInternet: convertDetails.nomorInternet,
+      nomorHP: lead.nomorHP,
+      area: lead.area,
+      sales: lead.assignedSales,
+      packageId: convertDetails.packageId,
+      packageName: convertDetails.packageName,
+      packagePrice: convertDetails.packagePrice,
+      periode: convertDetails.periode,
+      tanggalPasang: convertDetails.tanggalPasang,
+      status: 'Aktif',
+      catatan: convertDetails.catatan || `Closing dari Lead (${lead.sumberLead})`,
+      createdAt: new Date().toISOString(),
+    };
+
+    setCustomers((prev) => [newCust, ...prev]);
+    syncToSupabase(newCust);
+
+    // 2. Mark lead status as Closing
+    const updatedLead: Lead = {
+      ...lead,
+      statusSurvei: 'Closing',
+      convertedCustomerId: newCust.id,
+    };
+    setLeads((prev) =>
+      prev.map((l) => (l.id === lead.id ? updatedLead : l))
+    );
+    syncLeadToSupabase(updatedLead);
+
+    // 3. Auto-add Follow Up schedule for H+3 installation check
+    const pasangDate = new Date(convertDetails.tanggalPasang);
+    pasangDate.setDate(pasangDate.getDate() + 3);
+    const fuDateStr = pasangDate.toISOString().split('T')[0];
+
+    const newFu: FollowUpSchedule = {
+      id: `fu-${Date.now().toString().slice(-5)}`,
+      namaCustomer: lead.namaCalonPelanggan || 'Customer',
+      nomorHP: lead.nomorHP,
+      tipeFollowUp: 'Diskusi',
+      tanggalFollowUp: fuDateStr,
+      waktuFollowUp: '10:00',
+      status: 'Menunggu',
+      customerType: 'Pelanggan Aktif',
+      referenceId: newCust.id,
+      catatanHasil: 'Cek kualitas koneksi & kepuasan H+3 pasang.',
+      createdAt: new Date().toISOString(),
+    };
+
+    setFollowUps((prev) => [newFu, ...prev]);
+    syncFuToSupabase(newFu);
+
+    // 4. Switch to Revenue Table view
+    setActiveTab('revenue_table');
+  };
+
+  // ----------------------------------------------------
+  // FOLLOW UP HANDLERS
+  // ----------------------------------------------------
+  const handleAddFollowUp = (scheduleData: Omit<FollowUpSchedule, 'id' | 'createdAt'>) => {
+    const newFu: FollowUpSchedule = {
+      ...scheduleData,
+      id: `fu-${Date.now().toString().slice(-5)}`,
+      createdAt: new Date().toISOString(),
+    };
+    setFollowUps((prev) => [newFu, ...prev]);
+    syncFuToSupabase(newFu);
+  };
+
+  const handleUpdateFollowUp = (id: string, updates: Partial<FollowUpSchedule>) => {
+    setFollowUps((prev) => {
+      const updatedList = prev.map((s) => {
+        if (s.id === id) {
+          const updated = { ...s, ...updates };
+          syncFuToSupabase(updated);
+          return updated;
+        }
+        return s;
+      });
+      return updatedList;
+    });
+  };
+
+  const handleDeleteFollowUp = (id: string) => {
+    const target = followUps.find((s) => s.id === id);
+    setFollowUps((prev) => prev.filter((s) => s.id !== id));
+    if (target) {
+      syncFuToSupabase(target, true);
+    }
+  };
+
+  const handleFollowUpConvertToClosing = (s: FollowUpSchedule) => {
+    // If customer already created for this referenceId, prevent double insert
+    if (s.referenceId && customers.some(c => c.id === s.referenceId)) {
+      return;
+    }
+
+    const pkg = MASTER_PACKAGES.find((p) => p.id === s.packageId) || MASTER_PACKAGES[0];
+    const packageId = s.packageId || pkg.id;
+    const packageName = s.packageName || pkg.name;
+    const packagePrice = s.packagePrice || pkg.price;
+    const periode = s.periode || 'Bulanan';
+    const nomorInternet = s.nomorInternet || `88${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+    const newCust: Customer = {
+      id: `CUST-${Date.now().toString().slice(-4)}`,
+      namaPelanggan: s.namaCustomer || 'Customer',
+      nomorInternet,
+      nomorHP: s.nomorHP,
+      area: 'General Area',
+      sales: s.assignedCS || 'CS Sales',
+      packageId,
+      packageName,
+      packagePrice,
+      periode,
+      tanggalPasang: s.tanggalFollowUp || new Date().toISOString().split('T')[0],
+      status: 'Aktif',
+      catatan: `Closing Otomatis dari Menu Follow Up (${s.tipeFollowUp})`,
+      createdAt: new Date().toISOString(),
+    };
+
+    setCustomers((prev) => [newCust, ...prev]);
+    syncToSupabase(newCust);
+
+    // Update Follow Up status & reference
+    const updatedFu: FollowUpSchedule = {
+      ...s,
+      status: 'Closing',
+      referenceId: newCust.id,
+      nomorInternet,
+    };
+    setFollowUps((prev) =>
+      prev.map((item) => (item.id === s.id ? updatedFu : item))
+    );
+    syncFuToSupabase(updatedFu);
+
+    // If linked to a lead, update lead status too
+    if (s.referenceId) {
+      setLeads((prev) =>
+        prev.map((l) => {
+          if (l.id === s.referenceId) {
+            const updatedLead = { ...l, statusSurvei: 'Closing' as const, convertedCustomerId: newCust.id };
+            syncLeadToSupabase(updatedLead);
+            return updatedLead;
+          }
+          return l;
+        })
+      );
+    }
+  };
+
   if (isLandingPage) {
     return (
       <>
@@ -423,6 +729,8 @@ export default function App() {
         onToggleOpen={() => setIsSidebarOpen(!isSidebarOpen)}
         stats={stats}
         onOpenLanding={() => setIsLandingPage(true)}
+        showLeadsMenu={showLeadsMenu}
+        showFollowUpMenu={showFollowUpMenu}
       />
 
       {/* Main Content Body */}
@@ -472,6 +780,17 @@ export default function App() {
                           />
                         </div>
                       </div>
+
+                      {/* Widget Reminder Follow Up CS Harian & Quick Leads */}
+                      {(showFollowUpMenu || showLeadsMenu) && (
+                        <FollowUpReminderWidget
+                          schedules={followUps}
+                          leads={leads}
+                          onNavigateTab={setActiveTab}
+                          onUpdateScheduleStatus={(id, status) => handleUpdateFollowUp(id, { status })}
+                        />
+                      )}
+
                       <RevenueChart customers={customersWithCalculations} />
                     </div>
                   )}
@@ -508,13 +827,43 @@ export default function App() {
                 </div>
               )}
 
-              {/* TAB 2: MONTHLY REVENUE & SA REPORT */}
+              {/* TAB 2: LEADS MANAGEMENT VIEW */}
+              {activeTab === 'leads' && (
+                <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
+                  <LeadsView
+                    leads={leads}
+                    currentUserName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'OxyMod'}
+                    onAddLead={handleAddLead}
+                    onUpdateLead={handleUpdateLead}
+                    onDeleteLead={handleDeleteLead}
+                    onConvertToClosing={handleConvertToClosing}
+                    onScheduleFollowUp={handleAddFollowUp}
+                  />
+                </div>
+              )}
+
+              {/* TAB 3: FOLLOW UP CS REMINDER VIEW */}
+              {activeTab === 'follow_up' && (
+                <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
+                  <FollowUpView
+                    schedules={followUps}
+                    onAddSchedule={handleAddFollowUp}
+                    onUpdateSchedule={handleUpdateFollowUp}
+                    onDeleteSchedule={handleDeleteFollowUp}
+                    onConvertToClosing={handleFollowUpConvertToClosing}
+                  />
+                </div>
+              )}
+
+              {/* TAB 4: MONTHLY REVENUE & SA REPORT */}
               {activeTab === 'reports' && (
                 <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
                   <MonthlyReportView
                     customers={customers}
                     isLoggedIn={!!user}
                     onOpenAuth={() => setIsAuthModalOpen(true)}
+                    selectedMonthExternal={selectedMonth}
+                    selectedYearExternal={selectedYear}
                   />
                 </div>
               )}
@@ -527,6 +876,8 @@ export default function App() {
                     currentName={user?.user_metadata?.full_name || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'User'}
                     monthlyTargetSa={monthlyTargetSa}
                     uiStyle={uiStyle}
+                    showLeadsMenu={showLeadsMenu}
+                    showFollowUpMenu={showFollowUpMenu}
                     onSaveSettings={handleSaveSettings}
                     onOpenSqlModal={() => setIsSqlModalOpen(true)}
                   />

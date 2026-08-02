@@ -1,6 +1,21 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Wifi, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil } from 'lucide-react';
+import { Sun, Moon, Wifi, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil, Calendar } from 'lucide-react';
 import { EditProfileModal } from './EditProfileModal';
+
+const MONTH_NAMES = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
 
 interface NavbarProps {
   darkMode: boolean;
@@ -100,7 +115,40 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Right: Search, Month, Year, Storage Badge, Auth, Dark Mode */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end text-xs sm:text-sm">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end text-xs sm:text-sm">
+          {/* Month Selector */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">
+            <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+            <select
+              value={selectedMonth}
+              onChange={(e) => onChangeMonth(e.target.value)}
+              className="bg-transparent focus:outline-hidden cursor-pointer font-bold uppercase"
+              title="Filter Bulan Active"
+            >
+              <option value="ALL">Semua Bulan</option>
+              {MONTH_NAMES.map((m, idx) => (
+                <option key={idx} value={idx.toString()}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Year Selector */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">
+            <select
+              value={selectedYear}
+              onChange={(e) => onChangeYear(e.target.value)}
+              className="bg-transparent focus:outline-hidden cursor-pointer font-bold uppercase"
+              title="Filter Tahun Active"
+            >
+              <option value="ALL">Semua Tahun</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+
           {/* Storage & Auth Badge/Buttons */}
           <div className="flex items-center gap-2">
             {user ? (

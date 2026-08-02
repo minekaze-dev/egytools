@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.customers (
   "namaPelanggan" TEXT NOT NULL,
   "nomorInternet" TEXT,
   "nomorHP" TEXT,
-  area TEXT,
+  area TEXT DEFAULT '-',
   sales TEXT,
   "packageId" TEXT,
   "packageName" TEXT,
@@ -31,7 +31,50 @@ CREATE TABLE IF NOT EXISTS public.customers (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Create the profiles table for user settings & target SA
+-- 2. Create the leads table (Connected to customers - Area 38 Provinsi)
+CREATE TABLE IF NOT EXISTS public.leads (
+  id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  "namaLead" TEXT NOT NULL,
+  "nomorHP" TEXT,
+  "alamatAlur" TEXT,
+  area TEXT DEFAULT '-',
+  "sumberLead" TEXT,
+  "statusSurvei" TEXT DEFAULT 'New Customer',
+  "assignedCS" TEXT,
+  "convertedCustomerId" TEXT REFERENCES public.customers(id) ON DELETE SET NULL,
+  catatan TEXT,
+  "createdAt" TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Create the follow_up_schedules table (Connected to leads & customers)
+CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
+  id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  "namaCustomer" TEXT NOT NULL,
+  "nomorHP" TEXT,
+  area TEXT DEFAULT '-',
+  "tipeFollowUp" TEXT DEFAULT '-',
+  "tanggalFollowUp" TEXT,
+  "waktuFollowUp" TEXT,
+  status TEXT DEFAULT 'Thinking',
+  "customerType" TEXT DEFAULT 'Lead',
+  "referenceId" TEXT,
+  "assignedCS" TEXT,
+  "catatanHasil" TEXT,
+  "packageId" TEXT,
+  "packageName" TEXT,
+  "packagePrice" NUMERIC DEFAULT 0,
+  periode TEXT,
+  "nomorInternet" TEXT,
+  "createdAt" TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES (Area 38 Provinsi Indonesia):
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+-- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+
+-- 4. Create the profiles table for user settings & target SA
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
@@ -39,27 +82,45 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Enable Row Level Security (RLS) on both tables
+-- 5. Enable Row Level Security (RLS) on all tables
 ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.follow_up_schedules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- 4. Drop any existing policies to avoid conflict
+-- 6. Drop existing policies if any
 DROP POLICY IF EXISTS "Users manage their own customers" ON public.customers;
+DROP POLICY IF EXISTS "Users manage their own leads" ON public.leads;
+DROP POLICY IF EXISTS "Users manage their own follow_up_schedules" ON public.follow_up_schedules;
 DROP POLICY IF EXISTS "Users manage their own profiles" ON public.profiles;
 
--- 5. Create RLS Policies for authenticated user access
+DROP POLICY IF EXISTS "Public access customers" ON public.customers;
+DROP POLICY IF EXISTS "Public access leads" ON public.leads;
+DROP POLICY IF EXISTS "Public access follow_up_schedules" ON public.follow_up_schedules;
+DROP POLICY IF EXISTS "Public access profiles" ON public.profiles;
+
+-- 7. Create RLS Policies for authenticated users
 CREATE POLICY "Users manage their own customers" ON public.customers
-  FOR ALL
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+CREATE POLICY "Users manage their own leads" ON public.leads
+  FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+CREATE POLICY "Users manage their own follow_up_schedules" ON public.follow_up_schedules
+  FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users manage their own profiles" ON public.profiles
-  FOR ALL
-  USING (auth.uid() = id)
-  WITH CHECK (auth.uid() = id);
+  FOR ALL USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- 8. Indexes for maximum query performance
+CREATE INDEX IF NOT EXISTS idx_customers_user_id ON public.customers(user_id);
+CREATE INDEX IF NOT EXISTS idx_leads_user_id ON public.leads(user_id);
+CREATE INDEX IF NOT EXISTS idx_leads_converted_customer ON public.leads("convertedCustomerId");
+CREATE INDEX IF NOT EXISTS idx_followups_user_id ON public.follow_up_schedules(user_id);
+CREATE INDEX IF NOT EXISTS idx_followups_reference_id ON public.follow_up_schedules("referenceId");
 
 -- ========================================================
--- Done! Your database is ready for multi-user sync & profile updates.
+-- Done! Database schema is ready for Leads, Follow Up & Revenue.
 -- ========================================================`;
 
 export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({ isOpen, onClose }) => {

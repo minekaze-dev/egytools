@@ -14,6 +14,9 @@ import {
   Palette,
   Square,
   Sparkles,
+  Sliders,
+  Users,
+  Clock,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -22,7 +25,15 @@ interface SettingsViewProps {
   currentName: string;
   monthlyTargetSa: number;
   uiStyle?: 'klasik' | 'modern';
-  onSaveSettings: (newName: string, newTargetSa: number, newUiStyle?: 'klasik' | 'modern') => Promise<void>;
+  showLeadsMenu?: boolean;
+  showFollowUpMenu?: boolean;
+  onSaveSettings: (
+    newName: string, 
+    newTargetSa: number, 
+    newUiStyle?: 'klasik' | 'modern',
+    newShowLeads?: boolean,
+    newShowFollowUp?: boolean
+  ) => Promise<void>;
   onOpenSqlModal: () => void;
 }
 
@@ -31,12 +42,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   currentName,
   monthlyTargetSa,
   uiStyle = 'klasik',
+  showLeadsMenu = true,
+  showFollowUpMenu = true,
   onSaveSettings,
   onOpenSqlModal,
 }) => {
   const [fullName, setFullName] = useState(currentName);
   const [targetSa, setTargetSa] = useState<number>(monthlyTargetSa);
   const [styleMode, setStyleMode] = useState<'klasik' | 'modern'>(uiStyle);
+  const [showLeads, setShowLeads] = useState<boolean>(showLeadsMenu);
+  const [showFollowUp, setShowFollowUp] = useState<boolean>(showFollowUpMenu);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -52,6 +67,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   useEffect(() => {
     setStyleMode(uiStyle);
   }, [uiStyle]);
+
+  useEffect(() => {
+    setShowLeads(showLeadsMenu);
+  }, [showLeadsMenu]);
+
+  useEffect(() => {
+    setShowFollowUp(showFollowUpMenu);
+  }, [showFollowUpMenu]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +94,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
     setIsLoading(true);
     try {
-      await onSaveSettings(trimmedName, targetSa, styleMode);
+      await onSaveSettings(trimmedName, targetSa, styleMode, showLeads, showFollowUp);
       setSuccessMsg('Pengaturan berhasil disimpan!');
       setTimeout(() => setSuccessMsg(null), 3500);
     } catch (err: any) {
@@ -293,6 +316,73 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <strong>Catatan Penting:</strong> Target SA bulanan ini digunakan untuk mengukur progres pencapaian target kerja pribadi Anda setiap bulan. Perhitungan tier komisi (Tier 1-4) tetap mengacu pada aturan resmi skema penutupan SA dan revenue bersih.
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* SECTION 4: MODUL & MENU NAVIGASI (LEADS & FOLLOW UP) */}
+        <div className="p-5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b-2 border-slate-100 dark:border-slate-800">
+            <Sliders className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div>
+              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                Modul &amp; Menu Navigasi CRM
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Aktifkan atau matikan modul Leads dan Follow Up sesuai kebutuhan penggunaan Anda.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Toggle 1: Leads */}
+            <label className={`p-4 border-2 transition-all cursor-pointer flex items-start gap-3.5 select-none ${
+              showLeads 
+                ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30 text-slate-900 dark:text-white'
+                : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400'
+            }`}>
+              <input 
+                type="checkbox"
+                checked={showLeads}
+                onChange={(e) => setShowLeads(e.target.checked)}
+                className="mt-1 w-4 h-4 text-blue-600 border-slate-300 rounded-none focus:ring-blue-500 cursor-pointer"
+              />
+              <div>
+                <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wide">
+                  <Users className="w-4 h-4 text-blue-600 shrink-0" />
+                  Menu Leads (Prospek)
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                  Menampilkan menu pencatatan calon pelanggan, status survei, dan konversi ke Revenue.
+                </p>
+              </div>
+            </label>
+
+            {/* Toggle 2: Follow Up */}
+            <label className={`p-4 border-2 transition-all cursor-pointer flex items-start gap-3.5 select-none ${
+              showFollowUp 
+                ? 'border-emerald-600 bg-emerald-50/40 dark:bg-emerald-950/30 text-slate-900 dark:text-white'
+                : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400'
+            }`}>
+              <input 
+                type="checkbox"
+                checked={showFollowUp}
+                onChange={(e) => setShowFollowUp(e.target.checked)}
+                className="mt-1 w-4 h-4 text-emerald-600 border-slate-300 rounded-none focus:ring-emerald-500 cursor-pointer"
+              />
+              <div>
+                <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wide">
+                  <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                  Menu Follow Up (Reminder CS)
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                  Menampilkan jadwal pengingat prospek, respon follow up, dan tombol kirim WhatsApp CS.
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            💡 <strong>Tips:</strong> Jika kedua modul dimatikan, aplikasi akan berjalan sebagai sistem murni pencatatan &amp; rekapitulasi <strong>Revenue &amp; Sales Active (SA)</strong> saja.
           </div>
         </div>
 

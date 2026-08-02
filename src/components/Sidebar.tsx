@@ -11,12 +11,14 @@ import {
   Wifi,
   ArrowLeft,
   FileText,
-  Settings
+  Settings,
+  Users,
+  Clock
 } from 'lucide-react';
 import { formatRupiah } from '../helpers/currency';
 import { GlobalStats } from '../types/customer';
 
-export type ActiveTab = 'revenue' | 'revenue_analytics' | 'revenue_table' | 'reports' | 'settings';
+export type ActiveTab = 'revenue' | 'revenue_analytics' | 'leads' | 'follow_up' | 'revenue_table' | 'reports' | 'settings';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -25,6 +27,8 @@ interface SidebarProps {
   onToggleOpen: () => void;
   stats: GlobalStats;
   onOpenLanding?: () => void;
+  showLeadsMenu?: boolean;
+  showFollowUpMenu?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -34,6 +38,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleOpen,
   stats,
   onOpenLanding,
+  showLeadsMenu = true,
+  showFollowUpMenu = true,
 }) => {
   const isRevenueActive = activeTab === 'revenue' || activeTab === 'revenue_analytics' || activeTab === 'revenue_table';
   const [isRevenueExpanded, setIsRevenueExpanded] = React.useState<boolean>(true);
@@ -113,11 +119,81 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       activeTab === 'revenue_analytics' || activeTab === 'revenue' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
                     }`}
                   >
-                    Grafik & Statistik
+                    Grafik &amp; Statistik
                   </div>
                 </div>
               </div>
             </button>
+
+            {/* Item 2: Leads (Calon Pelanggan) */}
+            {showLeadsMenu && (
+              <button
+                onClick={() => {
+                  onSelectTab('leads');
+                  if (window.innerWidth < 1024) onToggleOpen();
+                }}
+                className={`w-full text-left px-3.5 py-3 rounded-none flex items-center justify-between transition-all duration-150 group cursor-pointer border-2 ${
+                  activeTab === 'leads'
+                    ? 'bg-blue-600 text-white border-blue-700 font-bold'
+                    : 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Users
+                    className={`w-4 h-4 shrink-0 transition-colors ${
+                      activeTab === 'leads'
+                        ? 'text-white'
+                        : 'text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                    }`}
+                  />
+                  <div className="truncate">
+                    <div className="text-sm font-extrabold leading-tight truncate uppercase">Leads</div>
+                    <div
+                      className={`text-xs mt-0.5 truncate ${
+                        activeTab === 'leads' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      Calon Pelanggan
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )}
+
+            {/* Item 3: Follow Up (Reminder & Kontak CS) */}
+            {showFollowUpMenu && (
+              <button
+                onClick={() => {
+                  onSelectTab('follow_up');
+                  if (window.innerWidth < 1024) onToggleOpen();
+                }}
+                className={`w-full text-left px-3.5 py-3 rounded-none flex items-center justify-between transition-all duration-150 group cursor-pointer border-2 ${
+                  activeTab === 'follow_up'
+                    ? 'bg-blue-600 text-white border-blue-700 font-bold'
+                    : 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Clock
+                    className={`w-4 h-4 shrink-0 transition-colors ${
+                      activeTab === 'follow_up'
+                        ? 'text-white'
+                        : 'text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                    }`}
+                  />
+                  <div className="truncate">
+                    <div className="text-sm font-extrabold leading-tight truncate uppercase">Follow Up</div>
+                    <div
+                      className={`text-xs mt-0.5 truncate ${
+                        activeTab === 'follow_up' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      Reminder &amp; WA CS
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )}
 
             {/* Item 2: Revenue (Tabel Revenue) */}
             <button

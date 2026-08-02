@@ -128,12 +128,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             {/* Title */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight uppercase">
-              Monitoring Revenue &amp; Komisi Sales
+              Oxygen Sales Workspace
             </h1>
 
             {/* Subtitle */}
             <p className="max-w-2xl mx-auto text-slate-600 dark:text-slate-300 text-sm sm:text-base font-bold leading-relaxed">
-              Sistem &amp; monitoring kontrol pendapatan, estimasi revenue, dan kenaikan tier Sales secara akurat dan transparan.
+              Sistem follow up customer &amp; monitoring control revenue secara akurat dan transparan.
             </p>
 
             {/* Call to Action Buttons */}
