@@ -106,13 +106,50 @@ export default function App() {
   }, [uiStyle]);
 
   // 2. Customers state
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    try {
+      const saved = localStorage.getItem('isp_crm_customers');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
 
   // 2b. Leads state
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leads, setLeads] = useState<Lead[]>(() => {
+    try {
+      const saved = localStorage.getItem('isp_crm_leads');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
 
   // 2c. Follow Up state
-  const [followUps, setFollowUps] = useState<FollowUpSchedule[]>([]);
+  const [followUps, setFollowUps] = useState<FollowUpSchedule[]>(() => {
+    try {
+      const saved = localStorage.getItem('isp_crm_followups');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
+
+  // Sync state changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('isp_crm_customers', JSON.stringify(customers));
+    } catch (e) {}
+  }, [customers]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('isp_crm_leads', JSON.stringify(leads));
+    } catch (e) {}
+  }, [leads]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('isp_crm_followups', JSON.stringify(followUps));
+    } catch (e) {}
+  }, [followUps]);
 
   // Supabase Auth Listener & Realtime Data Loader
   useEffect(() => {
@@ -121,7 +158,7 @@ export default function App() {
     const loadDataForUser = async (currentUser: any) => {
       setIsLoading(true);
       if (currentUser) {
-        // Load from Supabase Database
+        // Load from Supabase Database with localStorage fallback
         try {
           // Fetch customers
           const { data: custData, error: custError } = await supabase
@@ -130,10 +167,15 @@ export default function App() {
             .eq('user_id', currentUser.id)
             .order('createdAt', { ascending: false });
 
-          if (!custError && custData && isMounted) {
+          if (!custError && custData !== null && isMounted) {
             setCustomers(custData as Customer[]);
-          } else {
-            setCustomers([]);
+          } else if (custError) {
+            try {
+              const localCust = localStorage.getItem('isp_crm_customers');
+              if (localCust && isMounted) {
+                setCustomers(JSON.parse(localCust));
+              }
+            } catch (e) {}
           }
 
           // Fetch leads
@@ -143,10 +185,15 @@ export default function App() {
             .eq('user_id', currentUser.id)
             .order('createdAt', { ascending: false });
 
-          if (!leadsError && leadsData && isMounted) {
+          if (!leadsError && leadsData !== null && isMounted) {
             setLeads(leadsData as Lead[]);
-          } else {
-            setLeads([]);
+          } else if (leadsError) {
+            try {
+              const localLeads = localStorage.getItem('isp_crm_leads');
+              if (localLeads && isMounted) {
+                setLeads(JSON.parse(localLeads));
+              }
+            } catch (e) {}
           }
 
           // Fetch follow_up_schedules
@@ -156,10 +203,15 @@ export default function App() {
             .eq('user_id', currentUser.id)
             .order('createdAt', { ascending: false });
 
-          if (!fuError && fuData && isMounted) {
+          if (!fuError && fuData !== null && isMounted) {
             setFollowUps(fuData as FollowUpSchedule[]);
-          } else {
-            setFollowUps([]);
+          } else if (fuError) {
+            try {
+              const localFu = localStorage.getItem('isp_crm_followups');
+              if (localFu && isMounted) {
+                setFollowUps(JSON.parse(localFu));
+              }
+            } catch (e) {}
           }
 
           // Fetch profile settings (target SA & full_name)
@@ -184,15 +236,17 @@ export default function App() {
           }
         } catch (e) {
           console.error('Error fetching Supabase data:', e);
-          setCustomers([]);
-          setLeads([]);
-          setFollowUps([]);
         }
       } else {
-        // Guest mode -> Start empty if no explicit input
-        setCustomers([]);
-        setLeads([]);
-        setFollowUps([]);
+        // Guest mode -> Load from localStorage
+        try {
+          const localCust = localStorage.getItem('isp_crm_customers');
+          if (localCust) setCustomers(JSON.parse(localCust));
+          const localLeads = localStorage.getItem('isp_crm_leads');
+          if (localLeads) setLeads(JSON.parse(localLeads));
+          const localFu = localStorage.getItem('isp_crm_followups');
+          if (localFu) setFollowUps(JSON.parse(localFu));
+        } catch (e) {}
       }
       if (isMounted) setIsLoading(false);
     };
