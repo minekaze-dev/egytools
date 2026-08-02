@@ -367,19 +367,9 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
     });
   }, [customers, selectedYearFilter]);
 
-  // Global Totals filtered by selected month/year cards
+  // Global Totals across all monthly summaries
   const grandTotals = useMemo(() => {
-    const filtered = monthlySummaries.filter(curr => {
-      if (selectedYearExternal && selectedYearExternal !== 'ALL' && curr.year.toString() !== selectedYearExternal) {
-        return false;
-      }
-      if (selectedMonthExternal && selectedMonthExternal !== 'ALL' && curr.monthIndex.toString() !== selectedMonthExternal) {
-        return false;
-      }
-      return true;
-    });
-
-    return filtered.reduce(
+    return monthlySummaries.reduce(
       (acc, curr) => {
         acc.totalSA += curr.totalSAActive;
         acc.totalGross += curr.totalGrossRevenue;
@@ -390,7 +380,7 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
       },
       { totalSA: 0, totalGross: 0, totalNet: 0, totalKomisi: 0, totalKomisiTahunan: 0 }
     );
-  }, [monthlySummaries, selectedMonthExternal, selectedYearExternal]);
+  }, [monthlySummaries]);
 
   // Filter items in Detail Modal by search query
   const modalFilteredItems = useMemo(() => {
