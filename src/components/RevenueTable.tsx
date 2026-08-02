@@ -14,6 +14,7 @@ import { CustomerWithCalculations, CustomerStatus } from '../types/customer';
 import { StatusBadge } from './StatusBadge';
 import { formatRupiah, formatPercent } from '../helpers/currency';
 import { getTierProgress } from '../helpers/tierCalculator';
+import { parseTanggalPasang } from '../helpers/dateFormatter';
 import {
   Search,
   ArrowUpDown,
@@ -139,8 +140,8 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
             : parseInt(monthFilter, 10);
 
         if (item.tanggalPasang && item.tanggalPasang !== '-') {
-          const itemMonth = new Date(item.tanggalPasang).getMonth();
-          if (itemMonth !== targetMonth) return false;
+          const parsed = parseTanggalPasang(item.tanggalPasang);
+          if (!parsed || parsed.monthIndex !== targetMonth) return false;
         } else {
           return false;
         }
@@ -149,8 +150,8 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
       // 3. Year Filter
       if (yearFilter !== 'ALL') {
         if (item.tanggalPasang && item.tanggalPasang !== '-') {
-          const itemYear = new Date(item.tanggalPasang).getFullYear().toString();
-          if (itemYear !== yearFilter) return false;
+          const parsed = parseTanggalPasang(item.tanggalPasang);
+          if (!parsed || parsed.year.toString() !== yearFilter) return false;
         } else {
           return false;
         }

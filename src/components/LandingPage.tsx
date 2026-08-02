@@ -127,7 +127,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight uppercase">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight uppercase whitespace-nowrap">
               Oxygen Sales Workspace
             </h1>
 

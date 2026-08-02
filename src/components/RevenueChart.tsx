@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { CustomerWithCalculations } from '../types/customer';
 import { formatRupiah } from '../helpers/currency';
+import { parseTanggalPasang } from '../helpers/dateFormatter';
 import { TrendingUp, PieChartIcon, BarChart3 } from 'lucide-react';
 
 interface RevenueChartProps {
@@ -25,29 +26,56 @@ interface RevenueChartProps {
 export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
   // 1. Group data by Month for Revenue & Commission Trend
   const monthlyData = useMemo(() => {
+    const monthNamesIndo = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const yearSet = new Set<number>([currentYear]);
+    customers.forEach((c) => {
+      const parsed = parseTanggalPasang(c.tanggalPasang);
+      if (parsed) {
+        yearSet.add(parsed.year);
+      }
+    });
+
     const monthMap: Record<
       string,
-      { monthName: string; gross: number; netRevenue: number; komisi: number; closing: number }
+      { monthName: string; yearNum: number; monthNum: number; gross: number; netRevenue: number; komisi: number; closing: number }
     > = {};
 
-    // Standard months list to ensure chronological order
-    const months = ['Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'Mei 2026', 'Jun 2026'];
-    months.forEach((m) => {
-      monthMap[m] = { monthName: m, gross: 0, netRevenue: 0, komisi: 0, closing: 0 };
+    // Initialize all 12 months for all active years in dataset + current year
+    Array.from(yearSet).forEach((y) => {
+      for (let m = 0; m < 12; m++) {
+        const key = `${monthNamesIndo[m]} ${y}`;
+        monthMap[key] = {
+          monthName: key,
+          yearNum: y,
+          monthNum: m,
+          gross: 0,
+          netRevenue: 0,
+          komisi: 0,
+          closing: 0,
+        };
+      }
     });
 
     customers.forEach((c) => {
-      if (!c.tanggalPasang) return;
-      const date = new Date(c.tanggalPasang);
-      const monthIndex = date.getMonth();
-      const monthNamesIndo = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-      ];
-      const key = `${monthNamesIndo[monthIndex]} ${date.getFullYear()}`;
+      const parsed = parseTanggalPasang(c.tanggalPasang);
+      if (!parsed) return;
+      const key = `${monthNamesIndo[parsed.monthIndex]} ${parsed.year}`;
 
       if (!monthMap[key]) {
-        monthMap[key] = { monthName: key, gross: 0, netRevenue: 0, komisi: 0, closing: 0 };
+        monthMap[key] = {
+          monthName: key,
+          yearNum: parsed.year,
+          monthNum: parsed.monthIndex,
+          gross: 0,
+          netRevenue: 0,
+          komisi: 0,
+          closing: 0,
+        };
       }
 
       if (c.status === 'Aktif') {
@@ -58,7 +86,10 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ customers }) => {
       }
     });
 
-    return Object.values(monthMap);
+    return Object.values(monthMap).sort((a, b) => {
+      if (a.yearNum !== b.yearNum) return a.yearNum - b.yearNum;
+      return a.monthNum - b.monthNum;
+    });
   }, [customers]);
 
   // 2. Customer Status Distribution for Donut Chart

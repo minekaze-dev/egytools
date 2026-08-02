@@ -27,6 +27,7 @@ import { Lead, FollowUpSchedule } from './types/crm';
 import { INITIAL_LEADS, INITIAL_FOLLOW_UPS } from './data/initialCrmData';
 
 import { getPackageById, MASTER_PACKAGES } from './data/packages';
+import { parseTanggalPasang } from './helpers/dateFormatter';
 import { AlertTriangle } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -395,16 +396,12 @@ export default function App() {
   const filteredCustomers = useMemo(() => {
     return customers.filter((c) => {
       if (selectedMonth !== 'ALL' && c.tanggalPasang) {
-        const dateObj = new Date(c.tanggalPasang);
-        if (isNaN(dateObj.getTime())) return false;
-        const month = dateObj.getMonth().toString();
-        if (month !== selectedMonth) return false;
+        const parsed = parseTanggalPasang(c.tanggalPasang);
+        if (!parsed || parsed.monthIndex.toString() !== selectedMonth) return false;
       }
       if (selectedYear !== 'ALL' && c.tanggalPasang) {
-        const dateObj = new Date(c.tanggalPasang);
-        if (isNaN(dateObj.getTime())) return false;
-        const year = dateObj.getFullYear().toString();
-        if (year !== selectedYear) return false;
+        const parsed = parseTanggalPasang(c.tanggalPasang);
+        if (!parsed || parsed.year.toString() !== selectedYear) return false;
       }
       if (searchQuery.trim() !== '') {
         const q = searchQuery.toLowerCase();
@@ -791,7 +788,7 @@ export default function App() {
                         />
                       )}
 
-                      <RevenueChart customers={customersWithCalculations} />
+                      <RevenueChart customers={calculateAllCustomerMetrics(customers).customersWithCalculations} />
                     </div>
                   )}
 
@@ -799,7 +796,7 @@ export default function App() {
                   {activeTab === 'revenue_table' && (
                     <div className="animate-in slide-in-from-bottom-4 duration-500">
                       <RevenueTable
-                        data={customersWithCalculations}
+                        data={calculateAllCustomerMetrics(customers).customersWithCalculations}
                         onView={(cust) => setViewingCustomer(cust)}
                         onEdit={(cust) => {
                           setEditingCustomer(cust);
@@ -808,7 +805,10 @@ export default function App() {
                         onDelete={(id) => setDeletingCustomer(id)}
                         onAddClick={() => {
                           setEditingCustomer(null);
-                          setDefaultTanggalPasang('');
+                          const mNum = selectedMonth !== 'ALL' ? Number(selectedMonth) : new Date().getMonth();
+                          const yNum = selectedYear !== 'ALL' ? selectedYear : new Date().getFullYear().toString();
+                          const mStr = String(mNum + 1).padStart(2, '0');
+                          setDefaultTanggalPasang(`${yNum}-${mStr}-01`);
                           setIsFormOpen(true);
                         }}
                         onAddClickWithDate={(dateIso) => {
@@ -864,6 +864,11 @@ export default function App() {
                     onOpenAuth={() => setIsAuthModalOpen(true)}
                     selectedMonthExternal={selectedMonth}
                     selectedYearExternal={selectedYear}
+                    onSelectMonthYear={(monthIndex, year) => {
+                      setSelectedMonth(monthIndex);
+                      setSelectedYear(year);
+                      setActiveTab('revenue_table');
+                    }}
                   />
                 </div>
               )}
@@ -905,6 +910,8 @@ export default function App() {
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
         onSubmitBatch={handleQuickAddBatch}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
       />
 
       <CustomerDetailModal

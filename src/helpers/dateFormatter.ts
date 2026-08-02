@@ -48,6 +48,35 @@ export function formatDateIndoFull(dateStr?: string | null): string {
   }
 }
 
+export function parseTanggalPasang(tanggalPasang?: string | null): { year: number; monthIndex: number; day: number } | null {
+  if (!tanggalPasang || tanggalPasang === '-') return null;
+  const matchIso = tanggalPasang.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (matchIso) {
+    return {
+      year: parseInt(matchIso[1], 10),
+      monthIndex: parseInt(matchIso[2], 10) - 1,
+      day: parseInt(matchIso[3], 10),
+    };
+  }
+  const matchLocal = tanggalPasang.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (matchLocal) {
+    return {
+      day: parseInt(matchLocal[1], 10),
+      monthIndex: parseInt(matchLocal[2], 10) - 1,
+      year: parseInt(matchLocal[3], 10),
+    };
+  }
+  const d = new Date(tanggalPasang);
+  if (!isNaN(d.getTime())) {
+    return {
+      year: d.getFullYear(),
+      monthIndex: d.getMonth(),
+      day: d.getDate(),
+    };
+  }
+  return null;
+}
+
 export function formatTodayYMD(): string {
   const d = new Date();
   return d.toISOString().split('T')[0];

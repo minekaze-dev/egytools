@@ -3,6 +3,7 @@ import { CustomerWithCalculations, Customer } from '../types/customer';
 import { formatRupiah } from '../helpers/currency';
 import { getCurrentTier } from '../helpers/tierCalculator';
 import { calculateRevenue } from '../helpers/revenueCalculator';
+import { parseTanggalPasang } from '../helpers/dateFormatter';
 import { StatusBadge } from './StatusBadge';
 import {
   FileText,
@@ -269,11 +270,11 @@ export const MonthlyReportView: React.FC<MonthlyReportViewProps> = ({
 
     customers.forEach((c) => {
       if (!c.tanggalPasang || c.tanggalPasang === '-') return;
-      const date = new Date(c.tanggalPasang);
-      if (isNaN(date.getTime())) return;
+      const parsed = parseTanggalPasang(c.tanggalPasang);
+      if (!parsed) return;
 
-      const y = date.getFullYear();
-      const m = date.getMonth();
+      const y = parsed.year;
+      const m = parsed.monthIndex;
       const key = `${y}-${String(m + 1).padStart(2, '0')}`;
 
       if (!map.has(key)) {

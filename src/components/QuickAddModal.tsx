@@ -12,17 +12,36 @@ interface QuickAddModalProps {
   onSubmitBatch: (
     batch: Omit<Customer, 'id' | 'createdAt' | 'packageName' | 'packagePrice'>[]
   ) => void;
+  selectedMonth?: string;
+  selectedYear?: string;
 }
 
 export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   isOpen,
   onClose,
   onSubmitBatch,
+  selectedMonth = 'ALL',
+  selectedYear = 'ALL',
 }) => {
   const [packageId, setPackageId] = useState<string>(MASTER_PACKAGES[0]?.id || '');
   const [qty, setQty] = useState<number>(1);
   const [periode, setPeriode] = useState<BillingPeriod>('3 Bulan');
   const [status, setStatus] = useState<CustomerStatus>('Aktif');
+  
+  const [tanggalPasang, setTanggalPasang] = useState<string>(() => {
+    const mNum = selectedMonth !== 'ALL' ? Number(selectedMonth) : new Date().getMonth();
+    const yNum = selectedYear !== 'ALL' ? selectedYear : new Date().getFullYear().toString();
+    const mStr = String(mNum + 1).padStart(2, '0');
+    return `${yNum}-${mStr}-01`;
+  });
+
+  // Update tanggalPasang when selectedMonth or selectedYear changes
+  React.useEffect(() => {
+    const mNum = selectedMonth !== 'ALL' ? Number(selectedMonth) : new Date().getMonth();
+    const yNum = selectedYear !== 'ALL' ? selectedYear : new Date().getFullYear().toString();
+    const mStr = String(mNum + 1).padStart(2, '0');
+    setTanggalPasang(`${yNum}-${mStr}-01`);
+  }, [selectedMonth, selectedYear]);
 
   const selectedPackage = useMemo(
     () => getPackageById(packageId) || MASTER_PACKAGES[0],
@@ -47,11 +66,11 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
         namaPelanggan: '-',
         nomorInternet: `100${randomSuffix}`,
         nomorHP: '-',
-        area: 'General',
+        area: '-',
         sales: 'Sales',
         packageId: selectedPackage.id,
         periode,
-        tanggalPasang: '-',
+        tanggalPasang: tanggalPasang || new Date().toISOString().split('T')[0],
         status,
         catatan: `Quick Add Batch #${timestamp}`,
       });
@@ -155,7 +174,20 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
               </div>
             </div>
 
-            {/* 3. Status */}
+            {/* 3. Tanggal Pasang */}
+            <div>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
+                Tanggal Pasang / Periode Bulan <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={tanggalPasang}
+                onChange={(e) => setTanggalPasang(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none font-bold text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 uppercase"
+              />
+            </div>
+
+            {/* 4. Status */}
             <div>
               <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
                 Status Data <span className="text-rose-500">*</span>
