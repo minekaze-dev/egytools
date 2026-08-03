@@ -4,6 +4,7 @@ export type LeadSurveyStatus =
   | 'New Customer'
   | 'NBP'
   | 'Interest'
+  | 'Not Interest'
   | 'Thinking'
   | 'Uncover'
   | 'Already Active'

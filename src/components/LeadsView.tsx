@@ -87,6 +87,7 @@ export const ADD_LEAD_STATUSES: LeadSurveyStatus[] = [
   'New Customer',
   'NBP',
   'Interest',
+  'Not Interest',
   'Thinking',
   'Uncover',
   'Already Active',
@@ -99,6 +100,7 @@ export const TABLE_EDIT_STATUSES: LeadSurveyStatus[] = [
   'New Customer',
   'NBP',
   'Interest',
+  'Not Interest',
   'Thinking',
   'Uncover',
   'Already Active',
@@ -225,10 +227,10 @@ const parseLeadStatus = (remarkVal: any): LeadSurveyStatus => {
   if (!remarkVal) return 'New Customer';
   const str = String(remarkVal).trim();
   const lower = str.toLowerCase();
+  if (lower.includes('not interest') || lower.includes('tidak minat')) return 'Not Interest';
   if (lower.includes('uncover')) return 'Uncover';
   if (lower.includes('nbp')) return 'NBP';
   if (lower === 'interest' || lower.includes('minat') || lower === 'int') return 'Interest';
-  if (lower.includes('not interest') || lower.includes('tidak minat')) return 'Ghosting';
   if (lower.includes('thinking') || lower.includes('pikir')) return 'Thinking';
   if (lower.includes('already active') || lower.includes('aktif')) return 'Already Active';
   if (lower.includes('area full') || lower.includes('penuh')) return 'Area Full';
@@ -453,6 +455,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
     const newCustomer = leads.filter(l => l.statusSurvei === 'New Customer').length;
     const nbp = leads.filter(l => l.statusSurvei === 'NBP').length;
     const interest = leads.filter(l => l.statusSurvei === 'Interest').length;
+    const notInterest = leads.filter(l => l.statusSurvei === 'Not Interest').length;
     const thinking = leads.filter(l => l.statusSurvei === 'Thinking').length;
     const uncover = leads.filter(l => l.statusSurvei === 'Uncover').length;
     const areaFull = leads.filter(l => l.statusSurvei === 'Area Full').length;
@@ -460,7 +463,18 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
     const aktif = leads.filter(l => l.statusSurvei === 'Aktif').length;
     const refund = leads.filter(l => l.statusSurvei === 'Refund').length;
     const closing = leads.filter(l => l.statusSurvei === 'Closing').length;
-    return { total, newCustomer, nbp, interest, thinking, uncover, areaFull, pemasangan, aktif, refund, closing };
+    return { total, newCustomer, nbp, interest, notInterest, thinking, uncover, areaFull, pemasangan, aktif, refund, closing };
+  }, [leads]);
+
+  // Dynamic list of unique areas for filtering
+  const uniqueAreas = useMemo(() => {
+    const set = new Set<string>();
+    leads.forEach((l) => {
+      if (l.area && l.area.trim() && l.area !== '-') {
+        set.add(l.area.trim());
+      }
+    });
+    return Array.from(set).sort();
   }, [leads]);
 
   // Filtered Leads
@@ -675,6 +689,8 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
         return 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700';
       case 'Interest':
         return 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800';
+      case 'Not Interest':
+        return 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800 font-extrabold';
       case 'Thinking':
         return 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800';
       case 'Uncover':
@@ -711,7 +727,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
             </h1>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
-            Akun Sales Aktif: <span className="text-blue-600 dark:text-blue-400 font-black">{currentUserName}</span> &bull; Status Lead: New Customer, NBP, Interest, Thinking, Uncover, Already Active, Area Full, Pemasangan, Refund, Aktif.
+            Akun Sales Aktif: <span className="text-blue-600 dark:text-blue-400 font-black">{currentUserName}</span> &bull; Status Lead: New Customer, NBP, Interest, Not Interest, Thinking, Uncover, Already Active, Area Full, Pemasangan, Refund, Aktif.
           </p>
         </div>
 
@@ -752,6 +768,11 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
         <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
           <div className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400">Interest</div>
           <div className="text-lg font-black text-blue-600 dark:text-blue-400 mt-0.5">{stats.interest}</div>
+        </div>
+
+        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
+          <div className="text-[9px] font-black uppercase text-rose-600 dark:text-rose-400">Not Interest</div>
+          <div className="text-lg font-black text-rose-600 dark:text-rose-400 mt-0.5">{stats.notInterest}</div>
         </div>
 
         <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
@@ -829,12 +850,18 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
           <select
             value={areaFilter}
             onChange={(e) => setAreaFilter(e.target.value)}
-            className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-hidden cursor-pointer max-w-[150px]"
+            className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:outline-hidden cursor-pointer max-w-[170px]"
           >
-            <option value="ALL">Semua Area (38 Prov)</option>
-            {INDONESIA_PROVINCES.map(prov => (
-              <option key={prov} value={prov}>{prov}</option>
-            ))}
+            <option value="ALL">Semua Area / Kota</option>
+            {uniqueAreas.length > 0 ? (
+              uniqueAreas.map(area => (
+                <option key={area} value={area}>{area}</option>
+              ))
+            ) : (
+              INDONESIA_PROVINCES.map(prov => (
+                <option key={prov} value={prov}>{prov}</option>
+              ))
+            )}
           </select>
         </div>
       </div>
@@ -897,7 +924,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
               </th>
               <th className="px-2 py-3 w-10 text-center">No</th>
               <th className="px-4 py-3">No. HP &amp; Nama Customer</th>
-              <th className="px-4 py-3">Area (38 Provinsi)</th>
+              <th className="px-4 py-3">Area / Kota</th>
               <th className="px-4 py-3 text-center">Status Lead</th>
               <th className="px-4 py-3">Sumber &amp; Tgl</th>
               <th className="px-4 py-3">Sales (User)</th>
@@ -1008,22 +1035,18 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                     )}
                   </td>
 
-                  {/* 3. Area (38 Provinsi Indonesia Dropdown Editable) */}
+                  {/* 3. Area (Input Kota / Daerah Editable Direct) */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <select
-                        value={lead.area || 'DKI Jakarta'}
+                      <input
+                        type="text"
+                        value={lead.area || ''}
                         onChange={(e) => onUpdateLead(lead.id, { area: e.target.value })}
-                        className="p-1 text-xs font-extrabold bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-none cursor-pointer focus:border-blue-600"
-                        title="Edit area provinsi langsung dari tabel"
-                      >
-                        {INDONESIA_PROVINCES.map((prov) => (
-                          <option key={prov} value={prov}>
-                            {prov}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="Nama Kota / Daerah..."
+                        className="p-1 text-xs font-extrabold bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-none cursor-text focus:border-blue-600 w-full"
+                        title="Edit nama kota/daerah langsung dari tabel"
+                      />
                     </div>
                   </td>
 
@@ -1213,22 +1236,21 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                 </div>
               </div>
 
-              {/* 3. AREA (38 PROVINSI INDONESIA) */}
+              {/* 3. AREA / KOTA / DAERAH (INPUT BEBAS) */}
               <div>
                 <label className="block text-slate-700 dark:text-slate-300 uppercase font-black mb-1">
-                  Area (38 Provinsi Indonesia)
+                  Area / Kota / Daerah
                 </label>
-                <select
-                  value={formArea}
-                  onChange={(e) => setFormArea(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer focus:border-blue-600"
-                >
-                  {INDONESIA_PROVINCES.map((prov) => (
-                    <option key={prov} value={prov}>
-                      {prov}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Input nama kota atau daerah (misal: Jakarta Selatan, Medan, Surabaya, Kec. Sukajadi)..."
+                    value={formArea}
+                    onChange={(e) => setFormArea(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold focus:border-blue-600 focus:outline-hidden"
+                  />
+                </div>
               </div>
 
               {/* 4. SUMBER LEAD */}

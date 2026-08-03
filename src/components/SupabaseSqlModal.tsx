@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.customers (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Create the leads table (Connected to customers - Area 38 Provinsi)
+-- 2. Create the leads table (Connected to customers - Area Kota/Daerah & Status Not Interest)
 CREATE TABLE IF NOT EXISTS public.leads (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.leads (
   area TEXT DEFAULT '-',
   "paketDiminati" TEXT,
   "sumberLead" TEXT,
-  "statusSurvei" TEXT DEFAULT 'Prospek Baru',
+  "statusSurvei" TEXT DEFAULT 'New Customer',
   "assignedSales" TEXT,
   "assignedCS" TEXT,
   "tanggalKontak" TEXT,
@@ -85,11 +85,14 @@ CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES (Area 38 Provinsi Indonesia & Keterangan):
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS keterangan TEXT;
--- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
--- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS keterangan TEXT;
+-- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES:
+-- (Jalankan skrip di bawah ini jika Anda ingin memperbarui tabel Supabase yang sudah ada untuk menambahkan status 'Not Interest')
+-- 
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "statusSurvei" TEXT DEFAULT 'New Customer';
+-- ALTER TABLE public.leads DROP CONSTRAINT IF EXISTS leads_statusSurvei_check;
+-- ALTER TABLE public.leads ADD CONSTRAINT leads_statusSurvei_check CHECK (
+--   "statusSurvei" IN ('New Customer', 'NBP', 'Interest', 'Not Interest', 'Thinking', 'Uncover', 'Already Active', 'Area Full', 'Pemasangan', 'Refund', 'Aktif', 'Closing', 'Ghosting')
+-- );
 
 -- 4. Create the profiles table for user settings & target SA
 CREATE TABLE IF NOT EXISTS public.profiles (
