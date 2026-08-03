@@ -652,10 +652,12 @@ export default function App() {
   };
 
   const handleBulkAddLeads = (newLeadsData: Omit<Lead, 'id' | 'createdAt'>[]) => {
+    const baseTime = Date.now();
+    const total = newLeadsData.length;
     const createdLeads: Lead[] = newLeadsData.map((leadData, idx) => ({
       ...leadData,
-      id: `lead-${Date.now().toString().slice(-5)}-${idx}`,
-      createdAt: new Date().toISOString(),
+      id: `lead-${baseTime}-${idx}`,
+      createdAt: new Date(baseTime + (total - idx) * 10).toISOString(),
     }));
     setLeads((prev) => [...createdLeads, ...prev]);
     createdLeads.forEach((lead) => syncLeadToSupabase(lead));

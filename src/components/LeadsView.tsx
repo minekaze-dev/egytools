@@ -750,59 +750,6 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
         </div>
       </div>
 
-      {/* Metric Cards Summary */}
-      <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2">
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400">Total</div>
-          <div className="text-lg font-black text-slate-900 dark:text-white mt-0.5">{stats.total}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-teal-600 dark:text-teal-400">New Cust</div>
-          <div className="text-lg font-black text-teal-600 dark:text-teal-400 mt-0.5">{stats.newCustomer}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400">Interest</div>
-          <div className="text-lg font-black text-blue-600 dark:text-blue-400 mt-0.5">{stats.interest}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-rose-600 dark:text-rose-400">Not Interest</div>
-          <div className="text-lg font-black text-rose-600 dark:text-rose-400 mt-0.5">{stats.notInterest}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-amber-600 dark:text-amber-400">Thinking</div>
-          <div className="text-lg font-black text-amber-600 dark:text-amber-400 mt-0.5">{stats.thinking}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-slate-700 dark:text-slate-300">NBP</div>
-          <div className="text-lg font-black text-slate-700 dark:text-slate-300 mt-0.5">{stats.nbp}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-orange-600 dark:text-orange-400">Pasang</div>
-          <div className="text-lg font-black text-orange-600 dark:text-orange-400 mt-0.5">{stats.pemasangan}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-pink-600 dark:text-pink-400">Refund</div>
-          <div className="text-lg font-black text-pink-600 dark:text-pink-400 mt-0.5">{stats.refund}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-rose-600 dark:text-rose-400">Area Full</div>
-          <div className="text-lg font-black text-rose-600 dark:text-rose-400 mt-0.5">{stats.areaFull}</div>
-        </div>
-
-        <div className="p-2.5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800">
-          <div className="text-[9px] font-black uppercase text-emerald-600 dark:text-emerald-400">Aktif</div>
-          <div className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{stats.aktif + stats.closing}</div>
-        </div>
-      </div>
-
       {/* Filter & Search Bar */}
       <div className="p-4 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search Input */}
@@ -924,7 +871,6 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
               <th className="px-4 py-3">Area / Kota</th>
               <th className="px-4 py-3 text-center">Status Lead</th>
               <th className="px-4 py-3">Sumber &amp; Tgl</th>
-              <th className="px-4 py-3">Sales (User)</th>
               <th className="px-4 py-3">Keterangan</th>
               <th className="px-4 py-3 text-right">Aksi</th>
             </tr>
@@ -932,7 +878,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
             {filteredLeads.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
+                <td colSpan={8} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Users className="w-8 h-8 text-slate-400" />
                     <p className="font-bold text-sm">Tidak ada data Lead calon pelanggan yang ditemukan.</p>
@@ -1084,17 +1030,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                     </div>
                   </td>
 
-                  {/* 6. Sales (Sesuai nama user akun login) */}
-                  <td className="px-4 py-3 text-[11px]">
-                    <div className="font-extrabold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                      <UserCheck className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <span className="truncate max-w-[120px]" title={lead.assignedSales || currentUserName}>
-                        {lead.assignedSales || currentUserName}
-                      </span>
-                    </div>
-                  </td>
-
-                  {/* 7. Keterangan (Editable) */}
+                  {/* 6. Keterangan (Editable) */}
                   <td className="px-4 py-3 text-[11px]">
                     <input
                       type="text"
