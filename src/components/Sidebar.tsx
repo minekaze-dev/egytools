@@ -8,7 +8,6 @@ import {
   Table,
   ShieldCheck, 
   X,
-  Wifi,
   ArrowLeft,
   FileText,
   Settings,
@@ -71,8 +70,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <div className="h-16 px-4 flex items-center justify-between border-b-2 border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-none bg-blue-600 flex items-center justify-center text-white border-2 border-blue-700">
-                <Wifi className="w-5 h-5 stroke-[2.5]" />
+              <div className="w-9 h-9 rounded-none bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-blue-600 shrink-0 overflow-hidden">
+                <img src="https://i.imgur.com/ENDHLpA.jpg" alt="OxyMod Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">
                 Oxy<span className="text-blue-600">Mod</span>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import {
-  Wifi,
   Zap,
   ArrowRight,
   LogIn,
@@ -52,8 +51,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <header className="relative z-10 border-b px-4 sm:px-6 py-3.5 shrink-0 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-blue-600 flex items-center justify-center text-white border-2 border-blue-500 shrink-0 shadow-md">
-              <Wifi className="w-5 h-5 stroke-[2.5]" />
+            <div className="w-9 h-9 bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-blue-500 shrink-0 shadow-md overflow-hidden">
+              <img src="https://i.imgur.com/ENDHLpA.jpg" alt="OxyMod Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <span className="font-black text-lg tracking-wider uppercase block leading-none text-slate-900 dark:text-slate-100">

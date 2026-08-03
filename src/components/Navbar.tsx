@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Wifi, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil, Calendar } from 'lucide-react';
+import { Sun, Moon, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil, Calendar } from 'lucide-react';
 import { EditProfileModal } from './EditProfileModal';
 
 const MONTH_NAMES = [
@@ -92,12 +92,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
           <div
             onClick={onOpenLanding}
-            className={`w-9 h-9 rounded-none bg-blue-600 flex items-center justify-center text-white border-2 border-blue-700 shrink-0 ${
-              onOpenLanding ? 'cursor-pointer hover:bg-blue-700 transition-colors' : ''
+            className={`w-9 h-9 rounded-none bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-blue-600 shrink-0 overflow-hidden ${
+              onOpenLanding ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''
             }`}
             title="Ke Landing Page"
           >
-            <Wifi className="w-5 h-5 stroke-[2.5]" />
+            <img src="https://i.imgur.com/ENDHLpA.jpg" alt="OxyMod Logo" className="w-full h-full object-cover" />
           </div>
           <div
             onClick={onOpenLanding}
