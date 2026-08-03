@@ -75,13 +75,16 @@ export default function App() {
   });
 
   useEffect(() => {
-    if (activeTab === 'leads' && !showLeadsMenu) {
-      setActiveTab('revenue_analytics');
+    const isLeadsAllowed = !!user && showLeadsMenu;
+    const isFollowUpAllowed = !!user && showFollowUpMenu;
+
+    if (activeTab === 'leads' && !isLeadsAllowed) {
+      setActiveTab('revenue_table');
     }
-    if (activeTab === 'follow_up' && !showFollowUpMenu) {
-      setActiveTab('revenue_analytics');
+    if (activeTab === 'follow_up' && !isFollowUpAllowed) {
+      setActiveTab('revenue_table');
     }
-  }, [activeTab, showLeadsMenu, showFollowUpMenu]);
+  }, [activeTab, showLeadsMenu, showFollowUpMenu, user]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -105,51 +108,39 @@ export default function App() {
     }
   }, [uiStyle]);
 
-  // 2. Customers state
-  const [customers, setCustomers] = useState<Customer[]>(() => {
-    try {
-      const saved = localStorage.getItem('isp_crm_customers');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return [];
-  });
+  // 2. Customers state (Empty by default for Guest)
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
-  // 2b. Leads state
-  const [leads, setLeads] = useState<Lead[]>(() => {
-    try {
-      const saved = localStorage.getItem('isp_crm_leads');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return [];
-  });
+  // 2b. Leads state (Empty by default for Guest)
+  const [leads, setLeads] = useState<Lead[]>([]);
 
-  // 2c. Follow Up state
-  const [followUps, setFollowUps] = useState<FollowUpSchedule[]>(() => {
-    try {
-      const saved = localStorage.getItem('isp_crm_followups');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return [];
-  });
+  // 2c. Follow Up state (Empty by default for Guest)
+  const [followUps, setFollowUps] = useState<FollowUpSchedule[]>([]);
 
-  // Sync state changes to localStorage
+  // Sync state changes to localStorage for logged in user backup or guest
   useEffect(() => {
     try {
-      localStorage.setItem('isp_crm_customers', JSON.stringify(customers));
+      if (user) {
+        localStorage.setItem(`isp_crm_customers_${user.id}`, JSON.stringify(customers));
+      } else {
+        localStorage.setItem(`isp_crm_customers_guest`, JSON.stringify(customers));
+      }
     } catch (e) {}
-  }, [customers]);
+  }, [customers, user]);
 
   useEffect(() => {
+    if (!user) return;
     try {
-      localStorage.setItem('isp_crm_leads', JSON.stringify(leads));
+      localStorage.setItem(`isp_crm_leads_${user.id}`, JSON.stringify(leads));
     } catch (e) {}
-  }, [leads]);
+  }, [leads, user]);
 
   useEffect(() => {
+    if (!user) return;
     try {
-      localStorage.setItem('isp_crm_followups', JSON.stringify(followUps));
+      localStorage.setItem(`isp_crm_followups_${user.id}`, JSON.stringify(followUps));
     } catch (e) {}
-  }, [followUps]);
+  }, [followUps, user]);
 
   // Supabase Auth Listener & Realtime Data Loader
   useEffect(() => {
@@ -260,15 +251,17 @@ export default function App() {
           console.error('Error fetching Supabase data:', e);
         }
       } else {
-        // Guest mode -> Load from localStorage
-        try {
-          const localCust = localStorage.getItem('isp_crm_customers');
-          if (localCust) setCustomers(JSON.parse(localCust));
-          const localLeads = localStorage.getItem('isp_crm_leads');
-          if (localLeads) setLeads(JSON.parse(localLeads));
-          const localFu = localStorage.getItem('isp_crm_followups');
-          if (localFu) setFollowUps(JSON.parse(localFu));
-        } catch (e) {}
+        // Guest mode -> Load guest revenue customers if available, empty leads & followUps
+        if (isMounted) {
+          try {
+            const localCust = localStorage.getItem('isp_crm_customers_guest') || localStorage.getItem('isp_crm_customers');
+            setCustomers(localCust ? JSON.parse(localCust) : []);
+          } catch (e) {
+            setCustomers([]);
+          }
+          setLeads([]);
+          setFollowUps([]);
+        }
       }
       if (isMounted) setIsLoading(false);
     };
@@ -895,8 +888,8 @@ export default function App() {
         onToggleOpen={() => setIsSidebarOpen(!isSidebarOpen)}
         stats={stats}
         onOpenLanding={() => setIsLandingPage(true)}
-        showLeadsMenu={showLeadsMenu}
-        showFollowUpMenu={showFollowUpMenu}
+        showLeadsMenu={!!user && showLeadsMenu}
+        showFollowUpMenu={!!user && showFollowUpMenu}
       />
 
       {/* Main Content Body */}
