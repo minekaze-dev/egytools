@@ -47,6 +47,7 @@ export interface Lead {
   sumberLead: LeadSource;
   tanggalKontak: string; // YYYY-MM-DD
   catatan?: string;
+  keterangan?: string;
   createdAt: string;
   convertedCustomerId?: string;
 }
@@ -77,6 +78,7 @@ export interface FollowUpSchedule {
   status: FollowUpStatus;
   assignedCS?: string;
   catatanHasil?: string;
+  keterangan?: string;
   customerType: 'Lead' | 'Prospek' | 'Pelanggan Aktif';
   referenceId?: string;
   createdAt: string;

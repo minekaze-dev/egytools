@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS public.leads (
   "tanggalKontak" TEXT,
   "convertedCustomerId" TEXT REFERENCES public.customers(id) ON DELETE SET NULL,
   catatan TEXT,
+  keterangan TEXT,
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS public.leads (
 -- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "paketDiminati" TEXT;
 -- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "assignedSales" TEXT;
 -- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "tanggalKontak" TEXT;
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS keterangan TEXT;
 
 -- 3. Create the follow_up_schedules table (Connected to leads & customers)
 CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
@@ -74,6 +76,7 @@ CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   "referenceId" TEXT,
   "assignedCS" TEXT,
   "catatanHasil" TEXT,
+  keterangan TEXT,
   "packageId" TEXT,
   "packageName" TEXT,
   "packagePrice" NUMERIC DEFAULT 0,
@@ -82,9 +85,11 @@ CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES (Area 38 Provinsi Indonesia):
+-- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES (Area 38 Provinsi Indonesia & Keterangan):
 -- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS keterangan TEXT;
 -- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+-- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS keterangan TEXT;
 
 -- 4. Create the profiles table for user settings & target SA
 CREATE TABLE IF NOT EXISTS public.profiles (

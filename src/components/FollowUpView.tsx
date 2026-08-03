@@ -29,6 +29,7 @@ interface FollowUpViewProps {
   onAddSchedule: (schedule: Omit<FollowUpSchedule, 'id' | 'createdAt'>) => void;
   onUpdateSchedule: (id: string, updates: Partial<FollowUpSchedule>) => void;
   onDeleteSchedule: (id: string) => void;
+  onBulkDeleteSchedules?: (ids: string[]) => void;
   onConvertToClosing?: (schedule: FollowUpSchedule) => void;
 }
 
@@ -37,6 +38,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
   onAddSchedule,
   onUpdateSchedule,
   onDeleteSchedule,
+  onBulkDeleteSchedules,
   onConvertToClosing,
 }) => {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -45,10 +47,16 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
   const [activeTab, setActiveTab] = useState<'today' | 'upcoming' | 'overdue' | 'completed' | 'all'>('today');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
 
+  // Bulk Selection States
+  const [selectedScheduleIds, setSelectedScheduleIds] = useState<string[]>([]);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [isBulkCompleteModalOpen, setIsBulkCompleteModalOpen] = useState(false);
+
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<FollowUpSchedule | null>(null);
   const [completingSchedule, setCompletingSchedule] = useState<FollowUpSchedule | null>(null);
+  const [deletingSchedule, setDeletingSchedule] = useState<FollowUpSchedule | null>(null);
   const [completeNotes, setCompleteNotes] = useState('');
 
   // Form states for Add / Edit
@@ -63,6 +71,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
   const [formPeriode, setFormPeriode] = useState<BillingPeriod>('Bulanan');
   const [formNomorInternet, setFormNomorInternet] = useState<string>('');
   const [formCatatan, setFormCatatan] = useState('');
+  const [formKeterangan, setFormKeterangan] = useState('');
 
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -144,6 +153,51 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     });
   }, [schedules, searchQuery, typeFilter, activeTab, todayStr]);
 
+  // Bulk Selection Helpers
+  const isAllSelected = useMemo(() => {
+    return (
+      filteredSchedules.length > 0 &&
+      filteredSchedules.every((s) => selectedScheduleIds.includes(s.id))
+    );
+  }, [filteredSchedules, selectedScheduleIds]);
+
+  const handleToggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedScheduleIds([]);
+    } else {
+      setSelectedScheduleIds(filteredSchedules.map((s) => s.id));
+    }
+  };
+
+  const handleToggleSelectSchedule = (id: string) => {
+    setSelectedScheduleIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleConfirmBulkDelete = () => {
+    if (selectedScheduleIds.length === 0) return;
+    if (onBulkDeleteSchedules) {
+      onBulkDeleteSchedules(selectedScheduleIds);
+    } else {
+      selectedScheduleIds.forEach((id) => onDeleteSchedule(id));
+    }
+    setSelectedScheduleIds([]);
+    setIsBulkDeleteModalOpen(false);
+  };
+
+  const handleConfirmBulkComplete = () => {
+    if (selectedScheduleIds.length === 0) return;
+    selectedScheduleIds.forEach((id) => {
+      onUpdateSchedule(id, {
+        status: 'Selesai',
+        catatanHasil: 'Selesai di-follow up massal',
+      });
+    });
+    setSelectedScheduleIds([]);
+    setIsBulkCompleteModalOpen(false);
+  };
+
   // Handle WhatsApp Message template generator
   const getWhatsAppLink = (s: FollowUpSchedule) => {
     let cleanPhone = s.nomorHP.replace(/\D/g, '');
@@ -206,6 +260,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     setFormPeriode('Bulanan');
     setFormNomorInternet('');
     setFormCatatan('');
+    setFormKeterangan('');
     setEditingSchedule(null);
     setIsAddModalOpen(true);
   };
@@ -223,6 +278,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     setFormPeriode(s.periode || 'Bulanan');
     setFormNomorInternet(s.nomorInternet || '');
     setFormCatatan(s.catatanHasil || '');
+    setFormKeterangan(s.keterangan || s.catatanHasil || '');
     setIsAddModalOpen(true);
   };
 
@@ -251,7 +307,8 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
       waktuFollowUp: formWaktu,
       status: formStatus,
       customerType: formCustomerType,
-      catatanHasil: formCatatan,
+      catatanHasil: formCatatan || formKeterangan,
+      keterangan: formKeterangan,
       packageId: selectedPkg.id,
       packageName: selectedPkg.name,
       packagePrice: selectedPkg.price,
@@ -466,23 +523,75 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
         </div>
       </div>
 
+      {/* Sticky Bulk Action Banner */}
+      {selectedScheduleIds.length > 0 && (
+        <div className="bg-blue-900 text-white p-3 border-2 border-blue-600 flex flex-wrap items-center justify-between gap-3 shadow-xl animate-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-2.5 font-extrabold text-xs">
+            <span className="px-2.5 py-1 bg-blue-600 text-white font-black text-xs uppercase tracking-wide">
+              {selectedScheduleIds.length} Agenda Terpilih
+            </span>
+            <span className="text-blue-200 hidden sm:inline">
+              dari total {filteredSchedules.length} agenda
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Tandai Selesai Massal */}
+            <button
+              onClick={() => setIsBulkCompleteModalOpen(true)}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs uppercase flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>Tandai Selesai Massal</span>
+            </button>
+
+            {/* Hapus Massal */}
+            <button
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+              className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs uppercase flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Hapus Terpilih ({selectedScheduleIds.length})</span>
+            </button>
+
+            {/* Batal Pilihan */}
+            <button
+              onClick={() => setSelectedScheduleIds([])}
+              className="px-3 py-1.5 bg-blue-950 hover:bg-blue-800 text-blue-200 font-bold text-xs uppercase cursor-pointer"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Follow Up Schedule Table */}
       <div className="bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-100 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 font-black uppercase text-[10px] border-b-2 border-slate-200 dark:border-slate-800">
             <tr>
+              <th className="px-3 py-3 w-10 text-center">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={handleToggleSelectAll}
+                  className="w-4 h-4 cursor-pointer accent-blue-600 rounded-none shrink-0"
+                  title="Pilih Semua / Batal Pilih"
+                />
+              </th>
               <th className="px-4 py-3">Customer / Kontak</th>
               <th className="px-4 py-3">Respon FU &amp; Catatan</th>
               <th className="px-4 py-3">Paket &amp; Periode</th>
               <th className="px-4 py-3 text-center">Status</th>
               <th className="px-4 py-3">Jadwal (Tgl &amp; Waktu)</th>
+              <th className="px-4 py-3">Keterangan</th>
               <th className="px-4 py-3 text-right">Integrasi WA &amp; Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
             {filteredSchedules.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
+                <td colSpan={8} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Clock className="w-8 h-8 text-slate-400" />
                     <p className="font-bold text-sm">Tidak ada jadwal Follow Up pada kategori ini.</p>
@@ -499,14 +608,28 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
               filteredSchedules.map((s) => {
                 const isOverdue = s.tanggalFollowUp < todayStr && s.status === 'Menunggu';
                 const isToday = s.tanggalFollowUp === todayStr;
+                const isSelected = selectedScheduleIds.includes(s.id);
 
                 return (
                   <tr
                     key={s.id}
-                    className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${
-                      isOverdue ? 'bg-rose-50/40 dark:bg-rose-950/20' : ''
+                    className={`transition-colors ${
+                      isSelected
+                        ? 'bg-blue-50/80 dark:bg-blue-950/40'
+                        : isOverdue
+                        ? 'bg-rose-50/40 dark:bg-rose-950/20 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
                   >
+                    {/* Checkbox Row */}
+                    <td className="px-3 py-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleToggleSelectSchedule(s.id)}
+                        className="w-4 h-4 cursor-pointer accent-blue-600 rounded-none shrink-0"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-black text-slate-900 dark:text-white text-sm">
                         {s.namaCustomer || 'Customer'}
@@ -595,6 +718,29 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                       )}
                     </td>
 
+                    {/* Keterangan (Editable) */}
+                    <td className="px-4 py-3 text-[11px]">
+                      <input
+                        type="text"
+                        defaultValue={s.keterangan ?? s.catatanHasil ?? ''}
+                        key={`${s.id}-${s.keterangan || s.catatanHasil}`}
+                        onBlur={(e) => {
+                          const val = e.target.value.trim();
+                          if (val !== (s.keterangan || s.catatanHasil || '')) {
+                            onUpdateSchedule(s.id, { keterangan: val, catatanHasil: val });
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                        placeholder="Input keterangan..."
+                        className="w-full min-w-[130px] px-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold"
+                        title="Klik untuk edit keterangan FU"
+                      />
+                    </td>
+
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {/* Direct WhatsApp button */}
@@ -634,11 +780,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
 
                         {/* Delete */}
                         <button
-                          onClick={() => {
-                            if (confirm(`Hapus agenda follow up untuk "${s.namaCustomer || 'Customer'}"?`)) {
-                              onDeleteSchedule(s.id);
-                            }
-                          }}
+                          onClick={() => setDeletingSchedule(s)}
                           className="p-1.5 bg-rose-100 dark:bg-rose-950/60 hover:bg-rose-200 text-rose-600 cursor-pointer"
                           title="Hapus Agenda"
                         >
@@ -844,6 +986,19 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  Keterangan
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Keterangan tambahan..."
+                  value={formKeterangan}
+                  onChange={(e) => setFormKeterangan(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
@@ -915,6 +1070,146 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Hapus Agenda Follow Up */}
+      {deletingSchedule && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0F172A] border-2 border-rose-500 max-w-sm w-full p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 border-b pb-3 border-slate-200 dark:border-slate-800">
+              <div className="p-2 bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900 dark:text-white uppercase text-sm">
+                  Konfirmasi Hapus Agenda
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Apakah Anda yakin ingin menghapus agenda follow up ini?
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+              <div className="font-extrabold text-slate-800 dark:text-slate-200">
+                {deletingSchedule.namaCustomer || 'Customer'}
+              </div>
+              <div className="font-mono text-blue-600 dark:text-blue-400 font-bold">
+                No HP: {deletingSchedule.nomorHP}
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Tanggal: <span className="font-bold">{deletingSchedule.tanggalFollowUp}</span> ({deletingSchedule.tipeFollowUp})
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setDeletingSchedule(null)}
+                className="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold uppercase text-xs cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onDeleteSchedule(deletingSchedule.id);
+                  setDeletingSchedule(null);
+                }}
+                className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold uppercase text-xs cursor-pointer shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Ya, Hapus Agenda</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Hapus Massal Agenda Follow Up */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0F172A] border-2 border-rose-500 max-w-sm w-full p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 border-b pb-3 border-slate-200 dark:border-slate-800">
+              <div className="p-2 bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900 dark:text-white uppercase text-sm">
+                  Hapus {selectedScheduleIds.length} Agenda sekaligus?
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Tindakan ini akan menghapus seluruh agenda follow up yang dicentang secara permanen.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300 font-bold">
+              Total {selectedScheduleIds.length} item agenda follow up terpilih akan dihapus.
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsBulkDeleteModalOpen(false)}
+                className="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold uppercase text-xs cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBulkDelete}
+                className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold uppercase text-xs cursor-pointer shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Ya, Hapus {selectedScheduleIds.length} Agenda</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Tandai Selesai Massal */}
+      {isBulkCompleteModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0F172A] border-2 border-emerald-500 max-w-sm w-full p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 border-b pb-3 border-slate-200 dark:border-slate-800">
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900 dark:text-white uppercase text-sm">
+                  Tandai {selectedScheduleIds.length} Agenda Selesai?
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Semua agenda follow up terpilih akan diubah statusnya menjadi Selesai.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+              Total {selectedScheduleIds.length} agenda akan ditandai selesai sekaligus.
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsBulkCompleteModalOpen(false)}
+                className="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold uppercase text-xs cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBulkComplete}
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold uppercase text-xs cursor-pointer shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Tandai Selesai ({selectedScheduleIds.length})</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

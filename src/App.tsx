@@ -199,6 +199,7 @@ export default function App() {
               sumberLead: (r.sumberLead || 'Lainnya') as LeadSource,
               tanggalKontak: r.tanggalKontak || (r.createdAt ? r.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]),
               catatan: r.catatan || '',
+              keterangan: r.keterangan || r.catatan || '',
               createdAt: r.createdAt || new Date().toISOString(),
               convertedCustomerId: r.convertedCustomerId || undefined,
             }));
@@ -221,7 +222,11 @@ export default function App() {
             .order('createdAt', { ascending: false });
 
           if (!fuError && fuData !== null && isMounted) {
-            setFollowUps(fuData as FollowUpSchedule[]);
+            const formattedFu: FollowUpSchedule[] = fuData.map((r: any) => ({
+              ...r,
+              keterangan: r.keterangan || r.catatanHasil || '',
+            }));
+            setFollowUps(formattedFu);
           } else if (fuError) {
             try {
               const localFu = localStorage.getItem('isp_crm_followups');
@@ -383,6 +388,7 @@ export default function App() {
           sumberLead: lead.sumberLead || '',
           tanggalKontak: lead.tanggalKontak || '',
           catatan: lead.catatan || '',
+          keterangan: lead.keterangan || lead.catatan || '',
           convertedCustomerId: lead.convertedCustomerId || null,
           createdAt: lead.createdAt || new Date().toISOString(),
         };
@@ -404,6 +410,7 @@ export default function App() {
             assignedCS: lead.assignedCS || '',
             convertedCustomerId: lead.convertedCustomerId || null,
             catatan: lead.catatan || '',
+            keterangan: lead.keterangan || lead.catatan || '',
             createdAt: lead.createdAt || new Date().toISOString(),
           };
 
@@ -425,6 +432,7 @@ export default function App() {
               paketDiminati: lead.paketDiminati || '',
               tanggalKontak: lead.tanggalKontak || '',
               catatan: lead.catatan || '',
+              keterangan: lead.keterangan || lead.catatan || '',
               createdAt: lead.createdAt || new Date().toISOString(),
             };
             const { error: feErr } = await supabase.from('leads').upsert(frontendPayload);
@@ -643,6 +651,16 @@ export default function App() {
     syncLeadToSupabase(newLead);
   };
 
+  const handleBulkAddLeads = (newLeadsData: Omit<Lead, 'id' | 'createdAt'>[]) => {
+    const createdLeads: Lead[] = newLeadsData.map((leadData, idx) => ({
+      ...leadData,
+      id: `lead-${Date.now().toString().slice(-5)}-${idx}`,
+      createdAt: new Date().toISOString(),
+    }));
+    setLeads((prev) => [...createdLeads, ...prev]);
+    createdLeads.forEach((lead) => syncLeadToSupabase(lead));
+  };
+
   const handleUpdateLead = (id: string, updates: Partial<Lead>) => {
     setLeads((prev) => {
       const updatedList = prev.map((l) => {
@@ -663,6 +681,12 @@ export default function App() {
     if (target) {
       syncLeadToSupabase(target, true);
     }
+  };
+
+  const handleBulkDeleteLeads = (ids: string[]) => {
+    const targets = leads.filter((l) => ids.includes(l.id));
+    setLeads((prev) => prev.filter((l) => !ids.includes(l.id)));
+    targets.forEach((target) => syncLeadToSupabase(target, true));
   };
 
   const handleConvertToClosing = (
@@ -768,6 +792,12 @@ export default function App() {
     if (target) {
       syncFuToSupabase(target, true);
     }
+  };
+
+  const handleBulkDeleteFollowUps = (ids: string[]) => {
+    const targets = followUps.filter((s) => ids.includes(s.id));
+    setFollowUps((prev) => prev.filter((s) => !ids.includes(s.id)));
+    targets.forEach((target) => syncFuToSupabase(target, true));
   };
 
   const handleFollowUpConvertToClosing = (s: FollowUpSchedule) => {
@@ -971,8 +1001,10 @@ export default function App() {
                     leads={leads}
                     currentUserName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'OxyMod'}
                     onAddLead={handleAddLead}
+                    onBulkAddLeads={handleBulkAddLeads}
                     onUpdateLead={handleUpdateLead}
                     onDeleteLead={handleDeleteLead}
+                    onBulkDeleteLeads={handleBulkDeleteLeads}
                     onConvertToClosing={handleConvertToClosing}
                     onScheduleFollowUp={handleAddFollowUp}
                   />
@@ -987,6 +1019,7 @@ export default function App() {
                     onAddSchedule={handleAddFollowUp}
                     onUpdateSchedule={handleUpdateFollowUp}
                     onDeleteSchedule={handleDeleteFollowUp}
+                    onBulkDeleteSchedules={handleBulkDeleteFollowUps}
                     onConvertToClosing={handleFollowUpConvertToClosing}
                   />
                 </div>
