@@ -4,6 +4,28 @@
 
 html {
   font-size: 14px; /* Slightly zoomed out compact scale for dashboard density */
+  background-color: #f8fafc;
+}
+
+body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+}
+
+html.dark, html.dark body, html.dark #root {
+  background-color: #020617 !important;
+}
+
+/* Ensure full screen containers and root app containers don't get rounded corners in modern mode */
+html.ui-modern body,
+html.ui-modern #root,
+html.ui-modern #root > div,
+html.ui-modern .h-screen,
+html.ui-modern .min-h-screen {
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 /* Custom Scrollbar styling matching light and dark themes */
