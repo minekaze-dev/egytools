@@ -82,8 +82,14 @@ CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   "packagePrice" NUMERIC DEFAULT 0,
   periode TEXT,
   "nomorInternet" TEXT,
+  jumlah_follow_up INT DEFAULT 1,
+  "jumlahFollowUp" INT DEFAULT 1,
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- MIGRATION SCRIPT TO ADD JUMLAH FOLLOW UP TO EXISTING FOLLOW_UP_SCHEDULES TABLE:
+-- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS jumlah_follow_up INT DEFAULT 1;
+-- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "jumlahFollowUp" INT DEFAULT 1;
 
 -- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES:
 -- (Jalankan skrip di bawah ini jika Anda ingin memperbarui tabel Supabase yang sudah ada untuk menambahkan status 'Not Interest')

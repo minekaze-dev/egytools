@@ -216,6 +216,7 @@ export default function App() {
             const formattedFu: FollowUpSchedule[] = fuData.map((r: any) => ({
               ...r,
               keterangan: r.keterangan || r.catatanHasil || '',
+              jumlahFollowUp: r.jumlahFollowUp ?? r.jumlah_follow_up ?? 1,
             }));
             setFollowUps(formattedFu);
           } else if (fuError) {
@@ -455,6 +456,8 @@ export default function App() {
           .from('follow_up_schedules')
           .upsert({
             ...fu,
+            jumlah_follow_up: fu.jumlahFollowUp || fu.jumlah_follow_up || 1,
+            jumlahFollowUp: fu.jumlahFollowUp || fu.jumlah_follow_up || 1,
             user_id: user.id,
           });
         if (error) console.error('Supabase FU upsert error:', error);

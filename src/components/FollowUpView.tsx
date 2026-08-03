@@ -72,6 +72,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
   const [formNomorInternet, setFormNomorInternet] = useState<string>('');
   const [formCatatan, setFormCatatan] = useState('');
   const [formKeterangan, setFormKeterangan] = useState('');
+  const [formJumlahFU, setFormJumlahFU] = useState<number>(1);
 
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -261,6 +262,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     setFormNomorInternet('');
     setFormCatatan('');
     setFormKeterangan('');
+    setFormJumlahFU(1);
     setEditingSchedule(null);
     setIsAddModalOpen(true);
   };
@@ -279,6 +281,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     setFormNomorInternet(s.nomorInternet || '');
     setFormCatatan(s.catatanHasil || '');
     setFormKeterangan(s.keterangan || s.catatanHasil || '');
+    setFormJumlahFU(s.jumlahFollowUp || 1);
     setIsAddModalOpen(true);
   };
 
@@ -314,6 +317,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
       packagePrice: selectedPkg.price,
       periode: formPeriode,
       nomorInternet: formNomorInternet.trim() || undefined,
+      jumlahFollowUp: formJumlahFU || 1,
     };
 
     if (editingSchedule) {
@@ -585,13 +589,14 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
               <th className="px-4 py-3 text-center">Status</th>
               <th className="px-4 py-3">Jadwal (Tgl &amp; Waktu)</th>
               <th className="px-4 py-3">Keterangan</th>
+              <th className="px-4 py-3 text-center min-w-[110px]">Jumlah FU</th>
               <th className="px-4 py-3 text-right">Integrasi WA &amp; Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
             {filteredSchedules.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
+                <td colSpan={9} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Clock className="w-8 h-8 text-slate-400" />
                     <p className="font-bold text-sm">Tidak ada jadwal Follow Up pada kategori ini.</p>
@@ -739,6 +744,39 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                         className="w-full min-w-[130px] px-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold"
                         title="Klik untuk edit keterangan FU"
                       />
+                    </td>
+
+                    {/* Jumlah Follow Up Column */}
+                    <td className="px-4 py-3 text-center">
+                      <div className="inline-flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 border border-slate-200 dark:border-slate-800 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const current = s.jumlahFollowUp || 1;
+                            if (current > 1) {
+                              onUpdateSchedule(s.id, { jumlahFollowUp: current - 1 });
+                            }
+                          }}
+                          className="w-5 h-5 flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-black hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer text-xs"
+                          title="Kurangi Jumlah FU"
+                        >
+                          -
+                        </button>
+                        <span className="px-1.5 font-black text-xs text-blue-600 dark:text-blue-400 font-mono min-w-[32px] text-center">
+                          {s.jumlahFollowUp || 1}x
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const current = s.jumlahFollowUp || 1;
+                            onUpdateSchedule(s.id, { jumlahFollowUp: current + 1 });
+                          }}
+                          className="w-5 h-5 flex items-center justify-center bg-blue-600 text-white font-black hover:bg-blue-700 cursor-pointer text-xs"
+                          title="Tambah 1x FU"
+                        >
+                          +
+                        </button>
+                      </div>
                     </td>
 
                     <td className="px-4 py-3 text-right">
@@ -997,6 +1035,23 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                   onChange={(e) => setFormKeterangan(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
                 />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 uppercase mb-1">
+                  Jumlah Follow Up (Kontak ke-)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={99}
+                    value={formJumlahFU}
+                    onChange={(e) => setFormJumlahFU(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-bold"
+                  />
+                  <span className="text-xs font-black text-blue-600 dark:text-blue-400 font-mono shrink-0">x Kontak</span>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">

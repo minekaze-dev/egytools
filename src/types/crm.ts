@@ -88,4 +88,6 @@ export interface FollowUpSchedule {
   packagePrice?: number;
   periode?: BillingPeriod;
   nomorInternet?: string;
+  jumlahFollowUp?: number;
+  jumlah_follow_up?: number;
 }

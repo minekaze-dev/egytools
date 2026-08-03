@@ -92,24 +92,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
           <div
             onClick={onOpenLanding}
-            className={`w-9 h-9 rounded-none bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-blue-600 shrink-0 overflow-hidden ${
-              onOpenLanding ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''
-            }`}
-            title="Ke Landing Page"
-          >
-            <img src="https://i.imgur.com/ENDHLpA.jpg" alt="OxyMod Logo" className="w-full h-full object-cover" />
-          </div>
-          <div
-            onClick={onOpenLanding}
             className={onOpenLanding ? 'cursor-pointer group' : ''}
           >
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase">
-                OxyMod
+                Sistem
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 hidden sm:block font-medium">
-              Perhitungan Revenue & Komisi
+              Monitoring Customer & Perhitungan Revenue
             </p>
           </div>
         </div>
