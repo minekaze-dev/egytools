@@ -257,7 +257,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     setFormWaktu('10:00');
     setFormCustomerType('Lead');
     setFormStatus('Thinking');
-    setFormPackageId('pkg-50-a');
+    setFormPackageId('none');
     setFormPeriode('Bulanan');
     setFormNomorInternet('');
     setFormCatatan('');
@@ -276,7 +276,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     setFormWaktu(s.waktuFollowUp);
     setFormCustomerType(s.customerType || 'Lead');
     setFormStatus(s.status || 'Thinking');
-    setFormPackageId(s.packageId || 'pkg-50-a');
+    setFormPackageId(s.packageId || (s.packageName && s.packageName !== '-' ? MASTER_PACKAGES.find(p => p.name === s.packageName)?.id || 'none' : 'none'));
     setFormPeriode(s.periode || 'Bulanan');
     setFormNomorInternet(s.nomorInternet || '');
     setFormCatatan(s.catatanHasil || '');
@@ -288,7 +288,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
   const handleUpdateStatus = (s: FollowUpSchedule, newStatus: FollowUpStatus) => {
     onUpdateSchedule(s.id, { status: newStatus });
     if (newStatus === 'Closing' && onConvertToClosing) {
-      onConvertToClosing({ ...s, status: 'Closing' });
+      onConvertToClosing({ ...s, status: newStatus });
     }
   };
 
@@ -300,7 +300,10 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     }
 
     const finalNama = formNama.trim() || 'Customer';
-    const selectedPkg = MASTER_PACKAGES.find((p) => p.id === formPackageId) || MASTER_PACKAGES[0];
+    const selectedPkg = MASTER_PACKAGES.find((p) => p.id === formPackageId);
+    const pkgId = selectedPkg ? selectedPkg.id : 'none';
+    const pkgName = selectedPkg ? selectedPkg.name : '-';
+    const pkgPrice = selectedPkg ? selectedPkg.price : 0;
 
     const payloadData = {
       namaCustomer: finalNama,
@@ -312,9 +315,9 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
       customerType: formCustomerType,
       catatanHasil: formCatatan || formKeterangan,
       keterangan: formKeterangan,
-      packageId: selectedPkg.id,
-      packageName: selectedPkg.name,
-      packagePrice: selectedPkg.price,
+      packageId: pkgId,
+      packageName: pkgName,
+      packagePrice: pkgPrice,
       periode: formPeriode,
       nomorInternet: formNomorInternet.trim() || undefined,
       jumlahFollowUp: formJumlahFU || 1,
@@ -344,8 +347,10 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
     e.preventDefault();
     if (!completingSchedule) return;
 
+    const currentFU = completingSchedule.jumlahFollowUp || 1;
     onUpdateSchedule(completingSchedule.id, {
       status: 'Selesai',
+      jumlahFollowUp: currentFU + 1,
       catatanHasil: completeNotes ? `${completingSchedule.catatanHasil || ''} [Selesai: ${completeNotes}]`.trim() : completingSchedule.catatanHasil,
     });
 
@@ -659,29 +664,48 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                     </td>
 
                     <td className="px-4 py-3">
-                      {s.packageName ? (
-                        <div>
-                          <div className="font-extrabold text-slate-900 dark:text-white text-xs">
-                            {s.packageName}
-                          </div>
-                          <div className="text-[10px] text-slate-500 font-bold flex flex-wrap items-center gap-1 mt-0.5">
-                            <span className="px-1.5 py-0.2 bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800 uppercase font-black text-[9px]">
+                      <div className="flex flex-col gap-1">
+                        <select
+                          value={s.packageId && s.packageId !== 'none' ? s.packageId : (s.packageName && s.packageName !== '-' ? MASTER_PACKAGES.find(p => p.name === s.packageName)?.id || 'none' : 'none')}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === 'none' || val === '-') {
+                              onUpdateSchedule(s.id, { packageId: 'none', packageName: '-', packagePrice: 0 });
+                            } else {
+                              const pkg = MASTER_PACKAGES.find((p) => p.id === val);
+                              if (pkg) {
+                                onUpdateSchedule(s.id, { packageId: pkg.id, packageName: pkg.name, packagePrice: pkg.price });
+                              }
+                            }
+                          }}
+                          className="p-1 text-xs font-extrabold bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-blue-500 rounded-none max-w-[170px] truncate"
+                          title="Pilih Paket Quick Edit"
+                        >
+                          <option value="none">- (Belum Pilih Paket)</option>
+                          {MASTER_PACKAGES.map((pkg) => (
+                            <option key={pkg.id} value={pkg.id}>
+                              {pkg.name} ({pkg.speed})
+                            </option>
+                          ))}
+                        </select>
+                        {s.packagePrice && s.packagePrice > 0 ? (
+                          <div className="text-[10px] text-slate-500 font-bold flex flex-wrap items-center gap-1">
+                            <span className="px-1 py-0.2 bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800 uppercase font-black text-[9px]">
                               {s.periode || 'Bulanan'}
                             </span>
-                            <span>Rp{(s.packagePrice || 0).toLocaleString('id-ID')}</span>
+                            <span>Rp{s.packagePrice.toLocaleString('id-ID')}</span>
                           </div>
-                          {s.nomorInternet && (
-                            <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-bold mt-0.5">
-                              ID: {s.nomorInternet}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <span className="font-bold text-slate-700 dark:text-slate-300 text-xs">Stream 50 Mbps</span>
-                          <div className="text-[10px] text-slate-400 font-semibold">Bulanan (Rp185.000)</div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-[10px] text-slate-400 font-medium">
+                            - (Belum Ada Paket)
+                          </div>
+                        )}
+                        {s.nomorInternet && (
+                          <div className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                            ID: {s.nomorInternet}
+                          </div>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-4 py-3 text-center">
@@ -958,6 +982,7 @@ export const FollowUpView: React.FC<FollowUpViewProps> = ({
                     onChange={(e) => setFormPackageId(e.target.value)}
                     className="w-full p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white cursor-pointer font-bold"
                   >
+                    <option value="none">- (Belum Pilih Paket)</option>
                     {MASTER_PACKAGES.map((pkg) => (
                       <option key={pkg.id} value={pkg.id}>
                         {pkg.name} - Rp{pkg.price.toLocaleString('id-ID')}

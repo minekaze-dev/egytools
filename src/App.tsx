@@ -762,6 +762,10 @@ export default function App() {
   // ----------------------------------------------------
   const handleAddFollowUp = (scheduleData: Omit<FollowUpSchedule, 'id' | 'createdAt'>) => {
     const newFu: FollowUpSchedule = {
+      status: 'Menunggu',
+      packageName: '-',
+      packagePrice: 0,
+      packageId: 'none',
       ...scheduleData,
       id: `fu-${Date.now().toString().slice(-5)}`,
       createdAt: new Date().toISOString(),
@@ -775,6 +779,11 @@ export default function App() {
       const updatedList = prev.map((s) => {
         if (s.id === id) {
           const updated = { ...s, ...updates };
+          if (updates.status === 'Selesai' && s.status !== 'Selesai') {
+            if (updates.jumlahFollowUp === undefined) {
+              updated.jumlahFollowUp = (s.jumlahFollowUp || 1) + 1;
+            }
+          }
           syncFuToSupabase(updated);
           return updated;
         }
@@ -997,6 +1006,7 @@ export default function App() {
                 <div className="animate-in slide-in-from-bottom-4 duration-500 flex-1">
                   <LeadsView
                     leads={leads}
+                    schedules={followUps}
                     currentUserName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'OxyMod'}
                     onAddLead={handleAddLead}
                     onBulkAddLeads={handleBulkAddLeads}

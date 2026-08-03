@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { Lead, LeadSurveyStatus, LeadSource, FollowUpType } from '../types/crm';
+import { Lead, LeadSurveyStatus, LeadSource, FollowUpType, FollowUpSchedule } from '../types/crm';
 import { MASTER_PACKAGES } from '../data/packages';
 import { BillingPeriod } from '../types/customer';
 import { 
@@ -115,6 +115,7 @@ export const TABLE_EDIT_STATUSES: LeadSurveyStatus[] = [
 
 interface LeadsViewProps {
   leads: Lead[];
+  schedules?: FollowUpSchedule[];
   currentUserName?: string;
   onAddLead: (lead: Omit<Lead, 'id' | 'createdAt'>) => void;
   onBulkAddLeads?: (leads: Omit<Lead, 'id' | 'createdAt'>[]) => void;
@@ -256,6 +257,7 @@ const parsePhone = (val: any): string => {
 
 export const LeadsView: React.FC<LeadsViewProps> = ({
   leads,
+  schedules = [],
   currentUserName = 'OxyMod',
   onAddLead,
   onBulkAddLeads,
@@ -265,6 +267,25 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
   onConvertToClosing,
   onScheduleFollowUp,
 }) => {
+  const getLeadJumlahFU = (lead: Lead) => {
+    if (!schedules || schedules.length === 0) return 0;
+    const cleanHP = (num?: string) => (num || '').replace(/\D/g, '');
+    const leadHp = cleanHP(lead.nomorHP);
+
+    const matched = schedules.filter(s => {
+      if (s.referenceId && s.referenceId === lead.id) return true;
+      const sHp = cleanHP(s.noWhatsapp || s.nomorHP);
+      if (leadHp && sHp && (leadHp === sHp || leadHp.endsWith(sHp) || sHp.endsWith(leadHp))) {
+        return true;
+      }
+      return false;
+    });
+
+    if (matched.length === 0) return 0;
+
+    return Math.max(matched.length, ...matched.map(s => s.jumlahFollowUp || 1));
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [sourceFilter, setSourceFilter] = useState<string>('ALL');
@@ -664,6 +685,10 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
       customerType: schedulingLead.statusSurvei === 'Pemasangan' ? 'Prospek' : 'Lead',
       referenceId: schedulingLead.id,
       catatanHasil: fuCatatan,
+      status: 'Menunggu',
+      packageName: '-',
+      packagePrice: 0,
+      packageId: 'none',
     });
 
     setSchedulingLead(null);
@@ -872,13 +897,14 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
               <th className="px-4 py-3 text-center">Status Lead</th>
               <th className="px-4 py-3">Sumber &amp; Tgl</th>
               <th className="px-4 py-3">Keterangan</th>
+              <th className="px-4 py-3 text-center min-w-[90px]">Jumlah FU</th>
               <th className="px-4 py-3 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
             {filteredLeads.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
+                <td colSpan={9} className="px-4 py-12 text-center text-slate-500 dark:text-slate-400">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Users className="w-8 h-8 text-slate-400" />
                     <p className="font-bold text-sm">Tidak ada data Lead calon pelanggan yang ditemukan.</p>
@@ -1051,6 +1077,25 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                       className="w-full min-w-[140px] px-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white text-xs font-semibold"
                       title="Klik untuk edit keterangan langsung"
                     />
+                  </td>
+
+                  {/* 7. Jumlah FU (Non-editable, calculated from FU schedules) */}
+                  <td className="px-4 py-3 text-center">
+                    {(() => {
+                      const fuCount = getLeadJumlahFU(lead);
+                      return (
+                        <span
+                          className={`inline-flex items-center justify-center px-2 py-1 font-mono font-black text-xs border ${
+                            fuCount > 0
+                              ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                              : 'bg-slate-100 dark:bg-slate-900/80 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
+                          }`}
+                          title={`Jumlah Follow Up otomatis dari data FU: ${fuCount}x (Otomatis terhitung)`}
+                        >
+                          {fuCount}x
+                        </span>
+                      );
+                    })()}
                   </td>
 
                   {/* 7. Aksi */}

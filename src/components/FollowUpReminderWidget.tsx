@@ -15,18 +15,38 @@ export const FollowUpReminderWidget: React.FC<FollowUpReminderWidgetProps> = ({
   onNavigateTab,
   onUpdateScheduleStatus,
 }) => {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const getLocalDateStr = (d = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  // Schedules created from leads or general pending FU
-  const leadSchedules = schedules.filter(
-    s => s.customerType === 'Lead' || s.customerType === 'Prospek' || Boolean(s.referenceId) || !s.customerType
+  const normalizeDateStr = (rawStr: string) => {
+    if (!rawStr) return '';
+    if (rawStr.includes('T')) return rawStr.split('T')[0];
+    const parts = rawStr.split('-');
+    if (parts.length === 3) {
+      const y = parts[0];
+      const m = String(parts[1]).padStart(2, '0');
+      const d = String(parts[2]).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    return rawStr;
+  };
+
+  const todayStr = getLocalDateStr();
+
+  // All active/pending FU schedules (status is not Selesai, Closing, or Batal)
+  const pendingSchedules = schedules.filter(
+    s => s.status !== 'Selesai' && s.status !== 'Closing' && s.status !== 'Batal'
   );
 
   // Today's pending schedules
-  const todayPending = leadSchedules.filter(s => s.tanggalFollowUp === todayStr && s.status === 'Menunggu');
-  
+  const todayPending = pendingSchedules.filter(s => normalizeDateStr(s.tanggalFollowUp) === todayStr);
+
   // Overdue schedules
-  const overduePending = leadSchedules.filter(s => s.tanggalFollowUp < todayStr && s.status === 'Menunggu');
+  const overduePending = pendingSchedules.filter(s => normalizeDateStr(s.tanggalFollowUp) < todayStr);
 
   // Leads ready for closing (status Pemasangan / Closing)
   const readyForClosingLeads = leads.filter(l => l.statusSurvei === 'Pemasangan');
@@ -36,10 +56,7 @@ export const FollowUpReminderWidget: React.FC<FollowUpReminderWidgetProps> = ({
     if (cleanPhone.startsWith('0')) {
       cleanPhone = '62' + cleanPhone.slice(1);
     }
-    const message = encodeURIComponent(
-      `Halo Kak ${s.namaCustomer || 'Customer'}, dari Oxygen.id Internet. Mengenai ${s.tipeFollowUp}, apakah ada yang bisa kami bantu?`
-    );
-    return `https://wa.me/${cleanPhone}?text=${message}`;
+    return `https://wa.me/${cleanPhone}`;
   };
 
   return (
@@ -111,10 +128,11 @@ export const FollowUpReminderWidget: React.FC<FollowUpReminderWidgetProps> = ({
                   </a>
                   <button
                     onClick={() => onUpdateScheduleStatus(item.id, 'Selesai')}
-                    className="p-1 bg-emerald-600 text-white font-extrabold text-[10px] uppercase cursor-pointer"
-                    title="Tandai Selesai"
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] uppercase flex items-center gap-1 cursor-pointer"
+                    title="Tandai Selesai Follow Up"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Done FU</span>
                   </button>
                 </div>
               </div>
@@ -152,10 +170,11 @@ export const FollowUpReminderWidget: React.FC<FollowUpReminderWidgetProps> = ({
                   </a>
                   <button
                     onClick={() => onUpdateScheduleStatus(item.id, 'Selesai')}
-                    className="p-1 bg-emerald-600 text-white font-extrabold text-[10px] uppercase cursor-pointer"
-                    title="Tandai Selesai"
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] uppercase flex items-center gap-1 cursor-pointer"
+                    title="Tandai Selesai Follow Up"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Done FU</span>
                   </button>
                 </div>
               </div>
