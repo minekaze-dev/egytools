@@ -23,7 +23,7 @@ import { LeadsView } from './components/LeadsView';
 import { FollowUpView } from './components/FollowUpView';
 import { FollowUpReminderWidget } from './components/FollowUpReminderWidget';
 
-import { Lead, FollowUpSchedule } from './types/crm';
+import { Lead, FollowUpSchedule, LeadSurveyStatus, LeadSource } from './types/crm';
 import { INITIAL_LEADS, INITIAL_FOLLOW_UPS } from './data/initialCrmData';
 
 import { getPackageById, MASTER_PACKAGES } from './data/packages';
@@ -186,8 +186,25 @@ export default function App() {
             .order('createdAt', { ascending: false });
 
           if (!leadsError && leadsData !== null && isMounted) {
-            setLeads(leadsData as Lead[]);
+            const formattedLeads: Lead[] = leadsData.map((r: any) => ({
+              id: r.id,
+              namaCalonPelanggan: r.namaCalonPelanggan || r.namaLead || 'Lead Tanpa Nama',
+              nomorHP: r.nomorHP || '',
+              alamat: r.alamat || r.alamatAlur || '',
+              area: r.area || '-',
+              paketDiminati: r.paketDiminati || '',
+              statusSurvei: (r.statusSurvei || r.status || 'Prospek Baru') as LeadSurveyStatus,
+              assignedSales: r.assignedSales || r.sales || '',
+              assignedCS: r.assignedCS || '',
+              sumberLead: (r.sumberLead || 'Lainnya') as LeadSource,
+              tanggalKontak: r.tanggalKontak || (r.createdAt ? r.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]),
+              catatan: r.catatan || '',
+              createdAt: r.createdAt || new Date().toISOString(),
+              convertedCustomerId: r.convertedCustomerId || undefined,
+            }));
+            setLeads(formattedLeads);
           } else if (leadsError) {
+            console.error('Error fetching leads from Supabase:', leadsError);
             try {
               const localLeads = localStorage.getItem('isp_crm_leads');
               if (localLeads && isMounted) {
@@ -318,21 +335,23 @@ export default function App() {
     if (!user) return;
     try {
       if (isDelete) {
-        await supabase
+        const { error } = await supabase
           .from('customers')
           .delete()
           .eq('id', customer.id)
           .eq('user_id', user.id);
+        if (error) console.error('Supabase customer delete error:', error);
       } else {
-        await supabase
+        const { error } = await supabase
           .from('customers')
           .upsert({
             ...customer,
             user_id: user.id,
           });
+        if (error) console.error('Supabase customer upsert error:', error);
       }
     } catch (err) {
-      console.error('Supabase sync error:', err);
+      console.error('Supabase customer sync exception:', err);
     }
   };
 
@@ -340,21 +359,83 @@ export default function App() {
     if (!user) return;
     try {
       if (isDelete) {
-        await supabase
+        const { error } = await supabase
           .from('leads')
           .delete()
           .eq('id', lead.id)
           .eq('user_id', user.id);
+        if (error) console.error('Supabase lead delete error:', error);
       } else {
-        await supabase
-          .from('leads')
-          .upsert({
-            ...lead,
+        // Attempt 1: Full payload containing both frontend names and legacy SQL column aliases
+        const fullPayload = {
+          id: lead.id,
+          user_id: user.id,
+          namaCalonPelanggan: lead.namaCalonPelanggan || '',
+          namaLead: lead.namaCalonPelanggan || '',
+          nomorHP: lead.nomorHP || '',
+          alamat: lead.alamat || '',
+          alamatAlur: lead.alamat || '',
+          area: lead.area || '-',
+          paketDiminati: lead.paketDiminati || '',
+          statusSurvei: lead.statusSurvei || 'Prospek Baru',
+          assignedSales: lead.assignedSales || '',
+          assignedCS: lead.assignedCS || '',
+          sumberLead: lead.sumberLead || '',
+          tanggalKontak: lead.tanggalKontak || '',
+          catatan: lead.catatan || '',
+          convertedCustomerId: lead.convertedCustomerId || null,
+          createdAt: lead.createdAt || new Date().toISOString(),
+        };
+
+        const { error: fullErr } = await supabase.from('leads').upsert(fullPayload);
+
+        if (fullErr) {
+          console.warn('Full lead upsert failed, trying SQL script schema payload:', fullErr.message);
+          // Attempt 2: Fallback payload using only columns defined in the base SQL script
+          const fallbackPayload = {
+            id: lead.id,
             user_id: user.id,
-          });
+            namaLead: lead.namaCalonPelanggan || '',
+            nomorHP: lead.nomorHP || '',
+            alamatAlur: lead.alamat || '',
+            area: lead.area || '-',
+            sumberLead: lead.sumberLead || '',
+            statusSurvei: lead.statusSurvei || 'Prospek Baru',
+            assignedCS: lead.assignedCS || '',
+            convertedCustomerId: lead.convertedCustomerId || null,
+            catatan: lead.catatan || '',
+            createdAt: lead.createdAt || new Date().toISOString(),
+          };
+
+          const { error: fbErr } = await supabase.from('leads').upsert(fallbackPayload);
+          if (fbErr) {
+            console.warn('Fallback lead upsert failed, trying frontend interface schema payload:', fbErr.message);
+            // Attempt 3: Payload using frontend interface property names
+            const frontendPayload = {
+              id: lead.id,
+              user_id: user.id,
+              namaCalonPelanggan: lead.namaCalonPelanggan || '',
+              nomorHP: lead.nomorHP || '',
+              alamat: lead.alamat || '',
+              area: lead.area || '-',
+              sumberLead: lead.sumberLead || '',
+              statusSurvei: lead.statusSurvei || 'Prospek Baru',
+              assignedSales: lead.assignedSales || '',
+              assignedCS: lead.assignedCS || '',
+              paketDiminati: lead.paketDiminati || '',
+              tanggalKontak: lead.tanggalKontak || '',
+              catatan: lead.catatan || '',
+              createdAt: lead.createdAt || new Date().toISOString(),
+            };
+            const { error: feErr } = await supabase.from('leads').upsert(frontendPayload);
+            if (feErr) {
+              console.error('All lead upsert attempts failed in Supabase:', feErr);
+            }
+          }
+        }
       }
     } catch (err) {
-      console.error('Supabase lead sync error:', err);
+      console.error('Supabase lead sync exception:', err);
     }
   };
 
@@ -362,21 +443,23 @@ export default function App() {
     if (!user) return;
     try {
       if (isDelete) {
-        await supabase
+        const { error } = await supabase
           .from('follow_up_schedules')
           .delete()
           .eq('id', fu.id)
           .eq('user_id', user.id);
+        if (error) console.error('Supabase FU delete error:', error);
       } else {
-        await supabase
+        const { error } = await supabase
           .from('follow_up_schedules')
           .upsert({
             ...fu,
             user_id: user.id,
           });
+        if (error) console.error('Supabase FU upsert error:', error);
       }
     } catch (err) {
-      console.error('Supabase FU sync error:', err);
+      console.error('Supabase FU sync exception:', err);
     }
   };
 

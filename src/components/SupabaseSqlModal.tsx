@@ -35,17 +35,29 @@ CREATE TABLE IF NOT EXISTS public.customers (
 CREATE TABLE IF NOT EXISTS public.leads (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  "namaLead" TEXT NOT NULL,
+  "namaCalonPelanggan" TEXT,
+  "namaLead" TEXT,
   "nomorHP" TEXT,
+  alamat TEXT,
   "alamatAlur" TEXT,
   area TEXT DEFAULT '-',
+  "paketDiminati" TEXT,
   "sumberLead" TEXT,
-  "statusSurvei" TEXT DEFAULT 'New Customer',
+  "statusSurvei" TEXT DEFAULT 'Prospek Baru',
+  "assignedSales" TEXT,
   "assignedCS" TEXT,
+  "tanggalKontak" TEXT,
   "convertedCustomerId" TEXT REFERENCES public.customers(id) ON DELETE SET NULL,
   catatan TEXT,
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- MIGRATION SCRIPT TO ENSURE EXISTING LEADS TABLES HAVE ALL COLUMNS:
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "namaCalonPelanggan" TEXT;
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "alamat" TEXT;
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "paketDiminati" TEXT;
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "assignedSales" TEXT;
+-- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "tanggalKontak" TEXT;
 
 -- 3. Create the follow_up_schedules table (Connected to leads & customers)
 CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
