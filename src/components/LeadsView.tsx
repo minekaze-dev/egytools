@@ -669,16 +669,13 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
     setSchedulingLead(null);
   };
 
-  // Format WhatsApp Link
-  const getWhatsAppLink = (phone: string, salesName: string) => {
+  // Format WhatsApp Link (Direct tanpa text otomatis)
+  const getWhatsAppLink = (phone: string) => {
     let cleanPhone = phone.replace(/\D/g, '');
     if (cleanPhone.startsWith('0')) {
       cleanPhone = '62' + cleanPhone.slice(1);
     }
-    const message = encodeURIComponent(
-      `Halo Kak, saya ${salesName} dari Oxygen.id Internet Provider. Terima kasih telah menghubungi kami. Apakah ada informasi paket internet yang bisa kami bantu?`
-    );
-    return `https://wa.me/${cleanPhone}?text=${message}`;
+    return `https://wa.me/${cleanPhone}`;
   };
 
   const getStatusBadgeStyle = (status: LeadSurveyStatus) => {
@@ -978,11 +975,11 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                   {/* 2. No HP & Nama Customer (Editable) */}
                   <td className="px-4 py-3">
                     <a
-                      href={getWhatsAppLink(lead.nomorHP, lead.assignedSales || currentUserName)}
+                      href={getWhatsAppLink(lead.nomorHP)}
                       target="_blank"
                       rel="noreferrer"
                       className="font-mono font-black text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-1.5"
-                      title="Klik untuk membuka WhatsApp"
+                      title="Klik untuk membuka chat WhatsApp langsung"
                     >
                       <Phone className="w-3.5 h-3.5 text-green-500" />
                       <span>{lead.nomorHP}</span>
@@ -1134,18 +1131,6 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                           <span>Closing</span>
                         </button>
                       )}
-
-                      {/* WhatsApp Button */}
-                      <a
-                        href={getWhatsAppLink(lead.nomorHP, lead.assignedSales || currentUserName)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1.5 bg-green-500 hover:bg-green-600 text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-colors"
-                        title="Chat WhatsApp Calon Pelanggan"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span className="hidden xl:inline">WA</span>
-                      </a>
 
                       {/* Schedule Follow Up Button */}
                       <button
