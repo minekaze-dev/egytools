@@ -624,20 +624,20 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
       {/* Main Table Container */}
       <div className="bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 rounded-none shadow-xs p-5 space-y-4">
         {/* Table Toolbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-3 text-xs sm:text-sm">
           {/* Left: Total records badge & Rows per page selector */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-none border-2 border-slate-300 dark:border-slate-700 uppercase tracking-wide">
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 flex-nowrap">
+            <span className="h-9 text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 rounded-none border-2 border-slate-300 dark:border-slate-700 uppercase tracking-wide whitespace-nowrap shrink-0 inline-flex items-center">
               {filteredData.length} Data Revenue
             </span>
 
             {/* Page size dropdown (10, 50, 100) */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-2.5 py-1.5">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase hidden sm:inline">Baris:</span>
+            <div className="h-9 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-2.5 whitespace-nowrap shrink-0">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase hidden sm:inline whitespace-nowrap">Baris:</span>
               <select
                 value={table.getState().pagination.pageSize}
                 onChange={(e) => table.setPageSize(Number(e.target.value))}
-                className="bg-transparent text-xs sm:text-sm text-slate-700 dark:text-slate-300 focus:outline-hidden cursor-pointer font-bold uppercase"
+                className="bg-transparent text-xs sm:text-sm text-slate-700 dark:text-slate-300 focus:outline-hidden cursor-pointer font-bold uppercase whitespace-nowrap"
               >
                 <option value={10}>10 Data</option>
                 <option value={50}>50 Data</option>
@@ -649,19 +649,19 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
           {/* Right: Search, Month Filter, Status Filter, Export, Quick Add & Add Button */}
           <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
             {/* Search Box */}
-            <div className="relative flex-1 sm:flex-initial">
+            <div className="relative flex-1 sm:flex-initial h-9">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Cari pelanggan / ID..."
                 value={globalFilter ?? ''}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="w-full sm:w-52 pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-200 font-medium"
+                className="h-9 w-full sm:w-52 pl-9 pr-3 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-200 font-medium"
               />
             </div>
 
             {/* Sort Selector Dropdown */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3 py-1.5">
+            <div className="h-9 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3">
               <ArrowUpDown className="w-4 h-4 text-blue-500" />
               <select
                 value={sortValue}
@@ -678,7 +678,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
             </div>
 
             {/* Filter Month Dropdown */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3 py-1.5">
+            <div className="h-9 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3">
               <Calendar className="w-4 h-4 text-slate-400" />
               <select
                 value={monthFilter}
@@ -698,7 +698,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
             </div>
 
             {/* Filter Status Dropdown */}
-            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3 py-1.5">
+            <div className="h-9 flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3">
               <Filter className="w-4 h-4 text-slate-400" />
               <select
                 value={statusFilter}
@@ -721,7 +721,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                 }
                 setIsMonthModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 border-2 border-indigo-300 dark:border-indigo-800 rounded-none transition-all cursor-pointer shrink-0 uppercase"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs sm:text-sm font-bold bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 border-2 border-indigo-300 dark:border-indigo-800 rounded-none transition-all cursor-pointer shrink-0 uppercase"
               title={isLoggedIn ? "Buat atau pilih tabel untuk bulan yang terlewat" : "Fitur Terkunci (Khusus Akun Login)"}
             >
               <PlusCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
@@ -738,7 +738,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                 }
                 handleExportCSV();
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-none border-2 border-slate-300 dark:border-slate-700 transition-colors cursor-pointer uppercase"
+              className="h-9 inline-flex items-center gap-1.5 px-3 text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-none border-2 border-slate-300 dark:border-slate-700 transition-colors cursor-pointer uppercase"
               title={isLoggedIn ? "Export data ke CSV" : "Fitur Terkunci (Khusus Akun Login)"}
             >
               <Download className="w-4 h-4" />
@@ -755,7 +755,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                 }
                 onQuickAddClick();
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-white rounded-none border-2 border-amber-600 transition-colors shrink-0 cursor-pointer uppercase"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs sm:text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-white rounded-none border-2 border-amber-600 transition-colors shrink-0 cursor-pointer uppercase"
               title={isLoggedIn ? "Pembuatan cepat multiple data" : "Fitur Terkunci (Khusus Akun Login)"}
             >
               <Zap className="w-4 h-4 fill-current" />
@@ -766,7 +766,7 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
             {/* Add Customer Button */}
             <button
               onClick={onAddClick}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-none border-2 border-blue-700 transition-colors shrink-0 cursor-pointer uppercase"
+              className="h-9 inline-flex items-center gap-1.5 px-3.5 text-xs sm:text-sm font-extrabold bg-blue-600 hover:bg-blue-700 text-white rounded-none border-2 border-blue-700 transition-colors shrink-0 cursor-pointer uppercase"
             >
               <Plus className="w-4 h-4" />
               Tambah Data
