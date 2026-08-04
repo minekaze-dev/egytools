@@ -7,12 +7,12 @@ interface SupabaseSqlModalProps {
 }
 
 export const SUPABASE_SQL_SCRIPT = `-- ========================================================
--- OXYTOOL CRM: SUPABASE DATABASE SETUP SCRIPT
+-- OXYTOOL CRM: SUPABASE DATABASE SETUP & MIGRATION SCRIPT
 -- Run this script in your Supabase SQL Editor:
 -- https://supabase.com/dashboard/project/xlaanrhjojnijmqfjsir/sql
 -- ========================================================
 
--- 1. Create the customers table
+-- 1. Create / Update the customers table (Revenue Table)
 CREATE TABLE IF NOT EXISTS public.customers (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -24,14 +24,39 @@ CREATE TABLE IF NOT EXISTS public.customers (
   "packageId" TEXT,
   "packageName" TEXT,
   "packagePrice" NUMERIC DEFAULT 0,
-  periode TEXT,
+  periode TEXT DEFAULT 'Bulanan',
   "tanggalPasang" TEXT,
   status TEXT DEFAULT 'Aktif',
   catatan TEXT,
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Create the leads table (Connected to customers - Area Kota/Daerah & Status Not Interest)
+-- Ensure all required columns exist on existing customers tables:
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "namaPelanggan" TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "nomorInternet" TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "nomorHP" TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS sales TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "packageId" TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "packageName" TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "packagePrice" NUMERIC DEFAULT 0;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS periode TEXT DEFAULT 'Bulanan';
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "tanggalPasang" TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'Aktif';
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS catatan TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMPTZ DEFAULT NOW();
+
+-- Compatibility columns for snake_case
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS nama_pelanggan TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS nomor_internet TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS nomor_hp TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS package_id TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS package_name TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS package_price NUMERIC;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS tanggal_pasang TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ;
+
+-- 2. Create / Update the leads table
 CREATE TABLE IF NOT EXISTS public.leads (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -43,7 +68,7 @@ CREATE TABLE IF NOT EXISTS public.leads (
   area TEXT DEFAULT '-',
   "paketDiminati" TEXT,
   "sumberLead" TEXT,
-  "statusSurvei" TEXT DEFAULT 'New Customer',
+  "statusSurvei" TEXT DEFAULT 'Prospek Baru',
   "assignedSales" TEXT,
   "assignedCS" TEXT,
   "tanggalKontak" TEXT,
@@ -53,15 +78,24 @@ CREATE TABLE IF NOT EXISTS public.leads (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- MIGRATION SCRIPT TO ENSURE EXISTING LEADS TABLES HAVE ALL COLUMNS:
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "namaCalonPelanggan" TEXT;
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "alamat" TEXT;
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "paketDiminati" TEXT;
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "assignedSales" TEXT;
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "tanggalKontak" TEXT;
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS keterangan TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "namaCalonPelanggan" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "namaLead" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "nomorHP" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS alamat TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "alamatAlur" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "paketDiminati" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "sumberLead" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "statusSurvei" TEXT DEFAULT 'Prospek Baru';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "assignedSales" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "assignedCS" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "tanggalKontak" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "convertedCustomerId" TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS catatan TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS keterangan TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMPTZ DEFAULT NOW();
 
--- 3. Create the follow_up_schedules table (Connected to leads & customers)
+-- 3. Create / Update the follow_up_schedules table
 CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   id TEXT PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -71,7 +105,7 @@ CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   "tipeFollowUp" TEXT DEFAULT '-',
   "tanggalFollowUp" TEXT,
   "waktuFollowUp" TEXT,
-  status TEXT DEFAULT 'Thinking',
+  status TEXT DEFAULT 'Pending',
   "customerType" TEXT DEFAULT 'Lead',
   "referenceId" TEXT,
   "assignedCS" TEXT,
@@ -87,24 +121,24 @@ CREATE TABLE IF NOT EXISTS public.follow_up_schedules (
   "createdAt" TIMESTAMPTZ DEFAULT NOW()
 );
 
--- MIGRATION SCRIPT TO ADD JUMLAH FOLLOW UP TO EXISTING FOLLOW_UP_SCHEDULES TABLE:
--- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS jumlah_follow_up INT DEFAULT 1;
--- ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "jumlahFollowUp" INT DEFAULT 1;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "namaCustomer" TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "nomorHP" TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS area TEXT DEFAULT '-';
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "tanggalFollowUp" TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'Pending';
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "referenceId" TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "catatanHasil" TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS keterangan TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "nomorInternet" TEXT;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS jumlah_follow_up INT DEFAULT 1;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "jumlahFollowUp" INT DEFAULT 1;
+ALTER TABLE public.follow_up_schedules ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMPTZ DEFAULT NOW();
 
--- DEDICATED UPDATE SCRIPT FOR EXISTING LEADS & FOLLOW_UP TABLES:
--- (Jalankan skrip di bawah ini jika Anda ingin memperbarui tabel Supabase yang sudah ada untuk menambahkan status 'Not Interest')
--- 
--- ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS "statusSurvei" TEXT DEFAULT 'New Customer';
--- ALTER TABLE public.leads DROP CONSTRAINT IF EXISTS leads_statusSurvei_check;
--- ALTER TABLE public.leads ADD CONSTRAINT leads_statusSurvei_check CHECK (
---   "statusSurvei" IN ('New Customer', 'NBP', 'Interest', 'Not Interest', 'Thinking', 'Uncover', 'Already Active', 'Area Full', 'Pemasangan', 'Refund', 'Aktif', 'Closing', 'Ghosting')
--- );
-
--- 4. Create the profiles table for user settings & target SA
+-- 4. Create / Update profiles table
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
-  monthly_target_sa INTEGER DEFAULT 15,
+  monthly_target_sa INTEGER DEFAULT 10,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -114,39 +148,30 @@ ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.follow_up_schedules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- 6. Drop existing policies if any
+-- 6. Create / Recreate RLS Policies
 DROP POLICY IF EXISTS "Users manage their own customers" ON public.customers;
-DROP POLICY IF EXISTS "Users manage their own leads" ON public.leads;
-DROP POLICY IF EXISTS "Users manage their own follow_up_schedules" ON public.follow_up_schedules;
-DROP POLICY IF EXISTS "Users manage their own profiles" ON public.profiles;
-
-DROP POLICY IF EXISTS "Public access customers" ON public.customers;
-DROP POLICY IF EXISTS "Public access leads" ON public.leads;
-DROP POLICY IF EXISTS "Public access follow_up_schedules" ON public.follow_up_schedules;
-DROP POLICY IF EXISTS "Public access profiles" ON public.profiles;
-
--- 7. Create RLS Policies for authenticated users
 CREATE POLICY "Users manage their own customers" ON public.customers
-  FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users manage their own leads" ON public.leads;
 CREATE POLICY "Users manage their own leads" ON public.leads
-  FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users manage their own follow_up_schedules" ON public.follow_up_schedules;
 CREATE POLICY "Users manage their own follow_up_schedules" ON public.follow_up_schedules
-  FOR ALL USING (auth.uid() = user_id OR user_id IS NULL) WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+  FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users manage their own profiles" ON public.profiles;
 CREATE POLICY "Users manage their own profiles" ON public.profiles
   FOR ALL USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
--- 8. Indexes for maximum query performance
+-- 7. Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_customers_user_id ON public.customers(user_id);
 CREATE INDEX IF NOT EXISTS idx_leads_user_id ON public.leads(user_id);
-CREATE INDEX IF NOT EXISTS idx_leads_converted_customer ON public.leads("convertedCustomerId");
 CREATE INDEX IF NOT EXISTS idx_followups_user_id ON public.follow_up_schedules(user_id);
-CREATE INDEX IF NOT EXISTS idx_followups_reference_id ON public.follow_up_schedules("referenceId");
 
 -- ========================================================
--- Done! Database schema is ready for Leads, Follow Up & Revenue.
+-- Done! Database schema is ready.
 -- ========================================================`;
 
 export const SupabaseSqlModal: React.FC<SupabaseSqlModalProps> = ({ isOpen, onClose }) => {

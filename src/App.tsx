@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Customer, CustomerWithCalculations } from './types/customer';
+import { Customer, CustomerWithCalculations, BillingPeriod, CustomerStatus } from './types/customer';
 import { calculateAllCustomerMetrics } from './helpers/commissionCalculator';
 import { getCurrentTier } from './helpers/tierCalculator';
 
@@ -159,7 +159,24 @@ export default function App() {
             .order('createdAt', { ascending: false });
 
           if (!custError && custData !== null && isMounted) {
-            setCustomers(custData as Customer[]);
+            const formattedCust: Customer[] = custData.map((r: any) => ({
+              id: r.id,
+              namaPelanggan: r.namaPelanggan || r.nama_pelanggan || 'Pelanggan Tanpa Nama',
+              nomorInternet: r.nomorInternet || r.nomor_internet || '',
+              nomorHP: r.nomorHP || r.nomor_hp || '',
+              area: r.area || '-',
+              sales: r.sales || '',
+              packageId: r.packageId || r.package_id || 'p1',
+              packageName: r.packageName || r.package_name || 'Stream 100 Mbps',
+              packagePrice: Number(r.packagePrice ?? r.package_price ?? 242000),
+              periode: (r.periode || 'Bulanan') as BillingPeriod,
+              tanggalPasang: r.tanggalPasang || r.tanggal_pasang || (r.createdAt ? r.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]),
+              status: (r.status || 'Aktif') as CustomerStatus,
+              catatan: r.catatan || '',
+              createdAt: r.createdAt || r.created_at || new Date().toISOString(),
+            }));
+            setCustomers(formattedCust);
+            localStorage.setItem('isp_crm_customers', JSON.stringify(formattedCust));
           } else if (custError) {
             try {
               const localCust = localStorage.getItem('isp_crm_customers');
@@ -329,6 +346,25 @@ export default function App() {
     };
   }, []);
 
+  // Keep localStorage in sync with current state
+  useEffect(() => {
+    if (customers.length > 0) {
+      localStorage.setItem(user ? 'isp_crm_customers' : 'isp_crm_customers_guest', JSON.stringify(customers));
+    }
+  }, [customers, user]);
+
+  useEffect(() => {
+    if (leads.length > 0) {
+      localStorage.setItem('isp_crm_leads', JSON.stringify(leads));
+    }
+  }, [leads]);
+
+  useEffect(() => {
+    if (followUps.length > 0) {
+      localStorage.setItem('isp_crm_followups', JSON.stringify(followUps));
+    }
+  }, [followUps]);
+
   // Helper function to sync DB mutation to Supabase if logged in
   const syncToSupabase = async (customer: Customer, isDelete = false) => {
     if (!user) return;
@@ -341,13 +377,69 @@ export default function App() {
           .eq('user_id', user.id);
         if (error) console.error('Supabase customer delete error:', error);
       } else {
-        const { error } = await supabase
-          .from('customers')
-          .upsert({
-            ...customer,
+        // Attempt 1: Full payload containing camelCase properties
+        const fullPayload = {
+          id: customer.id,
+          user_id: user.id,
+          namaPelanggan: customer.namaPelanggan || '',
+          nomorInternet: customer.nomorInternet || '',
+          nomorHP: customer.nomorHP || '',
+          area: customer.area || '-',
+          sales: customer.sales || '',
+          packageId: customer.packageId || 'p1',
+          packageName: customer.packageName || 'Stream 100 Mbps',
+          packagePrice: customer.packagePrice || 242000,
+          periode: customer.periode || 'Bulanan',
+          tanggalPasang: customer.tanggalPasang || '',
+          status: customer.status || 'Aktif',
+          catatan: customer.catatan || '',
+          createdAt: customer.createdAt || new Date().toISOString(),
+        };
+
+        const { error: fullErr } = await supabase.from('customers').upsert(fullPayload);
+
+        if (fullErr) {
+          console.warn('Full customer upsert failed, trying snake_case payload:', fullErr.message);
+          // Attempt 2: Snake case / SQL column aliases payload
+          const snakePayload = {
+            id: customer.id,
             user_id: user.id,
-          });
-        if (error) console.error('Supabase customer upsert error:', error);
+            nama_pelanggan: customer.namaPelanggan || '',
+            nomor_internet: customer.nomorInternet || '',
+            nomor_hp: customer.nomorHP || '',
+            area: customer.area || '-',
+            sales: customer.sales || '',
+            package_id: customer.packageId || 'p1',
+            package_name: customer.packageName || 'Stream 100 Mbps',
+            package_price: customer.packagePrice || 242000,
+            periode: customer.periode || 'Bulanan',
+            tanggal_pasang: customer.tanggalPasang || '',
+            status: customer.status || 'Aktif',
+            catatan: customer.catatan || '',
+            created_at: customer.createdAt || new Date().toISOString(),
+          };
+
+          const { error: snakeErr } = await supabase.from('customers').upsert(snakePayload);
+
+          if (snakeErr) {
+            console.warn('Snake case customer upsert failed, trying minimal payload:', snakeErr.message);
+            // Attempt 3: Minimal essential payload
+            const minimalPayload = {
+              id: customer.id,
+              user_id: user.id,
+              namaPelanggan: customer.namaPelanggan || '',
+              nomorInternet: customer.nomorInternet || '',
+              nomorHP: customer.nomorHP || '',
+              tanggalPasang: customer.tanggalPasang || '',
+              status: customer.status || 'Aktif',
+              createdAt: customer.createdAt || new Date().toISOString(),
+            };
+            const { error: minErr } = await supabase.from('customers').upsert(minimalPayload);
+            if (minErr) {
+              console.error('All customer upsert attempts failed in Supabase:', minErr);
+            }
+          }
+        }
       }
     } catch (err) {
       console.error('Supabase customer sync exception:', err);
