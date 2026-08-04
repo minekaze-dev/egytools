@@ -564,6 +564,267 @@ export default function App() {
     return calculateAllCustomerMetrics(filteredCustomers);
   }, [filteredCustomers]);
 
+  // ----------------------------------------------------
+  // CROSS-TABLE REALTIME SYNC ENGINE
+  // ----------------------------------------------------
+  const cleanHP = (num?: string) => {
+    if (!num) return '';
+    const cleaned = num.replace(/\D/g, '');
+    if (cleaned.startsWith('0')) return '62' + cleaned.slice(1);
+    return cleaned;
+  };
+
+  const isPhoneMatch = (hp1?: string, hp2?: string) => {
+    const p1 = cleanHP(hp1);
+    const p2 = cleanHP(hp2);
+    if (!p1 || !p2 || p1.length < 6 || p2.length < 6) return false;
+    return p1 === p2 || p1.endsWith(p2) || p2.endsWith(p1);
+  };
+
+  const syncFromCustomerUpdate = (targetCustomer: Customer, updates: Partial<Customer>) => {
+    // 1. Sync to Leads
+    setLeads((prev) => {
+      let hasChanges = false;
+      const nextLeads = prev.map((lead) => {
+        const matchesId = lead.convertedCustomerId && lead.convertedCustomerId === targetCustomer.id;
+        const matchesPhone = isPhoneMatch(lead.nomorHP, targetCustomer.nomorHP) ||
+          (updates.nomorHP && isPhoneMatch(lead.nomorHP, updates.nomorHP));
+
+        if (!matchesId && !matchesPhone) return lead;
+
+        const leadUpdates: Partial<Lead> = {};
+
+        if (updates.namaPelanggan !== undefined && updates.namaPelanggan !== lead.namaCalonPelanggan) {
+          leadUpdates.namaCalonPelanggan = updates.namaPelanggan;
+        }
+        if (updates.nomorHP !== undefined && updates.nomorHP !== lead.nomorHP) {
+          leadUpdates.nomorHP = updates.nomorHP;
+        }
+        if (updates.status !== undefined) {
+          if (updates.status === 'Aktif' && lead.statusSurvei !== 'Aktif' && lead.statusSurvei !== 'Closing') {
+            leadUpdates.statusSurvei = 'Aktif';
+          } else if (updates.status === 'Refund' && lead.statusSurvei !== 'Refund') {
+            leadUpdates.statusSurvei = 'Refund';
+          } else if (updates.status === 'Dismantle' && lead.statusSurvei !== 'Batal') {
+            leadUpdates.statusSurvei = 'Batal';
+          }
+        }
+
+        if (Object.keys(leadUpdates).length > 0) {
+          hasChanges = true;
+          const updatedLead = { ...lead, ...leadUpdates };
+          syncLeadToSupabase(updatedLead);
+          return updatedLead;
+        }
+        return lead;
+      });
+      return hasChanges ? nextLeads : prev;
+    });
+
+    // 2. Sync to FollowUpSchedules
+    setFollowUps((prev) => {
+      let hasChanges = false;
+      const nextFu = prev.map((fu) => {
+        const matchesId = fu.referenceId && fu.referenceId === targetCustomer.id;
+        const matchesInternet = fu.nomorInternet && targetCustomer.nomorInternet && fu.nomorInternet === targetCustomer.nomorInternet;
+        const matchesPhone = isPhoneMatch(fu.nomorHP, targetCustomer.nomorHP) ||
+          (updates.nomorHP && isPhoneMatch(fu.nomorHP, updates.nomorHP));
+
+        if (!matchesId && !matchesInternet && !matchesPhone) return fu;
+
+        const fuUpdates: Partial<FollowUpSchedule> = {};
+
+        if (updates.namaPelanggan !== undefined && updates.namaPelanggan !== fu.namaCustomer) {
+          fuUpdates.namaCustomer = updates.namaPelanggan;
+        }
+        if (updates.nomorHP !== undefined && updates.nomorHP !== fu.nomorHP) {
+          fuUpdates.nomorHP = updates.nomorHP;
+        }
+        if (updates.nomorInternet !== undefined && updates.nomorInternet !== fu.nomorInternet) {
+          fuUpdates.nomorInternet = updates.nomorInternet;
+        }
+        if (updates.status !== undefined) {
+          if (updates.status === 'Aktif' && fu.status !== 'Closing' && fu.status !== 'Selesai' && fu.status !== 'Aktif') {
+            fuUpdates.status = 'Aktif';
+          } else if (updates.status === 'Refund' && fu.status !== 'Refund') {
+            fuUpdates.status = 'Refund';
+          } else if (updates.status === 'Dismantle' && fu.status !== 'Batal') {
+            fuUpdates.status = 'Batal';
+          }
+        }
+
+        if (Object.keys(fuUpdates).length > 0) {
+          hasChanges = true;
+          const updatedFu = { ...fu, ...fuUpdates };
+          syncFuToSupabase(updatedFu);
+          return updatedFu;
+        }
+        return fu;
+      });
+      return hasChanges ? nextFu : prev;
+    });
+  };
+
+  const syncFromLeadUpdate = (targetLead: Lead, updates: Partial<Lead>) => {
+    // 1. Sync to Customers
+    setCustomers((prev) => {
+      let hasChanges = false;
+      const nextCustomers = prev.map((cust) => {
+        const matchesId = targetLead.convertedCustomerId && cust.id === targetLead.convertedCustomerId;
+        const matchesPhone = isPhoneMatch(cust.nomorHP, targetLead.nomorHP) ||
+          (updates.nomorHP && isPhoneMatch(cust.nomorHP, updates.nomorHP));
+
+        if (!matchesId && !matchesPhone) return cust;
+
+        const custUpdates: Partial<Customer> = {};
+
+        if (updates.namaCalonPelanggan !== undefined && updates.namaCalonPelanggan !== cust.namaPelanggan) {
+          custUpdates.namaPelanggan = updates.namaCalonPelanggan;
+        }
+        if (updates.nomorHP !== undefined && updates.nomorHP !== cust.nomorHP) {
+          custUpdates.nomorHP = updates.nomorHP;
+        }
+        if (updates.statusSurvei !== undefined) {
+          if ((updates.statusSurvei === 'Aktif' || updates.statusSurvei === 'Closing') && cust.status !== 'Aktif') {
+            custUpdates.status = 'Aktif';
+          } else if (updates.statusSurvei === 'Refund' && cust.status !== 'Refund') {
+            custUpdates.status = 'Refund';
+          } else if (updates.statusSurvei === 'Batal' && cust.status !== 'Dismantle') {
+            custUpdates.status = 'Dismantle';
+          }
+        }
+
+        if (Object.keys(custUpdates).length > 0) {
+          hasChanges = true;
+          const updatedCust = { ...cust, ...custUpdates };
+          syncToSupabase(updatedCust);
+          return updatedCust;
+        }
+        return cust;
+      });
+      return hasChanges ? nextCustomers : prev;
+    });
+
+    // 2. Sync to FollowUpSchedules
+    setFollowUps((prev) => {
+      let hasChanges = false;
+      const nextFu = prev.map((fu) => {
+        const matchesRef = fu.referenceId && (fu.referenceId === targetLead.id || fu.referenceId === targetLead.convertedCustomerId);
+        const matchesPhone = isPhoneMatch(fu.nomorHP, targetLead.nomorHP) ||
+          (updates.nomorHP && isPhoneMatch(fu.nomorHP, updates.nomorHP));
+
+        if (!matchesRef && !matchesPhone) return fu;
+
+        const fuUpdates: Partial<FollowUpSchedule> = {};
+
+        if (updates.namaCalonPelanggan !== undefined && updates.namaCalonPelanggan !== fu.namaCustomer) {
+          fuUpdates.namaCustomer = updates.namaCalonPelanggan;
+        }
+        if (updates.nomorHP !== undefined && updates.nomorHP !== fu.nomorHP) {
+          fuUpdates.nomorHP = updates.nomorHP;
+        }
+        if (updates.statusSurvei !== undefined) {
+          if ((updates.statusSurvei === 'Aktif' || updates.statusSurvei === 'Closing') && fu.status !== 'Closing' && fu.status !== 'Selesai' && fu.status !== 'Aktif') {
+            fuUpdates.status = 'Aktif';
+          } else if (updates.statusSurvei === 'Batal' && fu.status !== 'Batal') {
+            fuUpdates.status = 'Batal';
+          }
+        }
+
+        if (Object.keys(fuUpdates).length > 0) {
+          hasChanges = true;
+          const updatedFu = { ...fu, ...fuUpdates };
+          syncFuToSupabase(updatedFu);
+          return updatedFu;
+        }
+        return fu;
+      });
+      return hasChanges ? nextFu : prev;
+    });
+  };
+
+  const syncFromFuUpdate = (targetFu: FollowUpSchedule, updates: Partial<FollowUpSchedule>) => {
+    // 1. Sync to Customers
+    setCustomers((prev) => {
+      let hasChanges = false;
+      const nextCustomers = prev.map((cust) => {
+        const matchesRef = targetFu.referenceId && cust.id === targetFu.referenceId;
+        const matchesInternet = targetFu.nomorInternet && cust.nomorInternet && cust.nomorInternet === targetFu.nomorInternet;
+        const matchesPhone = isPhoneMatch(cust.nomorHP, targetFu.nomorHP) ||
+          (updates.nomorHP && isPhoneMatch(cust.nomorHP, updates.nomorHP));
+
+        if (!matchesRef && !matchesInternet && !matchesPhone) return cust;
+
+        const custUpdates: Partial<Customer> = {};
+
+        if (updates.namaCustomer !== undefined && updates.namaCustomer !== cust.namaPelanggan) {
+          custUpdates.namaPelanggan = updates.namaCustomer;
+        }
+        if (updates.nomorHP !== undefined && updates.nomorHP !== cust.nomorHP) {
+          custUpdates.nomorHP = updates.nomorHP;
+        }
+        if (updates.nomorInternet !== undefined && updates.nomorInternet !== cust.nomorInternet) {
+          custUpdates.nomorInternet = updates.nomorInternet;
+        }
+        if (updates.status !== undefined) {
+          if ((updates.status === 'Closing' || updates.status === 'Aktif') && cust.status !== 'Aktif') {
+            custUpdates.status = 'Aktif';
+          } else if (updates.status === 'Refund' && cust.status !== 'Refund') {
+            custUpdates.status = 'Refund';
+          } else if (updates.status === 'Batal' && cust.status !== 'Dismantle') {
+            custUpdates.status = 'Dismantle';
+          }
+        }
+
+        if (Object.keys(custUpdates).length > 0) {
+          hasChanges = true;
+          const updatedCust = { ...cust, ...custUpdates };
+          syncToSupabase(updatedCust);
+          return updatedCust;
+        }
+        return cust;
+      });
+      return hasChanges ? nextCustomers : prev;
+    });
+
+    // 2. Sync to Leads
+    setLeads((prev) => {
+      let hasChanges = false;
+      const nextLeads = prev.map((lead) => {
+        const matchesRef = targetFu.referenceId && (lead.id === targetFu.referenceId || lead.convertedCustomerId === targetFu.referenceId);
+        const matchesPhone = isPhoneMatch(lead.nomorHP, targetFu.nomorHP) ||
+          (updates.nomorHP && isPhoneMatch(lead.nomorHP, updates.nomorHP));
+
+        if (!matchesRef && !matchesPhone) return lead;
+
+        const leadUpdates: Partial<Lead> = {};
+
+        if (updates.namaCustomer !== undefined && updates.namaCustomer !== lead.namaCalonPelanggan) {
+          leadUpdates.namaCalonPelanggan = updates.namaCustomer;
+        }
+        if (updates.nomorHP !== undefined && updates.nomorHP !== lead.nomorHP) {
+          leadUpdates.nomorHP = updates.nomorHP;
+        }
+        if (updates.status !== undefined) {
+          if ((updates.status === 'Closing' || updates.status === 'Aktif') && lead.statusSurvei !== 'Aktif' && lead.statusSurvei !== 'Closing') {
+            leadUpdates.statusSurvei = 'Aktif';
+          } else if (updates.status === 'Batal' && lead.statusSurvei !== 'Batal') {
+            leadUpdates.statusSurvei = 'Batal';
+          }
+        }
+
+        if (Object.keys(leadUpdates).length > 0) {
+          hasChanges = true;
+          const updatedLead = { ...lead, ...leadUpdates };
+          syncLeadToSupabase(updatedLead);
+          return updatedLead;
+        }
+        return lead;
+      });
+      return hasChanges ? nextLeads : prev;
+    });
+  };
+
   // Handler: Add / Edit Customer
   const handleFormSubmit = (
     data: Omit<Customer, 'id' | 'createdAt' | 'packageName' | 'packagePrice'>
@@ -585,6 +846,7 @@ export default function App() {
         )
       );
       syncToSupabase(updatedCustomer);
+      syncFromCustomerUpdate(updatedCustomer, data);
     } else {
       const newCustomer: Customer = {
         ...data,
@@ -660,10 +922,12 @@ export default function App() {
   };
 
   const handleUpdateLead = (id: string, updates: Partial<Lead>) => {
+    let updatedLeadRecord: Lead | null = null;
     setLeads((prev) => {
       const updatedList = prev.map((l) => {
         if (l.id === id) {
           const updated = { ...l, ...updates };
+          updatedLeadRecord = updated;
           syncLeadToSupabase(updated);
           return updated;
         }
@@ -671,6 +935,10 @@ export default function App() {
       });
       return updatedList;
     });
+
+    if (updatedLeadRecord) {
+      syncFromLeadUpdate(updatedLeadRecord, updates);
+    }
   };
 
   const handleDeleteLead = (id: string) => {
@@ -775,6 +1043,7 @@ export default function App() {
   };
 
   const handleUpdateFollowUp = (id: string, updates: Partial<FollowUpSchedule>) => {
+    let updatedFuRecord: FollowUpSchedule | null = null;
     setFollowUps((prev) => {
       const updatedList = prev.map((s) => {
         if (s.id === id) {
@@ -784,6 +1053,7 @@ export default function App() {
               updated.jumlahFollowUp = (s.jumlahFollowUp || 1) + 1;
             }
           }
+          updatedFuRecord = updated;
           syncFuToSupabase(updated);
           return updated;
         }
@@ -791,6 +1061,10 @@ export default function App() {
       });
       return updatedList;
     });
+
+    if (updatedFuRecord) {
+      syncFromFuUpdate(updatedFuRecord, updates);
+    }
   };
 
   const handleDeleteFollowUp = (id: string) => {

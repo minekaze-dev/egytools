@@ -108,7 +108,6 @@ export const TABLE_EDIT_STATUSES: LeadSurveyStatus[] = [
   'Pemasangan',
   'Refund',
   'Aktif',
-  'Closing',
   'Ghosting',
   'Batal',
 ];
@@ -507,7 +506,10 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
         (lead.area && lead.area.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (lead.assignedSales && lead.assignedSales.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const matchStatus = statusFilter === 'ALL' || lead.statusSurvei === statusFilter;
+      const matchStatus = 
+        statusFilter === 'ALL' || 
+        lead.statusSurvei === statusFilter ||
+        (statusFilter === 'Aktif' && lead.statusSurvei === 'Closing');
       const matchSource = sourceFilter === 'ALL' || lead.sumberLead === sourceFilter;
       const matchArea = areaFilter === 'ALL' || lead.area === areaFilter;
 
@@ -920,11 +922,14 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
             ) : (
               filteredLeads.map((lead, idx) => {
                 const isSelected = selectedLeadIds.includes(lead.id);
+                const isAktifOrClosing = lead.statusSurvei === 'Aktif' || lead.statusSurvei === 'Closing';
                 return (
                   <tr
                     key={lead.id}
                     className={`transition-colors ${
-                      isSelected
+                      isAktifOrClosing
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100/80 dark:hover:bg-emerald-950/60 border-l-4 border-l-emerald-500'
+                        : isSelected
                         ? 'bg-blue-50/80 dark:bg-blue-950/40'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                     }`}
@@ -1022,7 +1027,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                   {/* 4. Status Lead (Single Interactive Colored Badge) */}
                   <td className="px-4 py-3 text-center">
                     <select
-                      value={lead.statusSurvei}
+                      value={lead.statusSurvei === 'Closing' ? 'Aktif' : lead.statusSurvei}
                       onChange={(e) => onUpdateLead(lead.id, { statusSurvei: e.target.value as LeadSurveyStatus })}
                       className={`px-2 py-1 text-[10px] font-black uppercase border cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-blue-500 rounded-none text-center shadow-2xs transition-colors ${getStatusBadgeStyle(lead.statusSurvei)}`}
                       title="Klik untuk mengubah status lead dengan cepat"
@@ -1101,15 +1106,15 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                   {/* 7. Aksi */}
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1.5">
-                      {/* Konversi ke Closing Button */}
-                      {lead.statusSurvei !== 'Closing' && (
+                      {/* Konversi ke Customer / SA Button */}
+                      {!isAktifOrClosing && (
                         <button
                           onClick={() => openConvertModal(lead)}
                           className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase flex items-center gap-1 cursor-pointer transition-all shadow-xs"
-                          title="Konversi Lead ini menjadi Customer Closing"
+                          title="Konversi Lead ini menjadi Customer (SA)"
                         >
                           <Sparkles className="w-3 h-3" />
-                          <span>Closing</span>
+                          <span>SA</span>
                         </button>
                       )}
 
@@ -1324,14 +1329,14 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
         </div>
       )}
 
-      {/* Modal Konversi ke Closing Customer */}
+      {/* Modal Konversi ke Customer SA */}
       {convertingLead && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#0F172A] border-2 border-emerald-500 max-w-md w-full p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-800">
               <h3 className="font-black text-slate-900 dark:text-white uppercase text-base flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-emerald-500" />
-                <span>Konversi Lead ke Closing</span>
+                <span>Konversi Lead ke SA (Aktif)</span>
               </h3>
               <button
                 onClick={() => setConvertingLead(null)}
@@ -1419,7 +1424,7 @@ export const LeadsView: React.FC<LeadsViewProps> = ({
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold uppercase flex items-center gap-1 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>Proses Closing</span>
+                  <span>Proses SA</span>
                 </button>
               </div>
             </form>
