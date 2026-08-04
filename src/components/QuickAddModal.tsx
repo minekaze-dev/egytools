@@ -25,7 +25,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
 }) => {
   const [packageId, setPackageId] = useState<string>(MASTER_PACKAGES[0]?.id || '');
   const [qty, setQty] = useState<number>(1);
-  const [periode, setPeriode] = useState<BillingPeriod>('3 Bulan');
+  const [periode, setPeriode] = useState<BillingPeriod>('Bulanan');
   const [status, setStatus] = useState<CustomerStatus>('Aktif');
   
   const [tanggalPasang, setTanggalPasang] = useState<string>(() => {

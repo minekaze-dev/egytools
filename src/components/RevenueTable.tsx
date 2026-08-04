@@ -86,8 +86,50 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [monthFilter, setMonthFilter] = useState<string>('ALL');
   const [yearFilter, setYearFilter] = useState<string>('ALL');
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: 'tanggalPasang', desc: true },
+  ]);
   const [guestLockFeature, setGuestLockFeature] = useState<string | null>(null);
+
+  const sortValue = useMemo(() => {
+    if (!sorting || sorting.length === 0) return 'tanggalPasang_desc';
+    const current = sorting[0];
+    if (current.id === 'tanggalPasang') {
+      return current.desc ? 'tanggalPasang_desc' : 'tanggalPasang_asc';
+    }
+    if (current.id === 'packagePrice' || current.id === 'grossContract') {
+      return current.desc ? 'packagePrice_desc' : 'packagePrice_asc';
+    }
+    if (current.id === 'namaPelanggan') {
+      return current.desc ? 'namaPelanggan_desc' : 'namaPelanggan_asc';
+    }
+    return 'tanggalPasang_desc';
+  }, [sorting]);
+
+  const handleSortSelectChange = (val: string) => {
+    switch (val) {
+      case 'tanggalPasang_desc':
+        setSorting([{ id: 'tanggalPasang', desc: true }]);
+        break;
+      case 'tanggalPasang_asc':
+        setSorting([{ id: 'tanggalPasang', desc: false }]);
+        break;
+      case 'packagePrice_asc':
+        setSorting([{ id: 'packagePrice', desc: false }]);
+        break;
+      case 'packagePrice_desc':
+        setSorting([{ id: 'packagePrice', desc: true }]);
+        break;
+      case 'namaPelanggan_asc':
+        setSorting([{ id: 'namaPelanggan', desc: false }]);
+        break;
+      case 'namaPelanggan_desc':
+        setSorting([{ id: 'namaPelanggan', desc: true }]);
+        break;
+      default:
+        setSorting([{ id: 'tanggalPasang', desc: true }]);
+    }
+  };
 
   // Persistent pagination state
   const [pagination, setPagination] = useState(() => {
@@ -247,7 +289,27 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
       },
       {
         accessorKey: 'tanggalPasang',
-        header: 'Tgl Aktif',
+        header: ({ column }) => (
+          <button
+            className="flex items-center gap-1 font-semibold hover:text-blue-600 transition-colors"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Tgl Aktif
+            <ArrowUpDown className="w-3 h-3 text-slate-400" />
+          </button>
+        ),
+        sortingFn: (rowA, rowB, columnId) => {
+          const valA = rowA.getValue(columnId) as string;
+          const valB = rowB.getValue(columnId) as string;
+          const pA = parseTanggalPasang(valA);
+          const pB = parseTanggalPasang(valB);
+          if (!pA && !pB) return 0;
+          if (!pA) return -1;
+          if (!pB) return 1;
+          const timeA = new Date(pA.year, pA.monthIndex, pA.day).getTime();
+          const timeB = new Date(pB.year, pB.monthIndex, pB.day).getTime();
+          return timeA - timeB;
+        },
         cell: (info) => (
           <span className="text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap text-[11px]">
             {info.getValue() as string}
@@ -279,7 +341,15 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
       },
       {
         accessorKey: 'packagePrice',
-        header: 'Perbulan',
+        header: ({ column }) => (
+          <button
+            className="flex items-center gap-1 font-semibold hover:text-blue-600 transition-colors ml-auto"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Perbulan
+            <ArrowUpDown className="w-3 h-3 text-slate-400" />
+          </button>
+        ),
         cell: (info) => (
           <div className="text-right font-medium text-slate-600 dark:text-slate-400">
             {formatRupiah(info.getValue() as number)}
@@ -588,6 +658,23 @@ export const RevenueTable: React.FC<RevenueTableProps> = ({
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 className="w-full sm:w-52 pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none focus:outline-hidden focus:border-blue-600 dark:text-slate-200 font-medium"
               />
+            </div>
+
+            {/* Sort Selector Dropdown */}
+            <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-none px-3 py-1.5">
+              <ArrowUpDown className="w-4 h-4 text-blue-500" />
+              <select
+                value={sortValue}
+                onChange={(e) => handleSortSelectChange(e.target.value)}
+                className="bg-transparent text-xs sm:text-sm text-slate-700 dark:text-slate-300 focus:outline-hidden cursor-pointer font-bold uppercase"
+              >
+                <option value="tanggalPasang_desc">Urutan: Tgl Aktif (Awal di Bawah)</option>
+                <option value="tanggalPasang_asc">Urutan: Tgl Aktif (Awal di Atas)</option>
+                <option value="packagePrice_asc">Urutan: Paket (Kecil ke Besar)</option>
+                <option value="packagePrice_desc">Urutan: Paket (Besar ke Kecil)</option>
+                <option value="namaPelanggan_asc">Urutan: Nama (A - Z)</option>
+                <option value="namaPelanggan_desc">Urutan: Nama (Z - A)</option>
+              </select>
             </div>
 
             {/* Filter Month Dropdown */}
