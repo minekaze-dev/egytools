@@ -83,9 +83,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b-2 border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 transition-colors">
+    <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-0 px-4 sm:px-6 py-3 transition-colors">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-        {/* Left: Branding & Subtitle */}
+        {/* Left: Sidebar Toggle */}
         <div className="flex items-center gap-3.5">
           {onToggleSidebar && (
             <button
@@ -96,22 +96,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Menu className="w-5 h-5" />
             </button>
           )}
-          <div
-            onClick={onOpenLanding}
-            className={onOpenLanding ? 'cursor-pointer group' : ''}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase select-none">
-                MORA<span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-orange-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text text-transparent font-black ml-0.5">COCKPIT</span>
-              </span>
-              <span className="px-1.5 py-0.2 text-[8px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hidden sm:inline-block">
-                Cockpit Sales
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 hidden sm:block font-medium">
-              Monitoring Customer &amp; Perhitungan Revenue
-            </p>
-          </div>
         </div>
 
         {/* Right: Search, Month, Year, Storage Badge, Auth, Dark Mode */}
