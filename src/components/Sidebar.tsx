@@ -69,12 +69,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Top Header / Branding */}
         <div>
           <div className="h-16 px-4 flex items-center justify-between border-b-2 border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-none bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-blue-600 shrink-0 overflow-hidden">
-                <img src="https://i.imgur.com/ENDHLpA.jpg" alt="OxyMod Logo" className="w-full h-full object-cover" />
-              </div>
-              <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">
-                Oxy<span className="text-blue-600">Mod</span>
+            <div className="flex items-center gap-2 select-none">
+              <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                MORA<span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-orange-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text text-transparent font-black ml-0.5">COCKPIT</span>
+              </span>
+              <span className="px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider bg-blue-600/15 dark:bg-orange-500/20 text-blue-600 dark:text-orange-300 border border-blue-600/30 dark:border-orange-500/40">
+                v1.0
               </span>
             </div>
 
@@ -327,7 +327,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
           <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 uppercase">
             <ShieldCheck className="w-4 h-4 text-blue-500" />
-            <span>OxyMod v.1.0</span>
+            <span>MoraCockpit v.1.0</span>
           </div>
           <p>© 2026</p>
         </div>

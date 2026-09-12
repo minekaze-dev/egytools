@@ -1,3 +1,5 @@
+export type AppTheme = 'light' | 'dark' | 'space';
+
 export type CustomerStatus = 'Aktif' | 'Refund' | 'Dismantle';
 
 export type BillingPeriod = 'Bulanan' | '3 Bulan' | '6 Bulan' | 'Tahunan';

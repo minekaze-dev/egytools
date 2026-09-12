@@ -257,7 +257,7 @@ const parsePhone = (val: any): string => {
 export const LeadsView: React.FC<LeadsViewProps> = ({
   leads,
   schedules = [],
-  currentUserName = 'OxyMod',
+  currentUserName = 'MoraCockpit',
   onAddLead,
   onBulkAddLeads,
   onUpdateLead,

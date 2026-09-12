@@ -177,7 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-[15px] uppercase tracking-wide">
-                {mode === 'login' && 'Masuk ke OxyMod'}
+                {mode === 'login' && 'Masuk ke MoraCockpit'}
                 {mode === 'register' && 'Buat Akun Baru'}
                 {mode === 'forgot_password' && 'Lupa Kata Sandi'}
               </h3>

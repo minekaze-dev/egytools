@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil, Calendar } from 'lucide-react';
+import { Sun, Moon, Sparkles, ChevronDown, Menu, Cloud, LogIn, LogOut, Database, User as UserIcon, Pencil, Calendar } from 'lucide-react';
 import { EditProfileModal } from './EditProfileModal';
+import { AppTheme } from '../types/customer';
 
 const MONTH_NAMES = [
   'Januari',
@@ -20,6 +21,8 @@ const MONTH_NAMES = [
 interface NavbarProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  theme?: AppTheme;
+  onSelectTheme?: (theme: AppTheme) => void;
   selectedMonth: string;
   onChangeMonth: (month: string) => void;
   selectedYear: string;
@@ -39,6 +42,8 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   darkMode,
   onToggleDarkMode,
+  theme = darkMode ? 'dark' : 'light',
+  onSelectTheme,
   selectedMonth,
   onChangeMonth,
   selectedYear,
@@ -54,6 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLanding,
   onLogout,
 }) => {
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [guestName, setGuestName] = useState<string>(() => {
     return localStorage.getItem('isp_crm_guest_name') || 'Guest';
@@ -95,12 +101,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             className={onOpenLanding ? 'cursor-pointer group' : ''}
           >
             <div className="flex items-center gap-2">
-              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase">
-                Sistem
-              </h1>
+              <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase select-none">
+                MORA<span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-orange-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text text-transparent font-black ml-0.5">COCKPIT</span>
+              </span>
+              <span className="px-1.5 py-0.2 text-[8px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hidden sm:inline-block">
+                Cockpit Sales
+              </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 hidden sm:block font-medium">
-              Monitoring Customer & Perhitungan Revenue
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 hidden sm:block font-medium">
+              Monitoring Customer &amp; Perhitungan Revenue
             </p>
           </div>
         </div>
@@ -198,18 +207,89 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
 
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={onToggleDarkMode}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className="p-2 rounded-none bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-2 border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
-          >
-            {darkMode ? (
-              <Sun className="w-4.5 h-4.5 text-amber-400" />
-            ) : (
-              <Moon className="w-4.5 h-4.5 text-slate-600" />
+          {/* Theme Selector Popover (Light, Dark, Space) */}
+          <div className="relative">
+            <button
+              onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+              title={`Tema Saat Ini: ${theme === 'space' ? 'Space (Ungu Gradasi Oren)' : darkMode ? 'Mode Gelap' : 'Mode Terang'}. Klik untuk ganti.`}
+              className={`h-9 px-2.5 flex items-center gap-1.5 rounded-none border-2 transition-all cursor-pointer ${
+                theme === 'space'
+                  ? 'bg-gradient-to-r from-purple-900/80 to-orange-900/80 text-orange-200 border-orange-500/60 shadow-xs'
+                  : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700'
+              }`}
+            >
+              {theme === 'space' ? (
+                <>
+                  <Sparkles className="w-4 h-4 text-orange-400 animate-pulse" />
+                  <span className="hidden sm:inline text-xs font-black uppercase tracking-wider text-orange-200">Space</span>
+                </>
+              ) : darkMode ? (
+                <>
+                  <Moon className="w-4 h-4 text-indigo-400" />
+                  <span className="hidden sm:inline text-xs font-bold uppercase">Gelap</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="w-4 h-4 text-amber-500" />
+                  <span className="hidden sm:inline text-xs font-bold uppercase">Terang</span>
+                </>
+              )}
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 opacity-70" />
+            </button>
+
+            {isThemeMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsThemeMenuOpen(false)} />
+                <div className="absolute right-0 mt-1.5 w-52 bg-white dark:bg-[#0F172A] border-2 border-slate-300 dark:border-slate-700 shadow-2xl z-50 py-1.5 text-xs font-bold uppercase">
+                  <div className="px-3 py-1 text-[10px] text-slate-400 tracking-wider">Pilihan Tema</div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onSelectTheme) onSelectTheme('light');
+                      else onToggleDarkMode();
+                      setIsThemeMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      theme === 'light' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-black' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <Sun className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Mode Terang</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onSelectTheme) onSelectTheme('dark');
+                      else onToggleDarkMode();
+                      setIsThemeMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      theme === 'dark' ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-black' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <Moon className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <span>Mode Gelap</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onSelectTheme) onSelectTheme('space');
+                      setIsThemeMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      theme === 'space' ? 'bg-gradient-to-r from-purple-900/40 to-orange-900/40 text-orange-300 font-black border-l-2 border-orange-500' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
+                    <span className="flex items-center gap-1.5">
+                      Tema Space
+                      <span className="text-[9px] px-1 bg-gradient-to-r from-purple-600 to-orange-500 text-white font-extrabold rounded-none">Ungu-Oren</span>
+                    </span>
+                  </button>
+                </div>
+              </>
             )}
-          </button>
+          </div>
         </div>
       </div>
 

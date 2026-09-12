@@ -17,14 +17,19 @@ import {
   Sliders,
   Users,
   Clock,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { AppTheme } from '../types/customer';
 
 interface SettingsViewProps {
   user: any;
   currentName: string;
   monthlyTargetSa: number;
   uiStyle?: 'klasik' | 'modern';
+  theme?: AppTheme;
+  onChangeTheme?: (theme: AppTheme) => void;
   showLeadsMenu?: boolean;
   showFollowUpMenu?: boolean;
   onSaveSettings: (
@@ -32,7 +37,8 @@ interface SettingsViewProps {
     newTargetSa: number, 
     newUiStyle?: 'klasik' | 'modern',
     newShowLeads?: boolean,
-    newShowFollowUp?: boolean
+    newShowFollowUp?: boolean,
+    newTheme?: AppTheme
   ) => Promise<void>;
   onOpenSqlModal: () => void;
 }
@@ -42,6 +48,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   currentName,
   monthlyTargetSa,
   uiStyle = 'klasik',
+  theme = 'light',
+  onChangeTheme,
   showLeadsMenu = true,
   showFollowUpMenu = true,
   onSaveSettings,
@@ -50,6 +58,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [fullName, setFullName] = useState(currentName);
   const [targetSa, setTargetSa] = useState<number>(monthlyTargetSa);
   const [styleMode, setStyleMode] = useState<'klasik' | 'modern'>(uiStyle);
+  const [selectedTheme, setSelectedTheme] = useState<AppTheme>(theme);
   const [showLeads, setShowLeads] = useState<boolean>(showLeadsMenu);
   const [showFollowUp, setShowFollowUp] = useState<boolean>(showFollowUpMenu);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,12 +78,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   }, [uiStyle]);
 
   useEffect(() => {
+    setSelectedTheme(theme);
+  }, [theme]);
+
+  useEffect(() => {
     setShowLeads(showLeadsMenu);
   }, [showLeadsMenu]);
 
   useEffect(() => {
     setShowFollowUp(showFollowUpMenu);
   }, [showFollowUpMenu]);
+
+  const handleSelectTheme = (newTheme: AppTheme) => {
+    setSelectedTheme(newTheme);
+    if (onChangeTheme) {
+      onChangeTheme(newTheme);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +114,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
     setIsLoading(true);
     try {
-      await onSaveSettings(trimmedName, targetSa, styleMode, showLeads, showFollowUp);
+      await onSaveSettings(trimmedName, targetSa, styleMode, showLeads, showFollowUp, selectedTheme);
       setSuccessMsg('Pengaturan berhasil disimpan!');
       setTimeout(() => setSuccessMsg(null), 3500);
     } catch (err: any) {
@@ -198,7 +218,114 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
 
-        {/* SECTION 2: MODE TAMPILAN (STYLE UI) */}
+        {/* SECTION 2: TEMA TAMPILAN (COLOR THEMES) */}
+        <div className="p-5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b-2 border-slate-100 dark:border-slate-800">
+            <Palette className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div>
+              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                Tema Warna Aplikasi (Color Theme)
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Pilih tema warna latar belakang aplikasi, termasuk tema khusus Space (Ungu Gradasi Oren).
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Option 1: Mode Terang */}
+            <button
+              type="button"
+              onClick={() => handleSelectTheme('light')}
+              className={`p-4 text-left transition-all cursor-pointer flex flex-col justify-between border-2 ${
+                selectedTheme === 'light'
+                  ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/20 text-slate-900 dark:text-slate-100 ring-1 ring-amber-500'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 border-2 ${selectedTheme === 'light' ? 'border-amber-500 bg-amber-500 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                  <Sun className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wide">
+                    Mode Terang
+                    {selectedTheme === 'light' && (
+                      <span className="px-1.5 py-0.2 bg-amber-500 text-white text-[9px] font-bold uppercase">
+                        Aktif
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                    Latar putih bersih dengan kontras tinggi, ideal untuk ruangan dengan pencahayaan terang.
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {/* Option 2: Mode Gelap */}
+            <button
+              type="button"
+              onClick={() => handleSelectTheme('dark')}
+              className={`p-4 text-left transition-all cursor-pointer flex flex-col justify-between border-2 ${
+                selectedTheme === 'dark'
+                  ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20 text-slate-900 dark:text-slate-100 ring-1 ring-indigo-500'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 border-2 ${selectedTheme === 'dark' ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                  <Moon className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wide">
+                    Mode Gelap
+                    {selectedTheme === 'dark' && (
+                      <span className="px-1.5 py-0.2 bg-indigo-500 text-white text-[9px] font-bold uppercase">
+                        Aktif
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                    Latar slate-navy gelap yang nyaman dan teduh di mata saat operasional malam hari.
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {/* Option 3: Tema Space (Ungu Gradasi Oren) */}
+            <button
+              type="button"
+              onClick={() => handleSelectTheme('space')}
+              className={`p-4 text-left transition-all cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden ${
+                selectedTheme === 'space'
+                  ? 'border-orange-500 bg-gradient-to-br from-purple-950/60 to-orange-950/40 text-white ring-2 ring-orange-500 shadow-lg shadow-purple-950/50'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-orange-400/50'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 border-2 ${selectedTheme === 'space' ? 'border-orange-400 bg-gradient-to-r from-purple-600 to-orange-500 text-white shadow-xs' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wide">
+                    <span className="bg-gradient-to-r from-purple-300 to-orange-300 bg-clip-text text-transparent">
+                      Tema Space
+                    </span>
+                    <span className="px-1.5 py-0.2 bg-gradient-to-r from-purple-600 to-orange-500 text-white text-[9px] font-black uppercase">
+                      {selectedTheme === 'space' ? 'Aktif' : 'Khusus'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-normal font-medium">
+                    Latar fitur ungu gradasi oren dengan lapisan overlay transparan, teks tetap terlihat tajam &amp; berdaya kontras tinggi.
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* SECTION 3: MODE TAMPILAN (STYLE UI) */}
         <div className="p-5 bg-white dark:bg-[#0F172A] border-2 border-slate-200 dark:border-slate-800 space-y-4">
           <div className="flex items-center gap-2.5 pb-3 border-b-2 border-slate-100 dark:border-slate-800">
             <Palette className="w-5 h-5 text-amber-600 dark:text-amber-400" />

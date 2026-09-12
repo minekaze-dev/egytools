@@ -311,3 +311,156 @@ html.ui-modern .shadow-xl {
   box-shadow: 0 14px 35px -5px rgba(0, 0, 0, 0.08), 0 8px 14px -6px rgba(0, 0, 0, 0.03) !important;
 }
 
+/* =========================================================================
+   TEMA KHUSUS: SPACE (Ungu Gradasi Biru/Cyan dengan Overlay Semi-Transparan)
+   ========================================================================= */
+
+/* 1. Root and Body Canvas */
+html.theme-space,
+html.theme-space body,
+html.theme-space #root {
+  background: 
+    radial-gradient(ellipse 80% 50% at 15% 10%, rgba(168, 85, 247, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(59, 130, 246, 0.45) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 70%),
+    linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4338ca 50%, #2563eb 75%, #06b6d4 100%) fixed !important;
+  background-attachment: fixed !important;
+  color: #f8fafc !important;
+}
+
+/* 2. Semua Latar Fitur Web: Ungu Gradasi Biru dengan Overlay Lebih Terang & Semi-Transparan */
+html.theme-space header,
+html.theme-space aside,
+html.theme-space div.bg-white,
+html.theme-space div.bg-slate-50,
+html.theme-space div.bg-slate-100,
+html.theme-space div.bg-slate-900,
+html.theme-space div.bg-\[\#0F172A\],
+html.theme-space div.bg-\[\#0B132B\],
+html.theme-space div.bg-slate-950,
+html.theme-space section,
+html.theme-space article,
+html.theme-space .bg-white,
+html.theme-space .dark\:bg-\[\#0F172A\],
+html.theme-space .dark\:bg-slate-900,
+html.theme-space .dark\:bg-\[\#0B132B\] {
+  /*
+    Latar Fitur Web:
+    Layer 1 (atas): Overlay gelap tipis semi-transparan (0.42 - 0.48) agar lebih terang dan bercahaya.
+    Layer 2 (bawah): Gradasi ungu terang ke biru & cyan cerah.
+  */
+  background: 
+    linear-gradient(rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.48)),
+    linear-gradient(135deg, #312e81 0%, #4338ca 35%, #6366f1 55%, #2563eb 85%, #06b6d4 100%) !important;
+  border-color: rgba(59, 130, 246, 0.45) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 12px 35px -5px rgba(30, 27, 75, 0.5), 0 0 25px rgba(59, 130, 246, 0.25) !important;
+}
+
+/* 3. Penjagaan Kontras Teks (Semua teks tetap terbaca tajam dan tidak tertutup gradasi) */
+html.theme-space .text-slate-900,
+html.theme-space .text-slate-800,
+html.theme-space .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html.theme-space .text-slate-600,
+html.theme-space .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+html.theme-space .text-slate-400 {
+  color: #e2e8f0 !important;
+}
+
+html.theme-space .text-slate-300 {
+  color: #f1f5f9 !important;
+}
+
+html.theme-space .text-slate-200,
+html.theme-space .text-slate-100 {
+  color: #ffffff !important;
+}
+
+html.theme-space .text-blue-600,
+html.theme-space .text-indigo-600 {
+  color: #a5b4fc !important;
+}
+
+/* 4. Form Controls: Input, Select, Textarea di Tema Space */
+html.theme-space input,
+html.theme-space select,
+html.theme-space textarea {
+  background-color: rgba(23, 8, 46, 0.82) !important;
+  border: 1.5px solid rgba(249, 115, 22, 0.4) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.theme-space input::placeholder,
+html.theme-space textarea::placeholder {
+  color: rgba(216, 180, 254, 0.55) !important;
+}
+
+html.theme-space select option {
+  background-color: #17072c !important;
+  color: #ffffff !important;
+}
+
+html.theme-space input:focus,
+html.theme-space select:focus,
+html.theme-space textarea:focus {
+  border-color: #ea580c !important;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.35), 0 0 12px rgba(168, 85, 247, 0.4) !important;
+  outline: none !important;
+}
+
+/* 5. Tabel & List Data di Tema Space */
+html.theme-space th {
+  background: rgba(25, 9, 52, 0.9) !important;
+  color: #fae8ff !important;
+  border-bottom: 2px solid rgba(249, 115, 22, 0.4) !important;
+}
+
+html.theme-space td {
+  border-bottom: 1px solid rgba(168, 85, 247, 0.15) !important;
+  color: #f1f5f9 !important;
+}
+
+html.theme-space tr:hover td {
+  background-color: rgba(249, 115, 22, 0.14) !important;
+}
+
+/* 6. Modal Popups di Tema Space */
+html.theme-space [role="dialog"],
+html.theme-space .fixed .bg-white,
+html.theme-space .fixed .dark\:bg-\[\#0F172A\] {
+  background: 
+    linear-gradient(rgba(17, 7, 35, 0.86), rgba(17, 7, 35, 0.90)),
+    linear-gradient(135deg, #4c1d95 0%, #7e22ce 35%, #9a3412 80%, #ea580c 100%) !important;
+  border: 2px solid rgba(249, 115, 22, 0.55) !important;
+  box-shadow: 0 0 45px rgba(168, 85, 247, 0.35), 0 25px 60px -10px rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* 7. Scrollbar Space */
+html.theme-space ::-webkit-scrollbar-track {
+  background: #110321;
+}
+
+html.theme-space ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #9333ea, #ea580c);
+  border-radius: 4px;
+}
+
+html.theme-space ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a855f7, #f97316);
+}
+
+html.theme-space * {
+  scrollbar-color: #9333ea #110321;
+}
+
+

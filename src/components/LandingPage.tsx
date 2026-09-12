@@ -9,9 +9,11 @@ import {
   Calculator,
   Sun,
   Moon,
+  Sparkles,
   CheckCircle2,
 } from 'lucide-react';
 import { QuickCalculator } from './QuickCalculator';
+import { AppTheme } from '../types/customer';
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -19,6 +21,8 @@ interface LandingPageProps {
   user: any;
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  theme?: AppTheme;
+  onSelectTheme?: (theme: AppTheme) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -27,6 +31,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   user,
   darkMode,
   onToggleDarkMode,
+  theme = darkMode ? 'dark' : 'light',
+  onSelectTheme,
 }) => {
   const [showCalculator, setShowCalculator] = useState(false);
 
@@ -51,15 +57,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       <header className="relative z-10 border-b px-4 sm:px-6 py-3.5 shrink-0 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-white dark:bg-slate-900 flex items-center justify-center border-2 border-blue-500 shrink-0 shadow-md overflow-hidden">
-              <img src="https://i.imgur.com/ENDHLpA.jpg" alt="OxyMod Logo" className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <span className="font-black text-lg tracking-wider uppercase block leading-none text-slate-900 dark:text-slate-100">
-                Oxy<span className="text-blue-600 dark:text-blue-400">Mod</span>
-              </span>
-              <span className="text-[10px] font-extrabold uppercase tracking-tight text-slate-500 dark:text-slate-400">
-                Revenue & Commission Control System
+            <div className="flex flex-col select-none">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                  MORA<span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-orange-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text text-transparent font-black ml-0.5">COCKPIT</span>
+                </span>
+                <span className="px-1.5 py-0.5 text-[9px] font-black uppercase tracking-widest bg-blue-600 dark:bg-orange-500 text-white shadow-xs">
+                  SALES
+                </span>
+              </div>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1">
+                Cockpit Sales &amp; Revenue System
               </span>
             </div>
           </div>
@@ -79,16 +87,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </span>
             </button>
 
-            {/* Dark / Light Theme Toggle Button */}
+            {/* Theme Toggle Button (Light -> Dark -> Space) */}
             <button
               onClick={onToggleDarkMode}
-              className="p-2 border-2 transition-colors cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700 shadow-xs flex items-center gap-1.5"
-              title={darkMode ? 'Ganti ke Mode Terang (Light Mode)' : 'Ganti ke Mode Gelap (Dark Mode)'}
+              className={`p-2 border-2 transition-colors cursor-pointer shadow-xs flex items-center gap-1.5 ${
+                theme === 'space'
+                  ? 'bg-gradient-to-r from-purple-900/80 to-orange-900/80 text-orange-200 border-orange-500/60'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
+              }`}
+              title={
+                theme === 'space'
+                  ? 'Tema Space Aktif (Ungu-Oren). Klik untuk ganti ke Mode Terang.'
+                  : darkMode
+                  ? 'Mode Gelap Aktif. Klik untuk ganti ke Tema Space.'
+                  : 'Mode Terang Aktif. Klik untuk ganti ke Mode Gelap.'
+              }
             >
-              {darkMode ? (
-                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+              {theme === 'space' ? (
+                <>
+                  <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
+                  <span className="text-[10px] font-black uppercase text-orange-200 hidden md:inline">Space</span>
+                </>
+              ) : darkMode ? (
+                <>
+                  <Moon className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <span className="text-[10px] font-bold uppercase hidden md:inline">Gelap</span>
+                </>
               ) : (
-                <Moon className="w-4 h-4 text-slate-700 shrink-0" />
+                <>
+                  <Sun className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-[10px] font-bold uppercase hidden md:inline">Terang</span>
+                </>
               )}
             </button>
           </div>
@@ -117,7 +146,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex flex-wrap items-center justify-center gap-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white text-[11px] sm:text-xs font-black uppercase tracking-wider border border-blue-500 shadow-md">
                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-200" />
-                <span>OxyMod V.1.0 by E61</span>
+                <span>MoraCockpit V.1.0 by E61</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-600 text-white text-[11px] sm:text-xs font-black uppercase tracking-wider border border-emerald-500 shadow-md">
                 <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-200" />
@@ -126,8 +155,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight uppercase whitespace-nowrap">
-              Oxygen Sales Workspace
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight uppercase whitespace-nowrap">
+              Cockpit Sales
             </h1>
 
             {/* Subtitle */}

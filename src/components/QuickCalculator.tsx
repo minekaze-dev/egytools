@@ -219,7 +219,7 @@ export const QuickCalculator: React.FC<QuickCalculatorProps> = ({
           <div className="p-6 sm:p-8 bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950 text-white border-4 border-amber-400 shadow-2xl space-y-5 text-center">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider mx-auto">
               <Award className="w-4 h-4 fill-current" />
-              <span>Hasil Simulasi Komisi OxyMod</span>
+              <span>Hasil Simulasi Komisi MoraCockpit</span>
             </div>
 
             {/* Result Message (Congrats or Tier 0 Warning) */}

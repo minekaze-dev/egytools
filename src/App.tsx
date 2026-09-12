@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Customer, CustomerWithCalculations, BillingPeriod, CustomerStatus } from './types/customer';
+import { Customer, CustomerWithCalculations, BillingPeriod, CustomerStatus, AppTheme } from './types/customer';
 import { calculateAllCustomerMetrics } from './helpers/commissionCalculator';
 import { getCurrentTier } from './helpers/tierCalculator';
 
@@ -52,12 +52,24 @@ export default function App() {
   // Date prefill for customer form when creating skipped months
   const [defaultTanggalPasang, setDefaultTanggalPasang] = useState<string>('');
 
-  // 1. Dark mode & UI Style state
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
+  // 1. Theme (light, dark, space) & UI Style state
+  const [theme, setTheme] = useState<AppTheme>(() => {
     const saved = localStorage.getItem('isp_crm_theme');
-    if (saved !== null) return saved === 'dark';
-    return false;
+    if (saved === 'space') return 'space';
+    if (saved === 'dark') return 'dark';
+    if (saved === 'light') return 'light';
+    return 'light';
   });
+
+  const darkMode = theme === 'dark' || theme === 'space';
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => {
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'space';
+      return 'light';
+    });
+  };
 
   const [uiStyle, setUiStyle] = useState<'klasik' | 'modern'>(() => {
     const saved = localStorage.getItem('isp_crm_ui_style');
@@ -88,14 +100,14 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (darkMode) {
+    root.classList.remove('dark', 'theme-space');
+    if (theme === 'dark') {
       root.classList.add('dark');
-      localStorage.setItem('isp_crm_theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('isp_crm_theme', 'light');
+    } else if (theme === 'space') {
+      root.classList.add('dark', 'theme-space');
     }
-  }, [darkMode]);
+    localStorage.setItem('isp_crm_theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -559,14 +571,18 @@ export default function App() {
     }
   };
 
-  // Settings Save Handler (User name, Monthly Target SA, UI Style & Module Toggles)
+  // Settings Save Handler (User name, Monthly Target SA, UI Style, Theme & Module Toggles)
   const handleSaveSettings = async (
     newName: string, 
     newTargetSa: number, 
     newUiStyle?: 'klasik' | 'modern',
     newShowLeads?: boolean,
-    newShowFollowUp?: boolean
+    newShowFollowUp?: boolean,
+    newTheme?: AppTheme
   ) => {
+    if (newTheme) {
+      setTheme(newTheme);
+    }
     if (newUiStyle) {
       setUiStyle(newUiStyle);
     }
@@ -1241,7 +1257,9 @@ export default function App() {
           onOpenAuth={() => setIsAuthModalOpen(true)}
           user={user}
           darkMode={darkMode}
-          onToggleDarkMode={() => setDarkMode(!darkMode)}
+          theme={theme}
+          onSelectTheme={setTheme}
+          onToggleDarkMode={handleToggleTheme}
         />
         <AuthModal
           isOpen={isAuthModalOpen}
@@ -1275,7 +1293,9 @@ export default function App() {
         {/* Navbar Header */}
         <Navbar
           darkMode={darkMode}
-          onToggleDarkMode={() => setDarkMode(!darkMode)}
+          theme={theme}
+          onSelectTheme={setTheme}
+          onToggleDarkMode={handleToggleTheme}
           selectedMonth={selectedMonth}
           onChangeMonth={setSelectedMonth}
           selectedYear={selectedYear}
@@ -1373,7 +1393,7 @@ export default function App() {
                   <LeadsView
                     leads={leads}
                     schedules={followUps}
-                    currentUserName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'OxyMod'}
+                    currentUserName={user?.user_metadata?.full_name || user?.email?.split('@')[0] || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'MoraCockpit'}
                     onAddLead={handleAddLead}
                     onBulkAddLeads={handleBulkAddLeads}
                     onUpdateLead={handleUpdateLead}
@@ -1425,6 +1445,8 @@ export default function App() {
                     currentName={user?.user_metadata?.full_name || localStorage.getItem('isp_crm_user_name') || localStorage.getItem('isp_crm_guest_name') || 'User'}
                     monthlyTargetSa={monthlyTargetSa}
                     uiStyle={uiStyle}
+                    theme={theme}
+                    onChangeTheme={setTheme}
                     showLeadsMenu={showLeadsMenu}
                     showFollowUpMenu={showFollowUpMenu}
                     onSaveSettings={handleSaveSettings}
