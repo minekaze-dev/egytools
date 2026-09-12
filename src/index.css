@@ -30,49 +30,56 @@ html.ui-modern .min-h-screen {
 
 /* Custom Scrollbar styling matching light and dark themes */
 ::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
+  height: 5px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
+  background: transparent;
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #090d16;
-  border-radius: 4px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(148, 163, 184, 0.7);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 9999px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: rgba(100, 116, 139, 0.8);
 }
 
 /* Firefox scrollbar support */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
 }
 
 .dark * {
-  scrollbar-color: #1e293b #090d16;
+  scrollbar-color: rgba(100, 116, 139, 0.5) transparent;
 }
 
 /* UI Style: Modern Mode Overrides (Fresh Rounded, Borderless Solid Fills & Ambient Shadows) */
+
+/* Remove white/gray separator lines on header navbar and sidebar in modern mode */
+html.ui-modern header,
+html.ui-modern aside {
+  border: none !important;
+  border-bottom: none !important;
+  border-right: none !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04) !important;
+}
 
 /* 1. Eliminate all outer borders from cards, lists, panels, containers & form boxes */
 html.ui-modern .border-2,
@@ -312,7 +319,7 @@ html.ui-modern .shadow-xl {
 }
 
 /* =========================================================================
-   TEMA KHUSUS: SPACE (Ungu Gradasi Biru/Cyan dengan Overlay Semi-Transparan)
+   TEMA KHUSUS: SPACE (Ungu ke Biru Mewah & Nyaman)
    ========================================================================= */
 
 /* 1. Root and Body Canvas */
@@ -320,15 +327,14 @@ html.theme-space,
 html.theme-space body,
 html.theme-space #root {
   background: 
-    radial-gradient(ellipse 80% 50% at 15% 10%, rgba(168, 85, 247, 0.5) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 85% 85%, rgba(59, 130, 246, 0.45) 0%, transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 70%),
-    linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4338ca 50%, #2563eb 75%, #06b6d4 100%) fixed !important;
+    radial-gradient(ellipse 80% 50% at 20% 15%, rgba(147, 51, 234, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 85%, rgba(37, 99, 235, 0.40) 0%, transparent 60%),
+    linear-gradient(135deg, #180536 0%, #290852 30%, #3b0764 50%, #1e3a8a 80%, #0f172a 100%) fixed !important;
   background-attachment: fixed !important;
   color: #f8fafc !important;
 }
 
-/* 2. Semua Latar Fitur Web: Ungu Gradasi Biru dengan Overlay Lebih Terang & Semi-Transparan */
+/* 2. Semua Latar Fitur Web: Ungu Gradasi Biru Mewah dengan Overlay Lembut */
 html.theme-space header,
 html.theme-space aside,
 html.theme-space div.bg-white,
@@ -344,18 +350,13 @@ html.theme-space .bg-white,
 html.theme-space .dark\:bg-\[\#0F172A\],
 html.theme-space .dark\:bg-slate-900,
 html.theme-space .dark\:bg-\[\#0B132B\] {
-  /*
-    Latar Fitur Web:
-    Layer 1 (atas): Overlay gelap tipis semi-transparan (0.42 - 0.48) agar lebih terang dan bercahaya.
-    Layer 2 (bawah): Gradasi ungu terang ke biru & cyan cerah.
-  */
   background: 
-    linear-gradient(rgba(15, 23, 42, 0.45), rgba(30, 27, 75, 0.48)),
-    linear-gradient(135deg, #312e81 0%, #4338ca 35%, #6366f1 55%, #2563eb 85%, #06b6d4 100%) !important;
-  border-color: rgba(59, 130, 246, 0.45) !important;
+    linear-gradient(rgba(24, 10, 54, 0.50), rgba(15, 23, 42, 0.55)),
+    linear-gradient(135deg, #3b0764 0%, #581c87 35%, #4338ca 70%, #1d4ed8 100%) !important;
+  border-color: rgba(147, 51, 234, 0.4) !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
-  box-shadow: 0 12px 35px -5px rgba(30, 27, 75, 0.5), 0 0 25px rgba(59, 130, 246, 0.25) !important;
+  box-shadow: 0 12px 35px -5px rgba(24, 10, 54, 0.6), 0 0 20px rgba(99, 102, 241, 0.2) !important;
 }
 
 /* 3. Penjagaan Kontras Teks (Semua teks tetap terbaca tajam dan tidak tertutup gradasi) */

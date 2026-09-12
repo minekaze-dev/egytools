@@ -23,6 +23,7 @@ interface LandingPageProps {
   onToggleDarkMode: () => void;
   theme?: AppTheme;
   onSelectTheme?: (theme: AppTheme) => void;
+  uiStyle?: 'modern' | 'klasik';
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -33,6 +34,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onToggleDarkMode,
   theme = darkMode ? 'dark' : 'light',
   onSelectTheme,
+  uiStyle = 'klasik',
 }) => {
   const [showCalculator, setShowCalculator] = useState(false);
 
@@ -169,7 +171,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {user ? (
                 <button
                   onClick={onEnterApp}
-                  className="w-full sm:w-auto py-3.5 px-6 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm border-2 border-blue-700 dark:border-blue-500 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-lg hover:scale-[1.02] whitespace-nowrap"
+                  className={`w-full sm:w-auto py-3.5 px-6 font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-lg hover:scale-[1.02] whitespace-nowrap ${
+                    uiStyle === 'modern'
+                      ? theme === 'space'
+                        ? 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white border-2 border-indigo-400 rounded-2xl shadow-indigo-500/40'
+                        : 'bg-blue-600 hover:bg-blue-500 text-white border-2 border-blue-700 dark:border-blue-500 rounded-xl'
+                      : theme === 'space'
+                        ? 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white border-2 border-indigo-400 rounded-none shadow-indigo-500/40'
+                        : 'bg-blue-600 hover:bg-blue-500 text-white border-2 border-blue-700 dark:border-blue-500 rounded-none'
+                  }`}
                 >
                   <span className="whitespace-nowrap">Masuk Dashboard</span>
                   <ArrowRight className="w-5 h-5 shrink-0" />
@@ -178,7 +188,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <>
                   <button
                     onClick={onEnterApp}
-                    className="w-full sm:w-auto py-3.5 px-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm border-2 border-blue-700 dark:border-blue-400 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-lg hover:scale-[1.02] whitespace-nowrap"
+                    className={`w-full sm:w-auto py-3.5 px-5 font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-lg hover:scale-[1.02] whitespace-nowrap ${
+                      uiStyle === 'modern'
+                        ? theme === 'space'
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-2 border-blue-400 rounded-2xl shadow-blue-500/40'
+                          : 'bg-blue-600 hover:bg-blue-500 text-white border-2 border-blue-700 dark:border-blue-400 rounded-xl'
+                        : theme === 'space'
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-2 border-blue-400 rounded-none shadow-blue-500/40'
+                          : 'bg-blue-600 hover:bg-blue-500 text-white border-2 border-blue-700 dark:border-blue-400 rounded-none'
+                    }`}
                   >
                     <Zap className="w-4 h-4 fill-current text-amber-300 shrink-0" />
                     <span className="whitespace-nowrap">Masuk Sebagai Tamu (Guest)</span>
@@ -187,9 +205,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                   <button
                     onClick={onOpenAuth}
-                    className="w-full sm:w-auto py-3.5 px-5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-black text-xs sm:text-sm border-2 border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-lg hover:scale-[1.02] whitespace-nowrap"
+                    className={`w-full sm:w-auto py-3.5 px-5 font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider shadow-lg hover:scale-[1.02] whitespace-nowrap ${
+                      uiStyle === 'modern'
+                        ? theme === 'space'
+                          ? 'bg-slate-900/90 hover:bg-slate-900 text-white border-2 border-purple-400/80 rounded-2xl shadow-purple-500/30'
+                          : 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-300 dark:border-slate-700 rounded-xl'
+                        : theme === 'space'
+                          ? 'bg-slate-900/90 hover:bg-slate-900 text-white border-2 border-purple-400/80 rounded-none shadow-purple-500/30'
+                          : 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-300 dark:border-slate-700 rounded-none'
+                    }`}
                   >
-                    <LogIn className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <LogIn className="w-4 h-4 text-indigo-400 shrink-0" />
                     <span className="whitespace-nowrap">Login / Daftar Akun</span>
                   </button>
                 </>

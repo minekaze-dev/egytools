@@ -243,22 +243,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
               }`}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <div className={`p-2 border-2 ${selectedTheme === 'light' ? 'border-amber-500 bg-amber-500 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                   <Sun className="w-5 h-5" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wide">
+                <div className="flex items-center justify-between flex-1">
+                  <span className="font-black text-xs uppercase tracking-wide">
                     Mode Terang
-                    {selectedTheme === 'light' && (
-                      <span className="px-1.5 py-0.2 bg-amber-500 text-white text-[9px] font-bold uppercase">
-                        Aktif
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
-                    Latar putih bersih dengan kontras tinggi, ideal untuk ruangan dengan pencahayaan terang.
-                  </p>
+                  </span>
+                  {selectedTheme === 'light' && (
+                    <span className="px-1.5 py-0.2 bg-amber-500 text-white text-[9px] font-bold uppercase">
+                      Aktif
+                    </span>
+                  )}
                 </div>
               </div>
             </button>
@@ -273,52 +270,44 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-slate-300'
               }`}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <div className={`p-2 border-2 ${selectedTheme === 'dark' ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                   <Moon className="w-5 h-5" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wide">
+                <div className="flex items-center justify-between flex-1">
+                  <span className="font-black text-xs uppercase tracking-wide">
                     Mode Gelap
-                    {selectedTheme === 'dark' && (
-                      <span className="px-1.5 py-0.2 bg-indigo-500 text-white text-[9px] font-bold uppercase">
-                        Aktif
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
-                    Latar slate-navy gelap yang nyaman dan teduh di mata saat operasional malam hari.
-                  </p>
+                  </span>
+                  {selectedTheme === 'dark' && (
+                    <span className="px-1.5 py-0.2 bg-indigo-500 text-white text-[9px] font-bold uppercase">
+                      Aktif
+                    </span>
+                  )}
                 </div>
               </div>
             </button>
 
-            {/* Option 3: Tema Space (Ungu Gradasi Oren) */}
+            {/* Option 3: Tema Space (Ungu Biru) */}
             <button
               type="button"
               onClick={() => handleSelectTheme('space')}
               className={`p-4 text-left transition-all cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden ${
                 selectedTheme === 'space'
-                  ? 'border-orange-500 bg-gradient-to-br from-purple-950/60 to-orange-950/40 text-white ring-2 ring-orange-500 shadow-lg shadow-purple-950/50'
-                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-orange-400/50'
+                  ? 'border-indigo-500 bg-gradient-to-br from-purple-950/60 to-blue-950/40 text-white ring-2 ring-indigo-500 shadow-lg shadow-purple-950/50'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 hover:border-indigo-400/50'
               }`}
             >
-              <div className="flex items-start gap-3">
-                <div className={`p-2 border-2 ${selectedTheme === 'space' ? 'border-orange-400 bg-gradient-to-r from-purple-600 to-orange-500 text-white shadow-xs' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 border-2 ${selectedTheme === 'space' ? 'border-indigo-400 bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xs' : 'border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                   <Sparkles className="w-5 h-5" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wide">
-                    <span className="bg-gradient-to-r from-purple-300 to-orange-300 bg-clip-text text-transparent">
-                      Tema Space
-                    </span>
-                    <span className="px-1.5 py-0.2 bg-gradient-to-r from-purple-600 to-orange-500 text-white text-[9px] font-black uppercase">
-                      {selectedTheme === 'space' ? 'Aktif' : 'Khusus'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-normal font-medium">
-                    Latar fitur ungu gradasi oren dengan lapisan overlay transparan, teks tetap terlihat tajam &amp; berdaya kontras tinggi.
-                  </p>
+                <div className="flex items-center justify-between flex-1">
+                  <span className="font-black text-xs uppercase tracking-wide bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
+                    Tema Space
+                  </span>
+                  <span className="px-1.5 py-0.2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-[9px] font-black uppercase">
+                    {selectedTheme === 'space' ? 'Aktif' : 'Khusus'}
+                  </span>
                 </div>
               </div>
             </button>

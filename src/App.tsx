@@ -1260,6 +1260,7 @@ export default function App() {
           theme={theme}
           onSelectTheme={setTheme}
           onToggleDarkMode={handleToggleTheme}
+          uiStyle={uiStyle}
         />
         <AuthModal
           isOpen={isAuthModalOpen}
